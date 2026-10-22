@@ -10,7 +10,7 @@
 - `site/index.html`: 첫 화면. 추가 페이지는 `/seedance.html`, `/fpv.html`로 열립니다.
 - `.secrets/tunnel.json`: 이 PC에서 생성한 터널 인증 파일입니다. GitHub 업로드에서 제외되며 별도 비공개 백업이 필요합니다.
 
-외부 방문자는 Cloudflare HTTPS로 접속하고, Cloudflare와 PC 사이는 암호화된 Tunnel을 사용합니다. Caddy는 Docker 내부 HTTP를 제공하므로 원본 서버용 공개 인증서 발급이나 TCP 80·443 개방은 필요 없습니다. PC 미리보기는 `http://localhost:8080`이며 이 포트는 루프백에만 바인딩합니다.
+외부 방문자는 Cloudflare HTTPS로 접속하고, Cloudflare와 PC 사이는 암호화된 Tunnel을 사용합니다. Caddy는 Docker 내부 HTTP를 제공하므로 원본 서버용 공개 인증서 발급이나 TCP 80·443 개방은 필요 없습니다. 기본 운영 구성은 PC 포트를 바인딩하지 않으므로 Windows의 예약 포트나 다른 프로그램의 포트 사용에 영향을 받지 않습니다.
 
 ## 이 PC에서 실행
 
@@ -31,6 +31,8 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Start-Portfolio.ps1
 ```powershell
 .\Start-Portfolio.ps1 -LocalOnly
 ```
+
+미리보기 주소는 `http://localhost:18080`입니다. [docker-compose.preview.yml](docker-compose.preview.yml)이 이 모드에서만 루프백 포트를 추가합니다. 해당 포트도 사용할 수 없다면 `.\Start-Portfolio.ps1 -LocalOnly -PreviewPort 28080`처럼 변경합니다. 일반 운영 모드에는 이 포트가 필요 없습니다.
 
 Docker 명령이 `permission denied`로 실패하면 일반 PowerShell에서 `docker info`가 성공하는지 먼저 확인합니다. 제한된 작업 환경에서만 거부되면 일반 PowerShell에서 실행해야 합니다.
 

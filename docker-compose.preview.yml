@@ -1,0 +1,4 @@
+services:
+  web:
+    ports:
+      - "127.0.0.1:${PREVIEW_PORT:-18080}:80"
