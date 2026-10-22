@@ -1,0 +1,819 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>씨댄스급 AI 영상 모델 비교</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@700;900&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #f5f4f0;
+        --surface: #ffffff;
+        --surface-2: #eceae3;
+        --ink: #17181c;
+        --ink-2: #45484f;
+        --ink-3: #767a83;
+        --line: #d9d6cc;
+        --accent: #c93a1e;       /* vermilion */
+        --accent-soft: #fbe9e3;
+        --teal: #0e6e5c;
+        --teal-soft: #e0f0ec;
+        --amber: #9a6a00;
+        --amber-soft: #f7ecd2;
+        --bad: #b3261e;
+        --bad-soft: #f9e4e2;
+        --chart-1: #c93a1e;
+        --chart-2: #0e6e5c;
+        --chart-3: #8a8f98;
+        --radius: 14px;
+        --serif: "Noto Serif KR", "Apple SD Gothic Neo", serif;
+        --sans: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+        --mono: "IBM Plex Mono", ui-monospace, monospace;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #121316;
+          --surface: #1b1d21;
+          --surface-2: #24262c;
+          --ink: #f0efe9;
+          --ink-2: #c3c6cc;
+          --ink-3: #8d919a;
+          --line: #33363d;
+          --accent: #ff6a4d;
+          --accent-soft: #3a2019;
+          --teal: #3ec9ab;
+          --teal-soft: #17332d;
+          --amber: #e0aa3e;
+          --amber-soft: #38300f;
+          --bad: #ff8a80;
+          --bad-soft: #3a1d1a;
+          --chart-1: #ff6a4d;
+          --chart-2: #3ec9ab;
+          --chart-3: #9aa0a8;
+        }
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0; background: var(--bg); color: var(--ink);
+        font-family: var(--sans); font-size: 16px; line-height: 1.65;
+        -webkit-font-smoothing: antialiased;
+      }
+      .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px 80px; }
+      a { color: var(--accent); text-decoration: none; }
+      a:hover { text-decoration: underline; }
+
+      /* ---------- header ---------- */
+      header.hero { padding: 44px 0 8px; }
+      .kicker {
+        font-family: var(--mono); font-size: 12.5px; letter-spacing: .08em;
+        color: var(--ink-3); text-transform: uppercase; margin: 0 0 14px;
+      }
+      h1 {
+        font-family: var(--serif); font-weight: 900; font-size: clamp(30px, 6vw, 52px);
+        line-height: 1.18; margin: 0 0 16px; letter-spacing: -0.01em;
+      }
+      h1 .hl { color: var(--accent); }
+      .lede { font-size: clamp(16px, 2.4vw, 19px); color: var(--ink-2); max-width: 760px; margin: 0 0 22px; }
+      .meta-row { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 13.5px; color: var(--ink-3); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 12px 0; }
+      .meta-row b { color: var(--ink-2); font-weight: 600; }
+
+      /* ---------- nav ---------- */
+      nav.toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 6px; }
+      nav.toc a {
+        font-size: 13.5px; font-weight: 600; color: var(--ink-2);
+        background: var(--surface); border: 1px solid var(--line);
+        padding: 7px 13px; border-radius: 999px;
+      }
+      nav.toc a:hover { color: var(--accent); border-color: var(--accent); text-decoration: none; }
+
+      /* ---------- sections ---------- */
+      section { margin-top: 52px; }
+      h2 {
+        font-family: var(--serif); font-weight: 900; font-size: clamp(23px, 4vw, 32px);
+        line-height: 1.3; margin: 0 0 8px;
+      }
+      h2 .no { font-family: var(--mono); font-size: .55em; color: var(--accent); vertical-align: .35em; margin-right: 10px; letter-spacing: 0; }
+      .sec-lede { color: var(--ink-2); max-width: 780px; margin: 0 0 22px; }
+      h3 { font-size: 18px; font-weight: 800; margin: 30px 0 10px; }
+
+      /* ---------- verdict cards ---------- */
+      .verdict-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+      @media (max-width: 820px) { .verdict-grid { grid-template-columns: 1fr; } }
+      .vcard { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; }
+      .vcard.top { border: 2px solid var(--accent); }
+      .vcard .rank { font-family: var(--mono); font-size: 12px; color: var(--accent); letter-spacing: .06em; }
+      .vcard h3 { margin: 6px 0 8px; font-size: 19px; }
+      .vcard p { margin: 0; font-size: 14.5px; color: var(--ink-2); }
+      .vcard .price { font-family: var(--mono); font-weight: 600; font-size: 15px; color: var(--ink); margin-top: 12px; display: block; }
+
+      .callout {
+        background: var(--accent-soft); border-radius: var(--radius);
+        padding: 18px 20px; margin-top: 16px; font-size: 15.5px;
+      }
+      .callout b { color: var(--accent); }
+      .callout.neutral { background: var(--surface-2); }
+      .callout.neutral b { color: var(--ink); }
+
+      /* ---------- tables ---------- */
+      .table-scroll { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+      table { border-collapse: collapse; width: 100%; font-size: 14px; }
+      th, td { padding: 11px 13px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+      thead th { background: var(--surface-2); font-size: 12.5px; letter-spacing: .03em; color: var(--ink-2); white-space: nowrap; }
+      tbody tr:last-child td { border-bottom: none; }
+      td.num, th.num { font-family: var(--mono); font-size: 13px; white-space: nowrap; }
+      td.model { font-weight: 700; white-space: nowrap; }
+      @media (max-width: 760px) {
+        .table-scroll { background: transparent; border: none; overflow: visible; }
+        table, tbody, tr, td { display: block; width: 100%; }
+        thead { display: none; }
+        tbody tr { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: 12px; padding: 8px 4px; }
+        td { border-bottom: none; padding: 5px 14px; }
+        td::before { content: attr(data-label); display: block; font-size: 11.5px; font-weight: 700; color: var(--ink-3); letter-spacing: .04em; margin-bottom: 1px; }
+        td.model { font-size: 16.5px; padding-top: 10px; }
+        td.model::before { display: none; }
+        td.num { white-space: normal; }
+      }
+
+      .badge { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+      .badge.ok { background: var(--teal-soft); color: var(--teal); }
+      .badge.warn { background: var(--amber-soft); color: var(--amber); }
+      .badge.no { background: var(--bad-soft); color: var(--bad); }
+
+      /* ---------- calculator / chart ---------- */
+      .calc { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; }
+      .controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 8px; }
+      @media (max-width: 700px) { .controls { grid-template-columns: 1fr; } }
+      .control label { display: flex; justify-content: space-between; font-size: 13.5px; font-weight: 700; margin-bottom: 6px; }
+      .control label output { font-family: var(--mono); color: var(--accent); }
+      input[type="range"] { width: 100%; accent-color: var(--accent); }
+      .control .hint { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+      .chart-box { margin-top: 14px; }
+      .bar-row { display: grid; grid-template-columns: 168px 1fr 118px; gap: 10px; align-items: center; padding: 5px 0; font-size: 13.5px; }
+      @media (max-width: 620px) { .bar-row { grid-template-columns: 108px 1fr 92px; font-size: 12.5px; } }
+      .bar-row .name { font-weight: 600; line-height: 1.35; }
+      .bar-row .name small { display: block; font-weight: 500; color: var(--ink-3); font-size: 11.5px; }
+      .bar-track { background: var(--surface-2); border-radius: 5px; height: 20px; position: relative; }
+      .bar-fill { height: 100%; border-radius: 5px; background: var(--chart-1); min-width: 2px; transition: width .25s ease; }
+      .bar-fill.silent { background: var(--chart-3); }
+      .bar-fill.ko { background: var(--chart-2); }
+      .bar-row .val { font-family: var(--mono); font-size: 12.5px; text-align: right; line-height: 1.4; }
+      .bar-row .val small { display: block; color: var(--ink-3); font-size: 11px; }
+      .legend { display: flex; flex-wrap: wrap; gap: 16px; font-size: 12.5px; color: var(--ink-2); margin-top: 12px; }
+      .legend span::before { content: ""; display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+      .legend .l-ko::before { background: var(--chart-2); }
+      .legend .l-part::before { background: var(--chart-1); }
+      .legend .l-silent::before { background: var(--chart-3); }
+      .axis-note { font-size: 12px; color: var(--ink-3); margin-top: 6px; }
+      .weekly { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 16px; }
+      .weekly .w { background: var(--surface-2); border-radius: 10px; padding: 14px 16px; }
+      .weekly .w b { display: block; font-size: 14px; margin-bottom: 2px; }
+      .weekly .w .amt { font-family: var(--mono); font-size: 19px; font-weight: 600; }
+      .weekly .w small { color: var(--ink-3); display: block; margin-top: 2px; font-size: 12px; }
+
+      /* ---------- model cards ---------- */
+      .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+      .filters button {
+        font-family: var(--sans); font-size: 13.5px; font-weight: 700; cursor: pointer;
+        border: 1px solid var(--line); background: var(--surface); color: var(--ink-2);
+        padding: 8px 15px; border-radius: 999px;
+      }
+      .filters button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+      .mgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
+      @media (max-width: 820px) { .mgrid { grid-template-columns: 1fr; } }
+      .mcard { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; }
+      .mcard.hidden { display: none; }
+      .mcard .mhead { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 4px; }
+      .mcard h3 { margin: 0; font-size: 18.5px; }
+      .mcard .maker { font-size: 12.5px; color: var(--ink-3); font-weight: 600; letter-spacing: .03em; }
+      .mcard dl { margin: 12px 0 0; display: grid; grid-template-columns: 86px 1fr; row-gap: 8px; font-size: 14px; }
+      .mcard dt { font-weight: 700; color: var(--ink-3); font-size: 12.5px; padding-top: 2px; }
+      .mcard dd { margin: 0; color: var(--ink-2); }
+      .mcard dd b { color: var(--ink); }
+      .mcard .warn-line { margin-top: 12px; background: var(--amber-soft); color: var(--ink); border-radius: 9px; padding: 10px 13px; font-size: 13.5px; }
+      .mcard .warn-line b { color: var(--amber); }
+
+      /* ---------- elo chart ---------- */
+      .elo-wrap { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; }
+      .elo-wrap svg { width: 100%; height: auto; display: block; }
+      .elo-wrap text { font-family: var(--sans); fill: var(--ink); }
+      .elo-wrap .tick { fill: var(--ink-3); font-size: 12px; }
+      .elo-wrap .mname { font-weight: 700; font-size: 14px; }
+      .elo-wrap .mval { font-family: var(--mono); font-size: 13px; fill: var(--ink-2); }
+
+      ul.tight { margin: 0; padding-left: 20px; }
+      ul.tight li { margin-bottom: 8px; color: var(--ink-2); }
+      ul.tight li b { color: var(--ink); }
+      .openq { background: var(--surface); border: 1px dashed var(--line); border-radius: var(--radius); padding: 20px 22px; }
+      .sources { font-size: 13.5px; color: var(--ink-2); }
+      .sources li { margin-bottom: 7px; overflow-wrap: anywhere; }
+      footer { margin-top: 60px; border-top: 1px solid var(--line); padding-top: 18px; font-size: 13px; color: var(--ink-3); }
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        .bar-fill { transition: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+
+      <header class="hero">
+        <p class="kicker">AI Video Models · Study Notes</p>
+        <h1>씨댄스급 AI 영상 모델,<br />우리 채널 기준으로 <span class="hl">제대로 비교</span>하기</h1>
+        <p class="lede">기준은 하나입니다. <b>한국인 캐릭터가 한국어로 말하는 감동 상황극</b>을, 매일 자동으로 만들 수 있는가. 씨댄스(Seedance)를 비롯해 2026년 10월 현재 최상위 클라우드 영상 모델 12종을 실사 품질·한국어 대사·캐릭터 일관성·가격·API 자동화 기준으로 정리했습니다.</p>
+        <div class="meta-row">
+          <span><b>조사일</b> 2026년 10월 22일 (KST)</span>
+          <span><b>용도</b> 55+ 시청자 채널 · 쇼츠 하루 3편(약 90초) + 주 1회 롱폼 10분</span>
+          <span><b>주의</b> 이 시장 가격은 매달 바뀝니다 — 모든 가격에 출처를 달았습니다</span>
+        </div>
+        <nav class="toc">
+          <a href="#verdict">결론 먼저</a>
+          <a href="#table">한눈에 비교표</a>
+          <a href="#cost">비용 계산기</a>
+          <a href="#models">모델별 상세</a>
+          <a href="#faces">한국인·노인 얼굴</a>
+          <a href="#bench">벤치마크</a>
+          <a href="#openq">아직 모르는 것</a>
+          <a href="#sources">출처</a>
+        </nav>
+      </header>
+
+      <section id="verdict">
+        <h2><span class="no">01</span>결론 먼저</h2>
+        <p class="sec-lede">가장 중요한 발견: <b>한국어 대사와 립싱크를 공식 문서로 명시하는 모델은 다섯 계열뿐</b>입니다 — 씨댄스, 클링 3.0, 미니맥스 H3, 그리고 문서가 약한 Wan 3.0과 Veo 3.1. Runway·Luma·Pika·Hailuo 구버전은 <b>무음</b>이라 지금 겪는 TTS+립싱크 수작업이 그대로 남습니다.</p>
+        <div class="verdict-grid">
+          <article class="vcard top">
+            <span class="rank">1순위 · 대사 엔진</span>
+            <h3>Kling 3.0 (클링)</h3>
+            <p>한국어 네이티브 대사를 명시한 5개 언어 중 하나. 캐릭터별 목소리 고정, Elements 얼굴 잠금(정면+각도 레퍼런스), 한 번 생성에 최대 6컷 스토리보드(AI Director)까지 — 반복 등장 캐릭터가 필요한 채널에 가장 완성된 조합입니다.</p>
+            <span class="price">$0.13/초 (Standard+오디오) · 쇼츠 약 $35/일</span>
+          </article>
+          <article class="vcard">
+            <span class="rank">2순위 · 가성비 엔진</span>
+            <h3>Seedance 1.5 Pro (씨댄스)</h3>
+            <p>한국어 대사가 되는 모델 중 가장 쌉니다. 음성·영상을 한 번에 생성하는 joint AV 방식이라 립싱크가 본업. 히어로 장면은 상위 버전 2.0을 골라 쓰고, 2.5는 비싸서 보류가 낫습니다.</p>
+            <span class="price">$0.052/초 (fal, 720p+오디오) · 쇼츠 약 $14/일</span>
+          </article>
+          <article class="vcard">
+            <span class="rank">3순위 · 가치 도전</span>
+            <h3>MiniMax H3</h3>
+            <p>벤치마크 상위권 품질에 한국어 포함 11개 언어 대사를 명시, 스테레오 오디오. 우리 프롬프트로 노인 얼굴 테스트만 통과하면 1순위를 갈아치울 수 있는 가격입니다.</p>
+            <span class="price">$0.08/초 (768p) · 쇼츠 약 $22/일</span>
+          </article>
+        </div>
+        <div class="callout">
+          <b>추천 파이프라인:</b> 대본 → 캐릭터 스틸 먼저 확정(지금 방식 그대로, 나이·한국인 얼굴을 눈으로 검수) → 대사 장면은 Kling 3.0 또는 Seedance 1.5 Pro → B-roll·롱폼 연결 장면은 Wan 3.0 / H3 → 자막·내레이션은 기존 방식 유지. 구독 요금제는 이 물량(월 약 8,100초 생성)을 못 버티므로 <b>종량제 API가 정직한 예산</b>입니다.
+        </div>
+        <div class="callout neutral">
+          <b>그리고 하나 더:</b> OpenAI <b>Sora 2는 종료</b>됐습니다 (API 2026년 9월 24일 중단). 아직 떠도는 "Sora" 애그리게이터 상품에 새 파이프라인을 얹으면 안 됩니다.
+        </div>
+      </section>
+
+      <section id="table">
+        <h2><span class="no">02</span>한눈에 비교표</h2>
+        <p class="sec-lede">가격은 "실제로 출고할 등급"인 720p급 + 오디오 기준 초당 단가입니다. 무음 모델은 TTS·립싱크 비용이 별도로 붙습니다.</p>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr><th>모델</th><th>한국어 대사</th><th>최대 길이</th><th>최고 해상도</th><th>캐릭터 / 멀티샷</th><th class="num">$/초</th><th>한국 API</th><th>유료 상업·워터마크</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="model">Seedance 1.5 Pro</td>
+                <td data-label="한국어 대사"><span class="badge ok">문서 명시</span></td>
+                <td data-label="최대 길이">12초</td>
+                <td data-label="최고 해상도">1080p</td>
+                <td data-label="캐릭터 / 멀티샷">일관성·멀티샷 지원</td>
+                <td class="num" data-label="$/초">$0.052 (720p, fal)</td>
+                <td data-label="한국 API">fal / Replicate</td>
+                <td data-label="유료 상업·워터마크">호스트 유료 등급</td>
+              </tr>
+              <tr>
+                <td class="model">Seedance 2.0 / 2.5</td>
+                <td data-label="한국어 대사"><span class="badge ok">문서 명시</span></td>
+                <td data-label="최대 길이">15초 / 30초</td>
+                <td data-label="최고 해상도">4K / 1080p+</td>
+                <td data-label="캐릭터 / 멀티샷">레퍼런스 9~30개, 멀티샷, 편집</td>
+                <td class="num" data-label="$/초">$0.15 / $0.231 (720p 직결)</td>
+                <td data-label="한국 API">애그리게이터 (직결 한국 확인 안 됨)</td>
+                <td data-label="유료 상업·워터마크">가능 (워터마크 토글)</td>
+              </tr>
+              <tr>
+                <td class="model">Kling 3.0</td>
+                <td data-label="한국어 대사"><span class="badge ok">문서 명시 (5개 언어)</span></td>
+                <td data-label="최대 길이">15초 (연장 ~3분)</td>
+                <td data-label="최고 해상도">4K 네이티브</td>
+                <td data-label="캐릭터 / 멀티샷">Elements 얼굴 잠금, 6컷 Director, 목소리 고정</td>
+                <td class="num" data-label="$/초">$0.13 Std / $0.168 Pro (+오디오)</td>
+                <td data-label="한국 API">공식 + 애그리게이터</td>
+                <td data-label="유료 상업·워터마크">유료 가능</td>
+              </tr>
+              <tr>
+                <td class="model">Veo 3.1</td>
+                <td data-label="한국어 대사"><span class="badge warn">구글 보장 아님</span></td>
+                <td data-label="최대 길이">8초 (연장 +7초씩)</td>
+                <td data-label="최고 해상도">4K</td>
+                <td data-label="캐릭터 / 멀티샷">레퍼런스 3장 (Lite 제외), 멀티샷 없음</td>
+                <td class="num" data-label="$/초">$0.05 Lite / $0.10 Fast / $0.40 Std</td>
+                <td data-label="한국 API">Gemini / Vertex</td>
+                <td data-label="유료 상업·워터마크">가능 (비표시 SynthID)</td>
+              </tr>
+              <tr>
+                <td class="model">Gemini Omni Flash 1.1</td>
+                <td data-label="한국어 대사"><span class="badge warn">Veo와 동일</span></td>
+                <td data-label="최대 길이">10초 (누적 40초)</td>
+                <td data-label="최고 해상도">720p 네이티브</td>
+                <td data-label="캐릭터 / 멀티샷">대화형 편집, 레퍼런스</td>
+                <td class="num" data-label="$/초">$0.10</td>
+                <td data-label="한국 API">Gemini API</td>
+                <td data-label="유료 상업·워터마크">가능 (SynthID)</td>
+              </tr>
+              <tr>
+                <td class="model">MiniMax H3</td>
+                <td data-label="한국어 대사"><span class="badge ok">문서 명시 (11개 언어)</span></td>
+                <td data-label="최대 길이">15초</td>
+                <td data-label="최고 해상도">2K</td>
+                <td data-label="캐릭터 / 멀티샷">이미지 9 + 영상 3 + 음성 3, 멀티샷</td>
+                <td class="num" data-label="$/초">$0.08 (768p) / $0.13 (2K)</td>
+                <td data-label="한국 API">플랫폼 + 애그리게이터</td>
+                <td data-label="유료 상업·워터마크">유료 가능</td>
+              </tr>
+              <tr>
+                <td class="model">Hailuo 02 / 2.3</td>
+                <td data-label="한국어 대사"><span class="badge no">무음</span></td>
+                <td data-label="최대 길이">10초 (1080p는 6초)</td>
+                <td data-label="최고 해상도">1080p</td>
+                <td data-label="캐릭터 / 멀티샷">Subject Reference (S2V)</td>
+                <td class="num" data-label="$/초">약 $0.047 (768p)</td>
+                <td data-label="한국 API">가능</td>
+                <td data-label="유료 상업·워터마크">유료 가능</td>
+              </tr>
+              <tr>
+                <td class="model">Runway Gen-4.5</td>
+                <td data-label="한국어 대사"><span class="badge no">무음 (별도 도구)</span></td>
+                <td data-label="최대 길이">10초</td>
+                <td data-label="최고 해상도">720p</td>
+                <td data-label="캐릭터 / 멀티샷">레퍼런스 일관성, Aleph 편집</td>
+                <td class="num" data-label="$/초">$0.12 (Turbo $0.05)</td>
+                <td data-label="한국 API">공식 API</td>
+                <td data-label="유료 상업·워터마크">유료 가능</td>
+              </tr>
+              <tr>
+                <td class="model">Luma Ray3.2</td>
+                <td data-label="한국어 대사"><span class="badge no">무음</span></td>
+                <td data-label="최대 길이">10초 (연장 ~30초)</td>
+                <td data-label="최고 해상도">1080p / HDR</td>
+                <td data-label="캐릭터 / 멀티샷">키프레임, <b>캐릭터 레퍼런스 없음 (3.14)</b></td>
+                <td class="num" data-label="$/초">약 $0.06–0.09 (720p)</td>
+                <td data-label="한국 API">공식 API</td>
+                <td data-label="유료 상업·워터마크">Plus 이상</td>
+              </tr>
+              <tr>
+                <td class="model">Pika 2.5</td>
+                <td data-label="한국어 대사"><span class="badge no">무음 (API 립싱크 불가)</span></td>
+                <td data-label="최대 길이">10초 (프레임 연장 25초)</td>
+                <td data-label="최고 해상도">1080p</td>
+                <td data-label="캐릭터 / 멀티샷">기본 재료(ingredients) 수준</td>
+                <td class="num" data-label="$/초">크레딧제, $/초 확인 불가</td>
+                <td data-label="한국 API">fal / 자체 API</td>
+                <td data-label="유료 상업·워터마크">Pro 이상 확실, 이하 출처 충돌</td>
+              </tr>
+              <tr>
+                <td class="model">Wan 3.0</td>
+                <td data-label="한국어 대사"><span class="badge warn">주장만, 언어 목록 없음</span></td>
+                <td data-label="최대 길이">30초</td>
+                <td data-label="최고 해상도">1080p</td>
+                <td data-label="캐릭터 / 멀티샷">옴니 레퍼런스 (이미지 10 / 영상 5 / 음성 5)</td>
+                <td class="num" data-label="$/초">$0.10 (720p) / $0.20 (1080p)</td>
+                <td data-label="한국 API">Model Studio 싱가포르</td>
+                <td data-label="유료 상업·워터마크">유료 가능</td>
+              </tr>
+              <tr>
+                <td class="model">Wan 2.2 (오픈)</td>
+                <td data-label="한국어 대사"><span class="badge no">무음</span></td>
+                <td data-label="최대 길이">약 5~10초</td>
+                <td data-label="최고 해상도">1080p</td>
+                <td data-label="캐릭터 / 멀티샷">레퍼런스-투-비디오 변형</td>
+                <td class="num" data-label="$/초">약 $0.02~ (애그리게이터)</td>
+                <td data-label="한국 API">가능 / 셀프호스팅</td>
+                <td data-label="유료 상업·워터마크">Apache-2.0</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="cost">
+        <h2><span class="no">03</span>비용 계산기 — 하루 제작비가 실제로 얼마인가</h2>
+        <p class="sec-lede">리서치의 비용 모델 그대로입니다. 완성 1초를 얻으려면 평균 <b>3번 생성</b>한다고 가정하고, 쇼츠는 720p급 + 오디오 등급으로 계산합니다. 슬라이더를 움직이면 우리 채널 물량에 맞춰 다시 계산됩니다. 무음 모델은 TTS·립싱크 비용이 별도입니다.</p>
+        <div class="calc">
+          <div class="controls">
+            <div class="control">
+              <label>하루 쇼츠 완성 분량 <output id="o-shorts">90초</output></label>
+              <input type="range" id="in-shorts" min="30" max="300" step="5" value="90" />
+              <div class="hint">현재 채널: 25~35초 × 3편 ≈ 90초</div>
+            </div>
+            <div class="control">
+              <label>쓸 만한 1초당 생성 시도 <output id="o-att">3회</output></label>
+              <input type="range" id="in-att" min="1" max="6" step="0.5" value="3" />
+              <div class="hint">얼굴·대사가 어긋나면 버리고 다시 뽑는 횟수</div>
+            </div>
+            <div class="control">
+              <label>롱폼 1편 완성 분량 <output id="o-long">600초</output></label>
+              <input type="range" id="in-long" min="300" max="1200" step="30" value="600" />
+              <div class="hint">10분 = 600초, 주 1회 제작 가정</div>
+            </div>
+          </div>
+          <div class="chart-box" id="cost-chart" role="img" aria-label="모델별 하루 쇼츠 제작비와 롱폼 1편 제작비 막대 차트"></div>
+          <div class="legend">
+            <span class="l-ko">한국어 대사 문서 명시</span>
+            <span class="l-part">한국어 대사 미보장·미문서</span>
+            <span class="l-silent">무음 (외부 음성 별도)</span>
+          </div>
+          <p class="axis-note">막대는 0부터 시작합니다. Luma Ray3.2(720p 약 $0.06–0.09/초, 하루 약 $16–24)와 Pika 2.5(초당 단가 확인 불가)는 범위·불확실성 때문에 계산기에서 제외하고 비교표에만 남겼습니다.</p>
+          <h3 style="margin-top:26px;">일주일 전체 일정으로 보면 (쇼츠 7일 + 롱폼 1편, 기본값 기준)</h3>
+          <div class="weekly">
+            <div class="w"><b>Seedance 1.5 Pro</b><span class="amt">≈ $192/주</span><small>월 환산 약 $830 · 한국어 대사 최다 물량을 가장 싸게</small></div>
+            <div class="w"><b>MiniMax H3 (768p)</b><span class="amt">≈ $295/주</span><small>품질 상위권 + 한국어 명시</small></div>
+            <div class="w"><b>Omni Flash / Veo Fast / Wan 3.0</b><span class="amt">≈ $369/주</span><small>셋 다 $0.10/초 동률</small></div>
+            <div class="w"><b>Kling 3.0 Standard+오디오</b><span class="amt">≈ $480/주</span><small>월 환산 약 $2,080 · 완성도 프리미엄</small></div>
+            <div class="w"><b>Veo 3.1 Standard</b><span class="amt">≈ $1,476/주</span><small>$0.40/초 — 히어로 장면 전용으로만</small></div>
+          </div>
+          <div class="callout neutral" style="margin-top:16px;">
+            <b>비용을 더 줄이는 두 가지 레버:</b> ① 초안은 싼 등급으로 뽑고 통과한 컷만 비싼 등급으로 재렌더 (2026년 표준 워크플로 — 예: Wan 3.0/Veo Fast 초안 → Kling/Seedance 최종). ② 롱폼을 전부 대사 클로즈업으로 채우지 말 것 — 무음 B-roll(싼 모델) + 기존 스틸 워크플로 + 내레이션을 섞으면 롱폼 비용이 절반 가까이 줄어듭니다.
+          </div>
+        </div>
+      </section>
+
+      <section id="models">
+        <h2><span class="no">04</span>모델별 상세</h2>
+        <p class="sec-lede">각 모델을 같은 7개 항목(실사 · 대사 · 스펙 · 일관성 · 가격 · API · 상업조건)으로 봤습니다. 대사 항목에서 한국어 지원을 함께 평가합니다. 필터로 골라 보세요.</p>
+        <div class="filters" role="group" aria-label="모델 필터">
+          <button type="button" data-filter="all" aria-pressed="true">전체 12종</button>
+          <button type="button" data-filter="ko" aria-pressed="false">한국어 대사 가능</button>
+          <button type="button" data-filter="partial" aria-pressed="false">한국어 미보장</button>
+          <button type="button" data-filter="silent" aria-pressed="false">무음 모델</button>
+        </div>
+        <div class="mgrid" id="mgrid">
+
+          <article class="mcard" data-ko="ko">
+            <div class="mhead"><div><span class="maker">BYTEDANCE</span><h3>Seedance 1.5 Pro</h3></div><span class="badge ok">한국어 명시</span></div>
+            <dl>
+              <dt>실사</dt><dd>상위권. 상위 버전 2.0은 Artificial Analysis 텍스트-투-비디오 스냅샷 1위(Elo 1212)를 기록했습니다.</dd>
+              <dt>대사</dt><dd><b>이 모델의 존재 이유.</b> 음성·영상 동시 생성(joint AV), 밀리초 단위 립싱크, 지원 언어에 <b>한국어 명시</b> (영·중·일·스페인·포르투갈·인도네시아어 등). 2.0은 음소 단위 립싱크 8개+ 언어.</dd>
+              <dt>스펙</dt><dd>4~12초, 480p~1080p, 16:9 / 9:16 / 1:1. (1.0 Pro는 무음, 5/10초)</dd>
+              <dt>일관성</dt><dd>1.0부터 네이티브 멀티샷 내러티브. 2.0은 이미지 9 + 영상 3 + 음성 3개 레퍼런스, 2.5는 이미지 최대 30개까지 보고됨.</dd>
+              <dt>가격</dt><dd><b>fal 기준 720p+오디오 $0.052/초</b> (5초 $0.26). 오디오를 켜면 무음 대비 약 2배. 2.0 직결 약 $0.15/초(720p), 2.5 약 $0.231/초 — <b>경로에 따라 2~7배 차이</b>가 납니다.</dd>
+              <dt>API</dt><dd>BytePlus ModelArk 공식 API + fal/Replicate 등. 크론 자동화 가능.</dd>
+              <dt>상업조건</dt><dd>BytePlus API는 워터마크 <b>토글</b>(끔 가능). Dreamina 무료는 워터마크, 유료는 제거+상업 이용.</dd>
+            </dl>
+            <div class="warn-line"><b>주의:</b> 일부 호스트는 실존 인물 사진 레퍼런스를 본인인증 없이 거부합니다. 우리처럼 <b>AI로 만든 가상 캐릭터</b>는 해당 없음. BytePlus 직결 계정의 한국 가입 가능 여부는 미확인 — 애그리게이터 경유가 무난합니다.</div>
+          </article>
+
+          <article class="mcard" data-ko="ko">
+            <div class="mhead"><div><span class="maker">KUAISHOU</span><h3>Kling 3.0</h3></div><span class="badge ok">한국어 명시</span></div>
+            <dl>
+              <dt>실사</dt><dd>"실사 인물 특화"라는 평가가 반복됩니다. 조명·포토리얼리즘은 Veo에 한 끗 아래, 움직임·물리·가격은 위. 얼굴이 컷을 넘어 유지되는 힘이 강점.</dd>
+              <dt>대사</dt><dd>네이티브 오디오 <b>정확히 5개 언어: 중·영·일·한·스페인어</b>. 캐릭터별 목소리 고정, 여러 인물이 각자 목소리·립싱크 유지, 사투리·코드스위칭 지원.</dd>
+              <dt>스펙</dt><dd>3~15초, 네이티브 4K까지, 최대 60fps, 16:9/9:16. 연장하면 약 3분까지 체인.</dd>
+              <dt>일관성</dt><dd><b>AI Director:</b> 15초 생성 안에 최대 6컷, 컷마다 길이·샷 크기·카메라 지정. <b>Elements:</b> 정면 + 최대 4개 각도 레퍼런스로 얼굴 잠금 — 반복 캐릭터에 가장 강한 시스템. 최대 3인 주체 일관성.</dd>
+              <dt>가격</dt><dd>API: Standard 720p 무음 $0.084 / <b>오디오 $0.13/초</b>, Pro 1080p 오디오 $0.168~0.17/초, 4K $0.43/초. 구독(Ultra $159.99, 26,000크레딧)으로도 월 필요량의 4분의 1 수준 — <b>구독은 테스트용, 본편은 종량제</b>.</dd>
+              <dt>API</dt><dd>공식 API + fal/Replicate/Runway Dev 등. 글로벌 사이트가 국제용 제품, 한국 제한 없음.</dd>
+              <dt>상업조건</dt><dd>무료는 워터마크+비상업+720p 상한. <b>유료 전 등급 워터마크 제거 + 상업 이용.</b></dd>
+            </dl>
+            <div class="warn-line"><b>주의:</b> Kling 4.0(9월 30일 발표, 최대 30초·스테레오)은 <b>상위 구독자 얼리 액세스만</b> 진행 중 — 아직 파이프라인에 얹을 단계가 아닙니다.</div>
+          </article>
+
+          <article class="mcard" data-ko="ko">
+            <div class="mhead"><div><span class="maker">MINIMAX</span><h3>MiniMax H3 (Hailuo 3.0)</h3></div><span class="badge ok">한국어 명시</span></div>
+            <dl>
+              <dt>실사</dt><dd>전작 Hailuo 02는 출시 당시 AA 2위(물리 표현 유명). H3/H3 Max는 2026년 10월 오디오 포함 보드 상위권 (H3 768p 1,138 / H3 Max 1,134).</dd>
+              <dt>대사</dt><dd>32kHz <b>스테레오</b> 네이티브 오디오, <b>한국어 포함 11개 언어</b> 안정 지원 명시. 레퍼런스 녹음으로 목소리 전이(voice transfer)도 가능.</dd>
+              <dt>스펙</dt><dd>4~15초, 24fps, 768p 기본 / 재생성으로 2K, 21:9~9:16.</dd>
+              <dt>일관성</dt><dd>옴니 레퍼런스: 이미지 9 + 영상 3 + 음성 3 (12개 파일), 첫/끝 프레임, 멀티샷 생성, 문장 단위 대사 편집.</dd>
+              <dt>가격</dt><dd>공식 종량제 <b>768p $0.08/초, 2K $0.13/초</b>. 레퍼런스 음성 무료, 레퍼런스 이미지 5장까지 무료 후 장당 $0.04. 단, MiniMax 직결 API는 월 $1,000+ 단위 패키지 판매 보고가 있어 <b>애그리게이터 진입이 합리적</b>.</dd>
+              <dt>API</dt><dd>공식 플랫폼(글로벌) + fal/Replicate/Runway Dev/WaveSpeed.</dd>
+              <dt>상업조건</dt><dd>유료 API/구독 출력물 상업 이용 가능, 무료는 워터마크.</dd>
+            </dl>
+            <div class="warn-line"><b>주의:</b> H3 오픈 웨이트 라이선스의 <b>지역 제외 조항이 논란 중</b>이라 한국 포함 여부가 미확인입니다. 호스팅 API 경로는 영향 없는 것으로 보이나, 셀프호스팅은 이 문제가 정리될 때까지 보류하세요.</div>
+          </article>
+
+          <article class="mcard" data-ko="partial">
+            <div class="mhead"><div><span class="maker">ALIBABA</span><h3>Wan 3.0</h3></div><span class="badge warn">한국어 미검증</span></div>
+            <dl>
+              <dt>실사</dt><dd>재구축된 AA 오디오 포함 보드 <b>1위(Elo 1,156)</b>, 무음 보드도 1위(1,129). 단 상위 5개가 오차 ±10 안팎의 20점 차 접전. 통제 테스트 6개 과제에서 Veo 3.1의 4분의 1 가격에 공동 최고 납품 기록, 다른 비교에선 Seedance 2.5가 "연기와 마무리"에서 우세.</dd>
+              <dt>대사</dt><dd>오디오(대사·음악·효과음)가 기본으로 한 번에 생성되고 다국어 대사를 주장하지만, <b>알리바바가 언어 목록을 공개하지 않아 한국어가 명시돼 있지 않습니다.</b> 초기 테스터들은 중·영 외 언어(일본어 지적)를 약점으로 꼽음.</dd>
+              <dt>스펙</dt><dd><b>한 번에 2~30초</b> — 씨댄스 2.5와 함께 최장. 480p/720p/1080p (4K 없음).</dd>
+              <dt>일관성</dt><dd>옴니 레퍼런스: 이미지 10 + 영상 5 + 음성 5, 얼굴·머리·의상·소품·공간 관계까지 긴 클립에서 유지 주장. 약 6장면 넘으면 멀티샷 변형이 무너진다는 테스터 보고 1건.</dd>
+              <dt>가격</dt><dd>공식: 480p $0.05 / <b>720p $0.10</b> / 1080p $0.20/초 (30초 1080p 1테이크 = $6.00). Runway Dev 요금과 정확히 일치함을 실측 확인.</dd>
+              <dt>API</dt><dd>Alibaba Cloud Model Studio 국제(싱가포르) 엔드포인트, 2026년 8월 24일 국제 GA. + fal/Replicate/Runway Dev. 한국 차단 없음.</dd>
+              <dt>상업조건</dt><dd>Model Studio 유료 출력물 상업 이용, API 출력 워터마크 없음. 3.0은 "오픈" 소문과 달리 <b>폐쇄형 API 전용</b>.</dd>
+            </dl>
+            <div class="warn-line"><b>도입 전 필수 테스트:</b> 한국어 대사 품질이 유일한 미지수입니다. 듣기 테스트를 통과하면 30초 원테이크 + $0.10/초로 롱폼 주력이 되고, 실패하면 무대사 장면·초안 전용으로 쓰면 됩니다.</div>
+          </article>
+
+          <article class="mcard" data-ko="partial">
+            <div class="mhead"><div><span class="maker">GOOGLE</span><h3>Veo 3.1</h3></div><span class="badge warn">한국어 미보장</span></div>
+            <dl>
+              <dt>실사</dt><dd>시네마틱 포토리얼리즘·조명·프롬프트 충실도의 기준점. LMArena 이미지-투-비디오 보드 1위(Elo 1,397, 2026년 8월). 얼굴·표정이 한 샷 안에서 무너지지 않는 힘이 여전히 강점.</dd>
+              <dt>대사</dt><dd>48kHz급 동기 오디오를 한 번에 생성. <b>단, 구글 공식 가이드는 영어만 "완전 지원"으로 평가하고 타 언어는 "평가되지 않음"으로 명시.</b> 서드파티는 한국어를 립싱크 지원 언어로 꼽고 실제로 동작하지만, Kling/Seedance/H3처럼 구글이 보장하는 수준은 아닙니다.</dd>
+              <dt>스펙</dt><dd><b>4/6/8초만</b> — 전 모델 중 가장 짧은 상한. 720p/1080p/4K, 24fps, 16:9 + 네이티브 9:16. 연장은 Veo 생성 클립에만 +7초씩 (최대 약 148초 체인).</dd>
+              <dt>일관성</dt><dd>레퍼런스 이미지 최대 3장("Ingredients to Video"), 첫/끝 프레임 제어. 네이티브 멀티샷 모드 없음. <b>Lite 등급은 레퍼런스·연장 불가.</b></dd>
+              <dt>가격</dt><dd>2026-10-22 공식 가격 페이지 실측: <b>Standard $0.40/초</b> (4K $0.60), <b>Fast 720p $0.10</b> / 1080p $0.12, <b>Lite 720p $0.05</b> / 1080p $0.08. 무료 API 등급 없음.</dd>
+              <dt>API</dt><dd>Gemini API + Vertex AI, fal/Replicate/Runway Dev도 구글 가격 수준. 한국은 출시 국가에 포함, 장벽 없음.</dd>
+              <dt>상업조건</dt><dd>유료 API 상업 이용 가능, 눈에 보이는 워터마크 없음. 단 모든 출력에 비표시 <b>SynthID</b> 출처 워터마크 포함.</dd>
+            </dl>
+            <div class="warn-line"><b>주의:</b> 조사 당일(10월 22일) Veo 3.1 <b>Preview 모델 ID가 종료</b>된다는 공지가 공식 페이지에 있었습니다. 크론에 넣을 땐 프리뷰가 아닌 GA 모델 ID(<span style="font-family:var(--mono);font-size:12.5px;">veo-3.1-generate-001</span> 등)를 고정하세요. 히어로 대사는 한국어 테스트 통과 후에만 맡길 것.</div>
+          </article>
+
+          <article class="mcard" data-ko="partial">
+            <div class="mhead"><div><span class="maker">GOOGLE</span><h3>Gemini Omni Flash 1.1</h3></div><span class="badge warn">한국어 미보장</span></div>
+            <dl>
+              <dt>실사</dt><dd>재구축 전 AA 오디오 포함 보드 1위(Elo 약 1,233), 텍스트-투-비디오 스냅샷 2위(1,204, Seedance 2.0과 오차 범위).</dd>
+              <dt>대사</dt><dd>네이티브 오디오. 단 목소리/대사 편집은 제한적이고, 한국어 문서 수준은 Veo와 마찬가지로 약합니다.</dd>
+              <dt>스펙</dt><dd>3~10초, <b>720p 네이티브가 상한</b> (1080p/4K는 업스케일), 10초 단위 연장으로 누적 40초.</dd>
+              <dt>일관성</dt><dd><b>대화형 멀티턴 편집</b> — 다시 뽑지 말고 "이 샷만 이렇게 고쳐줘"로 수정. 재시도 횟수를 줄여주는 게 곧 비용 절감.</dd>
+              <dt>가격</dt><dd><b>$0.10/초</b> (초당 출력 토큰 5,792개 과금). 2026년 8월 27일 GA.</dd>
+              <dt>API</dt><dd>Gemini API. 한국 장벽 없음.</dd>
+              <dt>상업조건</dt><dd>유료 상업 이용 가능, SynthID 포함.</dd>
+            </dl>
+          </article>
+
+          <article class="mcard" data-ko="silent">
+            <div class="mhead"><div><span class="maker">RUNWAY</span><h3>Runway Gen-4 / 4.5</h3></div><span class="badge no">무음</span></div>
+            <dl>
+              <dt>실사</dt><dd>감독형 제어(카메라 무빙, 모션 브러시, 레퍼런스 일관성)로 전문가 선호. 다만 4.5는 출시 당시 선두였다가 중국 모델들에 밀려 AA 상위 10위 밖으로 나갔습니다.</dd>
+              <dt>대사</dt><dd><b>기본 생성은 무음.</b> 우회로는 같은 스위트 안의 별도 도구 — Act-Two(퍼포먼스 캡처, $0.05/초), Characters(이미지+대본으로 말하는 캐릭터), ElevenLabs 음성. 결국 다단계 파이프라인이고 한국어 음질은 TTS가 결정합니다.</dd>
+              <dt>스펙</dt><dd>Gen-4: 5/10초, 이미지 입력 필수, 720p. 4.5: 2~10초, 720p, 24/25fps.</dd>
+              <dt>일관성</dt><dd>레퍼런스 이미지로 캐릭터·장소·사물 일관성이 원래 세일즈 포인트. Aleph 2.0은 기존 영상 편집. 네이티브 멀티샷 생성은 없음.</dd>
+              <dt>가격</dt><dd>공식 실측: API 크레딧 $0.01/개, <b>Gen-4.5 $0.12/초</b>, Gen-4 Turbo $0.05/초, Act-Two $0.05/초. 웹 요금제와 API 크레딧은 <b>별도 구매</b>.</dd>
+              <dt>API</dt><dd>성숙한 공식 개발자 API. 그리고 이번 조사에서 찾은 <b>최고의 멀티모델 애그리게이터</b> — Runway Dev 키 하나로 Kling·Seedance·Wan·Veo·H3·Omni·Happy Horse까지 공개 단가로 호출 가능.</dd>
+              <dt>상업조건</dt><dd>유료/API 워터마크 없음 + 상업 이용, 무료는 워터마크.</dd>
+            </dl>
+            <div class="warn-line"><b>주의:</b> 2025년 12월 Gen-4.5 네이티브 오디오+1분 멀티샷 업데이트가 발표됐지만(기업 우선), 2026년 10월 API 가격표에 오디오 변형이 없어 <b>API로 쓸 수 있다고 확인되지 않았습니다.</b></div>
+          </article>
+
+          <article class="mcard" data-ko="silent">
+            <div class="mhead"><div><span class="maker">MINIMAX (구버전)</span><h3>Hailuo 02 / 2.3</h3></div><span class="badge no">무음</span></div>
+            <dl>
+              <dt>실사</dt><dd>02는 출시 당시 AA 2위, 물리 표현으로 유명. 지금은 H3에 자리를 넘긴 구세대.</dd>
+              <dt>대사</dt><dd><b>오디오 자체가 없습니다.</b> 독립 API 테스트에서 2.3 작업이 무음 클립을 반환한 것이 확인됨.</dd>
+              <dt>스펙</dt><dd>1080p 6초 또는 768p 6/10초, 16:9/9:16/1:1.</dd>
+              <dt>일관성</dt><dd>Subject Reference(S2V)로 캐릭터 일관성 지원.</dd>
+              <dt>가격</dt><dd>768p 클립당 $0.28 (6초 ≈ $0.047/초), Pro 1080p 6초 고정 $0.50 (≈$0.083/초). 싸지만 무음.</dd>
+              <dt>API</dt><dd>MiniMax 플랫폼 + 애그리게이터.</dd>
+              <dt>상업조건</dt><dd>유료 상업 이용 가능, 무료 워터마크.</dd>
+            </dl>
+            <div class="warn-line"><b>용도:</b> 대사 없는 B-roll을 가장 싸게 뽑는 용도로만. 대사 엔진으로는 탈락.</div>
+          </article>
+
+          <article class="mcard" data-ko="silent">
+            <div class="mhead"><div><span class="maker">LUMA</span><h3>Luma Ray3.2 / 3.14</h3></div><span class="badge no">무음</span></div>
+            <dl>
+              <dt>실사</dt><dd>시네마틱/HDR 작법이 강점 (세계 최초 네이티브 10/12/16비트 HDR EXR). 말하는 사람보다 영화·VFX 플레이트용.</dd>
+              <dt>대사</dt><dd><b>텍스트/이미지에서 오디오 생성 불가.</b> Luma 스스로 소리는 별도 단계로 두고 요금제에 ElevenLabs 모델을 번들합니다. 대사 엔진으로는 부적격.</dd>
+              <dt>스펙</dt><dd>5/10초 (연장 ~30초), 24fps, 540p~1080p, 4K는 업스케일.</dd>
+              <dt>일관성</dt><dd>Ray3.2는 키프레임 최대 16개. <b>Ray3.14는 공식 가이드상 캐릭터 일관성 기능이 없고 레퍼런스 이미지를 지원하지 않습니다</b> — 반복 캐릭터 용도로는 이 비교에서 최악.</dd>
+              <dt>가격</dt><dd>API 5초 기준 540p $0.15 / 720p $0.30 / 1080p $1.20, 10초는 $0.45 / $0.90 / $3.60 (720p 약 $0.06–0.09/초), HDR은 2배. 웹 요금제 Plus $30/월부터.</dd>
+              <dt>API</dt><dd>공식 API, 한국 제한 없음. (앱에서 재판매하는 Kling·Veo·Seedance 크레딧 단가와 Ray 자체 단가를 혼동 주의)</dd>
+              <dt>상업조건</dt><dd>Plus 이상 상업 이용 포함, 현재 공개 무료 요금제 없음.</dd>
+            </dl>
+          </article>
+
+          <article class="mcard" data-ko="silent">
+            <div class="mhead"><div><span class="maker">PIKA</span><h3>Pika 2.5</h3></div><span class="badge no">무음 (API)</span></div>
+            <dl>
+              <dt>실사</dt><dd>빠르고 장난기 있는 이펙트 중심 (Pikaffects 등). 리뷰어들은 일관되게 포토리얼리즘을 Kling/Runway/Veo 아래로 평가 — "포토레알보다는 시각적으로 중립적". 노인 감동극용 도구가 아닙니다.</dd>
+              <dt>대사</dt><dd><b>네이티브 오디오 생성 없음.</b> 앱에는 별도 립싱크 워크플로가 있지만 <b>API에서는 립싱크 미지원</b> (Pika FAQ 미러 기준).</dd>
+              <dt>스펙</dt><dd>5/10초 (Pikaframes 연장 20~25초), 480p 무료 / 720p / 1080p 유료, 24fps, 9:16·16:9 포함.</dd>
+              <dt>일관성</dt><dd>Scene Ingredients/레퍼런스로 어느 정도 주체 고정. Kling Elements나 Seedance 레퍼런스에 비할 전용 캐릭터 시스템은 없음.</dd>
+              <dt>가격</dt><dd>구독 크레딧제: Basic $0 (월 80크레딧, 480p), Standard 연 약 $8/월 (700), Pro 약 $28 (2,300), Fancy 약 $76 (6,000). <b>공식 초당 API 단가를 확인할 수 없어 비용 모델에서 제외</b>했습니다.</dd>
+              <dt>API</dt><dd>fal.ai + 자체 API, 한국 제한 없음.</dd>
+              <dt>상업조건</dt><dd><b>출처 충돌:</b> FAQ·구 요약은 Basic·Standard 비상업+워터마크/Pro부터 상업 가능이라 하고, 2026년 8월 실측 리뷰는 전 요금제 워터마크 없음+상업 가능이라 합니다. Pro 아래 등급을 쓸 거면 라이브 가격 페이지에서 직접 확인 필요.</dd>
+            </dl>
+          </article>
+
+          <article class="mcard" data-ko="silent">
+            <div class="mhead"><div><span class="maker">ALIBABA (오픈)</span><h3>Wan 2.2</h3></div><span class="badge no">무음</span></div>
+            <dl>
+              <dt>실사</dt><dd>오픈 웨이트 중에서는 상위지만 대사 없는 세대. 선두권 얼굴 품질에는 한 단계 아래.</dd>
+              <dt>대사</dt><dd>네이티브 대사 오디오 없음.</dd>
+              <dt>스펙</dt><dd>약 5~10초, 1080p까지.</dd>
+              <dt>일관성</dt><dd>레퍼런스-투-비디오 변형 존재.</dd>
+              <dt>가격</dt><dd>애그리게이터 약 $0.02/초부터. <b>Apache-2.0이라 셀프호스팅 상업 이용 가능</b> — 무료에 가까운 무음 B-roll 폴백.</dd>
+              <dt>API</dt><dd>애그리게이터 또는 자체 GPU 호스팅.</dd>
+              <dt>상업조건</dt><dd>Apache-2.0.</dd>
+            </dl>
+          </article>
+
+          <article class="mcard" data-ko="partial">
+            <div class="mhead"><div><span class="maker">ALIBABA</span><h3>Happy Horse 1.0 / 1.1</h3></div><span class="badge warn">한국어 미포함</span></div>
+            <dl>
+              <dt>실사</dt><dd>2026년 4월 등장 직후 AA 보드 1위를 찍었고 지금도 상위 10위권 (스냅샷에 따라 Elo 약 1,008~1,091). 폐쇄형 모델, fal.ai와 Runway Dev에서 제공.</dd>
+              <dt>대사</dt><dd>오디오+비디오 원패스 + 립싱크 7개 언어 — <b>찾은 출처들이 꼽는 언어에 한국어가 없습니다.</b> 그래서 우리 채널의 1군을 밀어내지는 못함.</dd>
+              <dt>가격</dt><dd>Runway Dev 실측: 720p $0.15/초, 1080p $0.30/초.</dd>
+              <dt>용도</dt><dd>품질 대비 가격 테스트 후보로는 정당합니다. 한국어 대사가 필요 없는 장면에서 시험해볼 가치가 있습니다.</dd>
+            </dl>
+          </article>
+
+        </div>
+        <p class="axis-note" style="margin-top:14px;">그 외 조사에서 언급된 모델: <b>PixVerse V5.6/V6·C1</b>과 <b>Vidu Q3</b>(약 $0.03–0.09/초, C1은 약 $0.031/초로 최저가권) — 한국어 대사 문서가 약해 초안용으로만. <b>LTX-2.3/2.5</b>(오픈 웨이트, 네이티브 오디오, 얼굴 품질은 선두권 아래) — 초안/B-roll 엔진용. <b>Grok Imagine Video</b> — 한국어 문서 없어 이 용도로는 비추천.</p>
+      </section>
+
+      <section id="faces">
+        <h2><span class="no">05</span>한국인·노인 얼굴 — 솔직한 현실</h2>
+        <p class="sec-lede">먼저 못 박아둡니다: <b>어떤 모델도 한국인 얼굴, 노인 얼굴, 그 교집합에 대한 공개 벤치마크를 내놓지 않았습니다.</b> 제조사도 벤치마크 기관도 인구통계별 점수를 공개하지 않아요. 아래는 일반 편향 연구와 리뷰 합의로 확인되는 범위입니다.</p>
+        <ul class="tight">
+          <li><b>나이 하향이 기본값입니다.</b> 생성 AI의 노인 묘사는 타 인종보다 백인이 5배 많고, 중립 프롬프트에서도 부정·무표정으로 기운다는 종단 연구가 있습니다 ("디지털 연령차별"). 동아시아 여성 연구에서는 서구화된 이목구비, 젊음 기본값 렌더링, <b>중·노년 여성을 아름답게 그리는 데의 어려움</b>, 동아시아 국가 간 문화 기호 혼합이 목록화됐습니다.</li>
+          <li><b>텍스트만으로 뽑으면</b> 모든 모델이 (a) 나이를 실제보다 젊게 만들고 (b) 한국인 얼굴을 뭉뚱그려진/서구화된 동아시아 얼굴로 흘려보낼 것으로 예상해야 합니다.</li>
+          <li><b>그래서 해법은 지금 방식 그대로입니다 — 레퍼런스 우선 제작.</b> 60대 한국인 캐릭터를 스틸로 먼저 만들어 눈으로 검수·확정하고, 그 이미지를 레퍼런스로 영상을 돌리는 것. 모델별 레퍼런스 지원 순위: <b>Seedance 2.0/2.5</b>(이미지 9~30개+영상·음성) ≈ <b>MiniMax H3</b>(이미지 9+음성) ≈ <b>Kling 3.0 Elements</b>(다각도 얼굴 잠금 — 고개 돌림·가림에 최강) &gt; Wan 3.0(이미지 10) &gt; Veo 3.1(3장, Lite 없음) &gt; Runway Gen-4(입력 이미지 1장) &gt; <b>Luma Ray3.14(레퍼런스 자체가 없음)</b>.</li>
+          <li><b>순수 얼굴 품질에 대한 리뷰 합의:</b> 단일 샷 포토리얼리즘은 Veo 3.1, 컷을 넘어 얼굴이 유지되는 "실사 인물픽"은 Kling 3.0, 블라인드 선호 보드 최상위권에 Seedance 2.x. 중국 랩 모델들(Seedance/Kling/H3/Wan)은 동아시아 영상 학습량이 압도적으로 많고, 공교롭게도 한국어 발화를 문서화한 모델들이기도 해서 대사 장면의 입·얼굴 움직임과도 상관관계가 있습니다.</li>
+        </ul>
+        <div class="callout">
+          <b>결정 전 직접 테스트가 답입니다:</b> 같은 프롬프트 20개로 Kling 3.0 vs Seedance 1.5 Pro vs MiniMax H3를 직접 대결(bake-off)시켜 한국인 노인 얼굴과 한국어 대사를 귀로 확인한 뒤 주력을 정하세요. 공개 데이터로는 이 질문에 답할 수 없습니다.
+        </div>
+      </section>
+
+      <section id="bench">
+        <h2><span class="no">06</span>벤치마크 — 선두는 "무리"로 읽기</h2>
+        <p class="sec-lede">Artificial Analysis가 2026년 10월 4일 Video Arena를 재구축(v2.0, 1080p, 68,000표+)하면서 <b>재구축 전후 점수는 비교가 안 됩니다.</b> 아래는 재구축 후 "오디오 포함" 보드 — 상위 5개가 오차범위(±약 10) 안의 약 22점 차 접전입니다. 1등 독주가 아니라 선두 그룹으로 읽어야 합니다.</p>
+        <div class="elo-wrap">
+          <div id="elo-chart" role="img" aria-label="Artificial Analysis 오디오 포함 보드 Elo 점수: Wan 3.0 1156, Utopai X 1148, Seedance 2.5 1142, MiniMax H3 768p 1138, H3 Max 1134"></div>
+          <p class="axis-note">점 인코딩(막대 아님) — Elo는 비율 척도가 아니라서 0부터 그리지 않았습니다. 축은 1,120~1,170 구간을 표시합니다. 출처: Artificial Analysis Arena v2.0 스냅샷 (2026-10-04).</p>
+        </div>
+        <ul class="tight" style="margin-top:18px;">
+          <li><b>재구축 전 9월 보드</b>에서는 Gemini Omni Flash(약 1,233) ≈ Wan 3.0(1,229) ≈ H3 Max(1,227), 그다음 Seedance 2.0 순이었습니다 — <b>보드마다 1등이 바뀝니다.</b></li>
+          <li><b>텍스트-투-비디오 스냅샷:</b> Seedance 2.0 1위(1,212), Omni Flash 2위(1,204). <b>LMArena 이미지-투-비디오:</b> Veo 3.1 1위(1,397), Kling 3.0 Pro(1,356).</li>
+          <li><b>대사만 놓고 보면</b> 리뷰 합의는 여전히 Veo 3.1(음소 립싱크·영화 조명)을 대사 승자, Kling 3.0을 실사 인물·컷 간 얼굴 유지의 승자로 꼽습니다. 다만 <b>한국어</b> 대사에서는 문서화된 언어 지원(§비교표)이 일반적인 왕관을 뒤집습니다 — Seedance와 Kling이 방어 가능한 최선, H3가 가성비 도전입니다.</li>
+          <li><b>가성비 결론:</b> 한국어 대사가 되는 모델 중 Seedance 1.5 Pro($0.052/초)가 단연 돋보이고, 현행 플래그십 중에서는 H3 768p($0.08)와 Wan 3.0 720p($0.10)가 Elo 대비 가격이 가장 좋습니다.</li>
+        </ul>
+      </section>
+
+      <section id="openq">
+        <h2><span class="no">07</span>아직 모르는 것 — 확인 안 된 항목들</h2>
+        <div class="openq">
+          <ul class="tight">
+            <li><b>한국인·노인 얼굴 벤치마크 자체가 존재하지 않습니다</b> (전 모델 공통). §05는 일반 편향 문헌 + 리뷰 합의 기반이며, 채널 자체 bake-off가 필요합니다.</li>
+            <li><b>Seedance 2.5 직결 ModelArk 정식 출시(GA) 여부</b> — 출처가 엇갈립니다 ("요금표만 공개, 엔드포인트 출시 중" vs 등록 확인). 애그리게이터 제공은 확정, Runway Dev 실측 가격표에도 포함돼 있습니다.</li>
+            <li><b>BytePlus 직결 계정의 한국 가입·결제 가능 여부</b> — 미국 개발자 제한 보도는 있으나 한국 언급은 없음. 미확인.</li>
+            <li><b>Wan 3.0 한국어 대사 품질</b> — 언어 목록 미공개, 초기 약점 보고는 일본어에 대한 것. 한국어는 출처상으로 미검증.</li>
+            <li><b>Veo 3.1 한국어 대사 신뢰도</b> — 구글은 영어만 평가 완료로 문서화. 서드파티의 한국어 음소 지원 주장은 보장되지 않습니다.</li>
+            <li><b>Pika 2.5 초당 API 가격과 Pro 미만 등급의 상업 조건</b> — 출처가 정면으로 충돌해 비용 모델에서 제외했습니다.</li>
+            <li><b>Runway Gen-4.5 네이티브 오디오 업데이트의 API 제공 여부</b> — 2025년 12월 발표(기업 우선)됐으나 2026-10-22 실측한 API 가격표에 없음.</li>
+            <li><b>MiniMax H3 오픈 웨이트 라이선스의 지역 제외 범위</b> — 2026년 10월 보도에서 결론이 안 남. 호스팅 API 사용이 안전한 경로.</li>
+            <li><b>Kling 4.0</b> — 2026년 9월 30일 발표, 얼리 액세스만. 30초·스테레오 스펙은 제조사 주장으로 독립 검증 전입니다.</li>
+          </ul>
+        </div>
+        <div class="callout neutral">
+          <b>공통 주의 두 가지:</b> ① 유료 등급에서는 전 모델 수익화 유튜브 사용이 가능하고 워터마크가 없습니다 — 예외는 구글의 비표시 SynthID(재업로드에도 남는 출처 표식)와 BytePlus의 워터마크 토글(파라미터에서 꺼둘 것). ② 실사에 가까운 AI 인물 영상은 유튜브의 <b>변형 콘텐츠(altered content) 공개 의무</b> 대상입니다 — 이건 모델 라이선스가 아니라 플랫폼 규칙이라 전 모델 공통으로 적용됩니다.
+        </div>
+      </section>
+
+      <section id="sources">
+        <h2><span class="no">08</span>출처</h2>
+        <p class="sec-lede">2026년 10월 22일 실측한 2건(구글·Runway 공식 가격 페이지)을 앞에 뒀습니다. 나머지는 공식/1차 문서를 우선하고, 가격 집계·리뷰는 교차 확인된 것만 썼습니다.</p>
+        <ul class="sources">
+          <li><b>실측 (2026-10-22):</b> Google Gemini API 가격 — <a href="https://ai.google.dev/gemini-api/docs/pricing" target="_blank" rel="noopener">ai.google.dev/gemini-api/docs/pricing</a> (Veo 3.1 등급별 단가, Omni Flash 토큰 단가, Veo 프리뷰 종료 공지; 페이지 갱신 2026-10-19)</li>
+          <li><b>실측 (2026-10-22):</b> Runway Dev API 가격 — <a href="https://docs.dev.runwayml.com/guides/pricing/" target="_blank" rel="noopener">docs.dev.runwayml.com/guides/pricing</a> (Gen-4.5, Kling 3.0, Seedance 2.x/2.5, Wan3, H3, Veo, Omni, Happy Horse 단가)</li>
+          <li>Google Veo 3.1 가이드 — <a href="https://ai.google.dev/gemini-api/docs/veo" target="_blank" rel="noopener">ai.google.dev/gemini-api/docs/veo</a></li>
+          <li>BytePlus Seedance 1.0 Pro 가이드·가격 — <a href="https://www.byteplus.com/en/blog/seedance-1-0-pro-guide-api-pricing" target="_blank" rel="noopener">byteplus.com/en/blog/seedance-1-0-pro-guide-api-pricing</a></li>
+          <li>Replicate Seedance 1.5 Pro 모델 페이지 — <a href="https://replicate.com/bytedance/seedance-1.5-pro/readme" target="_blank" rel="noopener">replicate.com/bytedance/seedance-1.5-pro/readme</a></li>
+          <li>Alibaba Cloud, Wan2.7 vs Wan3.0 — <a href="https://www.alibabacloud.com/blog/603504" target="_blank" rel="noopener">alibabacloud.com/blog/603504</a></li>
+          <li>MiniMax H3 스펙 — <a href="https://github.com/MiniMax-AI/MiniMax-H3" target="_blank" rel="noopener">github.com/MiniMax-AI/MiniMax-H3</a></li>
+          <li>Luma Ray3.14 사용자 가이드 — <a href="https://LUMALABS.AI/learning-hub/ray314-user-guide" target="_blank" rel="noopener">lumalabs.ai/learning-hub/ray314-user-guide</a></li>
+          <li>fal.ai Seedance 1.5 가이드 — <a href="https://fal.ai/learn/devs/seedance-1-5-user-guide" target="_blank" rel="noopener">fal.ai/learn/devs/seedance-1-5-user-guide</a></li>
+          <li>Hedra, 영상 모델 API 비용 비교 (2026-09-25) — <a href="https://www.hedra.com/blog/video-model-api-cost-comparison" target="_blank" rel="noopener">hedra.com/blog/video-model-api-cost-comparison</a></li>
+          <li>ModelsLab, Best AI Video API 2026 — <a href="https://modelslab.com/best-ai-video-api-2026" target="_blank" rel="noopener">modelslab.com/best-ai-video-api-2026</a></li>
+          <li>Seedance 2.5 가격 분석 — <a href="https://blog.laozhang.ai/en/posts/seedance-2-pricing-free-vs-paid-guide" target="_blank" rel="noopener">blog.laozhang.ai</a> · <a href="https://aireiter.com/blog/seedance-2-5" target="_blank" rel="noopener">aireiter.com/blog/seedance-2-5</a></li>
+          <li>Kling 3.0 스펙·가격 — <a href="https://www.usefastlane.ai/models/kling-3-0" target="_blank" rel="noopener">usefastlane.ai/models/kling-3-0</a> · <a href="https://piapi.ai/kling-3-0" target="_blank" rel="noopener">piapi.ai/kling-3-0</a> · 요금제 <a href="https://techsifted.com/reviews/kling-ai-pricing-2026" target="_blank" rel="noopener">techsifted.com/reviews/kling-ai-pricing-2026</a></li>
+          <li>MiniMax H3 가격 분석 (2026-09-24, 공식 페이지 대조) — <a href="https://medium.com/@olivia.hayes_21886/minimax-h3-specs-benchmarks-and-pricing-read-by-someone-who-might-self-host-it-2a5a354f848d" target="_blank" rel="noopener">medium.com (Olivia Hayes)</a></li>
+          <li>Hailuo 02 가이드 — <a href="https://magichour.ai/blog/hailuo-02-cinematic-video-model-guide-minimax-flux-ai" target="_blank" rel="noopener">magichour.ai</a> · WaveSpeed Hailuo 02 Pro 문서 — <a href="https://wavespeed.ai/docs/docs-api/minimax/minimax-hailuo-02-pro" target="_blank" rel="noopener">wavespeed.ai/docs</a></li>
+          <li>Luma API 가격 — <a href="https://magichour.ai/blog/luma-dream-machine-pricing" target="_blank" rel="noopener">magichour.ai/blog/luma-dream-machine-pricing</a> · Luma 오디오 입장 — <a href="https://mstudio.ai/vs/kling-vs-luma-dream-machine" target="_blank" rel="noopener">mstudio.ai/vs/kling-vs-luma-dream-machine</a></li>
+          <li>Runway 요금제 — <a href="https://www.8frame.co/blog/runway-pricing-explained" target="_blank" rel="noopener">8frame.co/blog/runway-pricing-explained</a> · Gen-4 무음 확인 — <a href="https://focalml.com/blog/runway-gen-4-guide-whats-new-and-how-to-use-the-latest-ai-video-model/" target="_blank" rel="noopener">focalml.com</a></li>
+          <li>Pika 가격 (출처 충돌) — <a href="https://www.eesel.ai/blog/pika-ai-pricing" target="_blank" rel="noopener">eesel.ai/blog/pika-ai-pricing</a> · <a href="https://flowith.io/blog/pika-faq-motion-controls-scene-length-watermark-commercial/" target="_blank" rel="noopener">flowith.io/blog/pika-faq</a> · Pika 2.5 스펙 — <a href="https://morphic.com/ai-glossary/pika-25" target="_blank" rel="noopener">morphic.com/ai-glossary/pika-25</a></li>
+          <li>Gemini Omni Flash — <a href="https://awesomeagents.ai/models/gemini-omni-flash" target="_blank" rel="noopener">awesomeagents.ai/models/gemini-omni-flash</a> · <a href="https://www.therundown.ai/tools/gemini-omni-1-1-flash" target="_blank" rel="noopener">therundown.ai/tools/gemini-omni-1-1-flash</a></li>
+          <li>Veo 언어 유의사항 — <a href="https://magichour.ai/blog/how-to-prompt-for-speaking-in-veo-3" target="_blank" rel="noopener">magichour.ai/blog/how-to-prompt-for-speaking-in-veo-3</a> · Kling vs Veo — <a href="https://magichour.ai/blog/kling-30-vs-veo-31" target="_blank" rel="noopener">magichour.ai/blog/kling-30-vs-veo-31</a></li>
+          <li>Artificial Analysis Arena v2.0 스냅샷 (2026-10-04) — <a href="https://rctv.com/posts/ai-video-weekly-roundup-2026-10-05/" target="_blank" rel="noopener">rctv.com/posts/ai-video-weekly-roundup-2026-10-05</a> · 9월 보드 — <a href="https://tech-insider.org/best-ai-video-generator-2026/" target="_blank" rel="noopener">tech-insider.org/best-ai-video-generator-2026</a> · T2V 스냅샷 — <a href="https://www.pixazo.ai/blog/ai-video-generation-models-comparison" target="_blank" rel="noopener">pixazo.ai/blog</a> · LMArena I2V — <a href="https://trendintech.com/veo-3-1-vs-kling-3-0-vs-runway-gen-4-5-2026/" target="_blank" rel="noopener">trendintech.com</a></li>
+          <li>편향 문헌: AI 이미지의 디지털 연령차별 — <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12349884/" target="_blank" rel="noopener">pmc.ncbi.nlm.nih.gov/articles/PMC12349884</a> · 동아시아 여성 이미지 편향 — <a href="https://arxiv.org/html/2504.04865v1" target="_blank" rel="noopener">arxiv.org/html/2504.04865v1</a></li>
+        </ul>
+      </section>
+
+      <footer>
+        조사일 2026년 10월 22일 기준 정리 · 이 시장의 가격과 버전은 매달 바뀝니다. 도입 결정 전, 관심 모델의 공식 가격 페이지를 한 번 더 확인하세요. 수치 옆에 출처를 단 이유가 그것입니다.
+      </footer>
+    </div>
+
+    <script>
+      (function () {
+        "use strict";
+
+        /* ---------- cost calculator ----------
+           Single data source: rates in $ per generated second (720p-class,
+           with audio unless silent). Values from the research report §14. */
+        var COST_MODELS = [
+          { name: "Hailuo 02", sub: "768p · 무음", rate: 0.047, kind: "silent" },
+          { name: "Veo 3.1 Lite", sub: "720p · 레퍼런스 불가", rate: 0.05, kind: "partial" },
+          { name: "Runway Gen-4 Turbo", sub: "720p · 무음", rate: 0.05, kind: "silent" },
+          { name: "Seedance 1.5 Pro", sub: "720p · fal", rate: 0.052, kind: "ko" },
+          { name: "MiniMax H3", sub: "768p", rate: 0.08, kind: "ko" },
+          { name: "Veo 3.1 Fast", sub: "720p", rate: 0.10, kind: "partial" },
+          { name: "Gemini Omni Flash 1.1", sub: "720p 네이티브", rate: 0.10, kind: "partial" },
+          { name: "Wan 3.0", sub: "720p", rate: 0.10, kind: "partial" },
+          { name: "Runway Gen-4.5", sub: "720p · 무음", rate: 0.12, kind: "silent" },
+          { name: "Kling 3.0 Standard", sub: "720p +오디오", rate: 0.13, kind: "ko" },
+          { name: "MiniMax H3 (2K)", sub: "2K", rate: 0.13, kind: "ko" },
+          { name: "Seedance 2.0", sub: "720p · BytePlus 직결", rate: 0.15, kind: "ko" },
+          { name: "Kling 3.0 Pro", sub: "1080p +오디오", rate: 0.168, kind: "ko" },
+          { name: "Seedance 2.5", sub: "720p · BytePlus 직결", rate: 0.231, kind: "ko" },
+          { name: "Veo 3.1 Standard", sub: "720/1080p", rate: 0.40, kind: "partial" }
+        ];
+
+        var chart = document.getElementById("cost-chart");
+        var inShorts = document.getElementById("in-shorts");
+        var inAtt = document.getElementById("in-att");
+        var inLong = document.getElementById("in-long");
+        var oShorts = document.getElementById("o-shorts");
+        var oAtt = document.getElementById("o-att");
+        var oLong = document.getElementById("o-long");
+
+        function money(v) {
+          return "$" + v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function renderCost() {
+          var shorts = parseFloat(inShorts.value);
+          var att = parseFloat(inAtt.value);
+          var longS = parseFloat(inLong.value);
+          oShorts.textContent = shorts + "초";
+          oAtt.textContent = att + "회";
+          oLong.textContent = longS + "초";
+
+          var rows = COST_MODELS.map(function (m) {
+            return { m: m, day: m.rate * shorts * att, lng: m.rate * longS * att };
+          }).sort(function (a, b) { return a.day - b.day; });
+          var max = rows[rows.length - 1].day;
+
+          chart.innerHTML = rows.map(function (r) {
+            var pct = Math.max(1.2, (r.day / max) * 100);
+            return '<div class="bar-row">' +
+              '<div class="name">' + r.m.name + '<small>' + r.m.sub + " · $" + r.m.rate.toFixed(3).replace(/0$/, "") + '/초</small></div>' +
+              '<div class="bar-track"><div class="bar-fill ' + r.m.kind + '" style="width:' + pct + '%"></div></div>' +
+              '<div class="val">' + money(r.day) + '/일<small>롱폼 ' + money(r.lng) + '/편</small></div>' +
+              '</div>';
+          }).join("");
+        }
+        [inShorts, inAtt, inLong].forEach(function (el) {
+          el.addEventListener("input", renderCost);
+        });
+        renderCost();
+
+        /* ---------- model card filter ---------- */
+        var buttons = Array.prototype.slice.call(document.querySelectorAll(".filters button"));
+        var cards = Array.prototype.slice.call(document.querySelectorAll(".mcard"));
+        buttons.forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            buttons.forEach(function (b) { b.setAttribute("aria-pressed", "false"); });
+            btn.setAttribute("aria-pressed", "true");
+            var f = btn.getAttribute("data-filter");
+            cards.forEach(function (c) {
+              var show = f === "all" || c.getAttribute("data-ko") === f;
+              c.classList.toggle("hidden", !show);
+            });
+          });
+        });
+
+        /* ---------- Elo dot plot (Artificial Analysis, with-audio board, v2.0) ---------- */
+        var ELO = [
+          { name: "Wan 3.0", val: 1156 },
+          { name: "Utopai X", val: 1148 },
+          { name: "Seedance 2.5", val: 1142 },
+          { name: "MiniMax H3 · 768p", val: 1138 },
+          { name: "MiniMax H3 Max", val: 1134 }
+        ];
+        var lo = 1120, hi = 1170; /* labelled plot window for a point (not ratio) scale */
+        var W = 720, rowH = 44, top = 14, labelW = 224, plotW = W - labelW - 70;
+        var H = top + ELO.length * rowH + 34;
+        function X(v) { return labelW + ((v - lo) / (hi - lo)) * plotW; }
+        var svg = '<svg viewBox="0 0 ' + W + " " + H + '" xmlns="http://www.w3.org/2000/svg" role="presentation">';
+        [1120, 1130, 1140, 1150, 1160, 1170].forEach(function (t) {
+          svg += '<line x1="' + X(t) + '" y1="' + top + '" x2="' + X(t) + '" y2="' + (H - 30) + '" stroke="var(--line)" stroke-width="1"/>' +
+                 '<text class="tick" x="' + X(t) + '" y="' + (H - 10) + '" text-anchor="middle">' + t + "</text>";
+        });
+        ELO.forEach(function (d, i) {
+          var y = top + i * rowH + rowH / 2;
+          svg += '<text class="mname" x="0" y="' + (y + 5) + '">' + d.name + "</text>" +
+                 '<line x1="' + labelW + '" y1="' + y + '" x2="' + X(d.val) + '" y2="' + y + '" stroke="var(--line)" stroke-width="2"/>' +
+                 '<circle cx="' + X(d.val) + '" cy="' + y + '" r="6.5" fill="var(--chart-1)"/>' +
+                 '<text class="mval" x="' + (X(d.val) + 13) + '" y="' + (y + 5) + '">' + d.val + "</text>";
+        });
+        svg += "</svg>";
+        document.getElementById("elo-chart").innerHTML = svg;
+      })();
+    </script>
+  </body>
+</html>

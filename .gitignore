@@ -1,0 +1,15 @@
+# Local credentials and runtime files
+.env
+.env.*
+!.env.example
+.secrets/
+*.pem
+*.key
+*.log
+.tools/
+
+# Editor and OS files
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store

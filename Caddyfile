@@ -1,0 +1,8 @@
+:80 {
+	@www host www.hongzi.us
+	redir @www https://hongzi.us{uri} permanent
+
+	root * /srv
+	encode zstd gzip
+	file_server
+}

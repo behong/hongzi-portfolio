@@ -1,0 +1,40 @@
+services:
+  web:
+    image: caddy:2-alpine
+    container_name: portfolio-web
+    ports:
+      - "127.0.0.1:8080:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./site:/srv:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: portfolio-tunnel
+    command: tunnel --no-autoupdate --config /etc/cloudflared/config.yml run
+    volumes:
+      - ./cloudflared.yml:/etc/cloudflared/config.yml:ro
+    secrets:
+      - tunnel_credentials
+    depends_on:
+      web:
+        condition: service_healthy
+    restart: unless-stopped
+
+secrets:
+  tunnel_credentials:
+    file: ./.secrets/tunnel.json
+
+volumes:
+  caddy_data:
+  caddy_config:
+

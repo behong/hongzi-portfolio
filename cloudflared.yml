@@ -1,0 +1,9 @@
+tunnel: d4208fae-7b4f-4fd5-8679-28ad83b43971
+credentials-file: /run/secrets/tunnel_credentials
+
+ingress:
+  - hostname: hongzi.us
+    service: http://web:80
+  - hostname: www.hongzi.us
+    service: http://web:80
+  - service: http_status:404
