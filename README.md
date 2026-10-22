@@ -112,6 +112,8 @@ Get-Content .tools\autosync\watcher.log -Tail 20
 
 로컬에서 따로 수정한 파일이 원격 변경과 충돌하면 해당 내용을 보존하고 전체 업데이트를 중단합니다. 로그에 나온 파일을 백업·정리하면 다음 확인 때 재시도합니다. 첫 시작에도 로컬 파일과 GitHub가 다르면 자동으로 덮어쓰지 않습니다. 인증 파일과 `.git`, `.tools`는 동기화 대상에서 제외합니다. 변경 전 파일은 `.tools/autosync/backups/커밋ID/`에 보관합니다. 네트워크 장애 시 현재 사이트 파일을 유지하고 다음 주기에 재시도합니다. PC가 실행 중이고 로그인되어 있어야 감시가 작동합니다.
 
+최근 확인 성공 여부는 `.tools/autosync/heartbeat.json`의 `ok`에서 확인합니다.
+
 자동 반영 로직은 `python -m unittest discover -s checks -p "test_*.py"`로 확인합니다.
 
 ## 자동 검사 예제
