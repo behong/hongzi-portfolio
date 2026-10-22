@@ -39,12 +39,12 @@ $pythonWindowless = Join-Path (Split-Path $pythonPath) 'pythonw.exe'
 if (Test-Path -LiteralPath $pythonWindowless) { $pythonPath = $pythonWindowless }
 $arguments = '"' + $scriptPath + '" --interval 60'
 if ($Install) {
-    $userName = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
-    $action = New-ScheduledTaskAction -Execute $pythonPath -Argument $arguments -WorkingDirectory $PSScriptRoot
-    $trigger = New-ScheduledTaskTrigger -AtLogOn -User $userName
-    $principal = New-ScheduledTaskPrincipal -UserId $userName -LogonType Interactive -RunLevel Limited
-    $settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit ([TimeSpan]::Zero) -MultipleInstances IgnoreNew -StartWhenAvailable -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1)
     try {
+        $userName = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+        $action = New-ScheduledTaskAction -Execute $pythonPath -Argument $arguments -WorkingDirectory $PSScriptRoot
+        $trigger = New-ScheduledTaskTrigger -AtLogOn -User $userName
+        $principal = New-ScheduledTaskPrincipal -UserId $userName -LogonType Interactive -RunLevel Limited
+        $settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit ([TimeSpan]::Zero) -MultipleInstances IgnoreNew -StartWhenAvailable -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1)
         Register-ScheduledTask -TaskName $taskName -Action $action -Trigger $trigger -Principal $principal -Settings $settings -Description 'Sync hongzi portfolio from GitHub every 60 seconds.' -Force | Out-Null
         Write-Host 'Logon auto-start installed.'
     } catch {
