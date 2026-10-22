@@ -96,12 +96,27 @@ def sync(root, runtime, github):
     changes = []
     conflicts = []
     inspected = {}
+    replaced_directories = []
     # Validate all destinations and local edits before changing any files.
     for name, target in paths.items():
         current = blob_sha(target.read_bytes()) if target.is_file() else None
         if target.exists() and not target.is_file():
-            conflicts.append(name)
-            continue
+            if not target.is_dir() or name not in remote or name in previous:
+                conflicts.append(name)
+                continue
+            children = list(target.rglob('*'))
+            unsafe = any(
+                child.is_symlink() or (
+                    child.is_file() and (
+                        child.relative_to(root).as_posix() not in previous
+                        or child.relative_to(root).as_posix() in remote
+                    )
+                ) for child in children
+            )
+            if unsafe:
+                conflicts.append(name)
+                continue
+            replaced_directories.append(target)
         inspected[name] = current
         wanted, old = remote.get(name), previous.get(name)
         if current == wanted:
@@ -119,14 +134,20 @@ def sync(root, runtime, github):
         current = blob_sha(target.read_bytes()) if target.is_file() else None
         if current != inspected[name]:
             raise RuntimeError("Local file changed during download; sync cancelled: " + name)
-    for name, sha in changes:
+    # Remove tracked files first, allowing both file-to-directory transitions.
+    for name, sha in sorted(changes, key=lambda change: bool(change[1])):
         target = paths[name]
-        if target.exists():
+        if target.is_file():
             backup = runtime / "backups" / commit / name
             backup.parent.mkdir(parents=True, exist_ok=True)
             if not backup.exists():
                 shutil.copy2(target, backup)
         if sha:
+            if target in replaced_directories:
+                folders = sorted((p for p in target.rglob('*') if p.is_dir()), key=lambda p: len(p.parts), reverse=True)
+                for folder in folders + [target]:
+                    assert folder.resolve().is_relative_to(root.resolve())
+                    folder.rmdir()
             atomic_write(target, downloaded[name])
         else:
             target.unlink()

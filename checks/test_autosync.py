@@ -100,6 +100,23 @@ class AutoSyncTests(unittest.TestCase):
             sync(self.root, self.runtime, self.github)
         self.assertEqual(self.file.read_bytes(), b'concurrent local edit')
 
+    def test_directory_to_file(self):
+        self.github = FakeGitHub('second', {'site': b'site is now a file'})
+        sync(self.root, self.runtime, self.github)
+        self.assertEqual((self.root / 'site').read_bytes(), b'site is now a file')
+
+    def test_file_to_directory(self):
+        self.github = FakeGitHub('second', {'site/index.html/child.txt': b'child'})
+        sync(self.root, self.runtime, self.github)
+        self.assertEqual((self.file / 'child.txt').read_bytes(), b'child')
+
+    def test_directory_to_file_preserves_untracked_content(self):
+        (self.root / 'site/local.txt').write_bytes(b'local')
+        self.github = FakeGitHub('second', {'site': b'replacement'})
+        with self.assertRaises(RuntimeError):
+            sync(self.root, self.runtime, self.github)
+        self.assertEqual((self.root / 'site/local.txt').read_bytes(), b'local')
+
 
 if __name__ == '__main__':
     unittest.main()
