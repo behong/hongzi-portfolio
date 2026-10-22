@@ -90,6 +90,30 @@ HTML은 `site/` 파일 교체만으로 반영됩니다. Cloudflare 캐시 규칙
 
 저장소를 복제한 뒤 `.secrets` 폴더를 만들고 비공개 백업의 `tunnel.json`을 `.secrets/tunnel.json`으로 복원합니다. 그 다음 시작 스크립트를 실행합니다. GitHub에는 터널 인증 파일과 Cloudflare 로그인 인증서를 올리지 않습니다. 터널을 새로 생성한 경우 `cloudflared.yml`의 ID와 DNS 연결도 새 터널에 맞춰 변경해야 합니다.
 
+## GitHub 커밋 자동 반영
+
+이 PC에서 [AutoSync.py](AutoSync.py)가 60초마다 `behong/hongzi-portfolio`의 `main` 커밋을 확인하고 변경된 파일을 받습니다. Python 3.9 이상과 로그인된 GitHub CLI(`gh auth status`)가 필요합니다. `.git` 쓰기 제한이 있는 환경에서도 작동하도록 GitHub API로 작업 파일을 동기화하며, 로컬 Git 브랜치·인덱스는 변경하지 않습니다.
+
+```powershell
+# 지금 시작하고 Windows 로그인 시 자동 시작 등록
+.\Start-AutoSync.ps1 -Install
+
+# 상태와 마지막 반영 커밋
+.\Start-AutoSync.ps1 -Status
+
+# 최근 로그
+Get-Content .tools\autosync\watcher.log -Tail 20
+
+# 감시 중지와 로그인 자동 시작 해제
+.\Start-AutoSync.ps1 -Stop
+```
+
+`site/` 변경은 실행 중인 사이트에 바로 반영됩니다. Docker·Caddy·터널 설정이 변경되면 파일을 내려받고 로그에 재실행 안내를 남깁니다. 설정 적용은 기존 운영 명령으로 진행합니다. 감시 프로그램 자체가 수정되면 중지 후 다시 시작해야 새 코드가 실행됩니다.
+
+로컬에서 따로 수정한 파일이 원격 변경과 충돌하면 해당 내용을 보존하고 전체 업데이트를 중단합니다. 로그에 나온 파일을 백업·정리하면 다음 확인 때 재시도합니다. 첫 시작에도 로컬 파일과 GitHub가 다르면 자동으로 덮어쓰지 않습니다. 인증 파일과 `.git`, `.tools`는 동기화 대상에서 제외합니다. 변경 전 파일은 `.tools/autosync/backups/커밋ID/`에 보관합니다. 네트워크 장애 시 현재 사이트 파일을 유지하고 다음 주기에 재시도합니다. PC가 실행 중이고 로그인되어 있어야 감시가 작동합니다.
+
+자동 반영 로직은 `python -m unittest discover -s checks -p "test_*.py"`로 확인합니다.
+
 ## 자동 검사 예제
 
 [checks/github-actions.yml](checks/github-actions.yml)은 Compose·Caddy 설정과 실제 페이지 응답, www 리디렉션을 검사하는 GitHub Actions 예제입니다. 현재 GitHub 인증에 workflow 쓰기 권한이 없어 자동 실행은 활성화하지 않았습니다. 활성화하려면 GitHub에서 `.github/workflows/validate.yml` 경로에 이 내용을 저장합니다. 검사에서는 웹 서버만 실행하며 터널 인증 파일은 사용하지 않습니다.

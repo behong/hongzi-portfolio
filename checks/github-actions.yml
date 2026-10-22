@@ -15,6 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Test automatic sync
+        run: python3 -m unittest discover -s checks -p 'test_*.py'
       - name: Validate Compose and Caddy
         run: |
           docker compose config --quiet
