@@ -4,5 +4,12 @@
 
 	root * /srv
 	encode zstd gzip
+
+	@static path *.webp *.jpg *.jpeg *.png *.gif *.svg *.ico *.woff2
+	header @static Cache-Control "public, max-age=2592000"
+
+	@html path / *.html
+	header @html Cache-Control "public, max-age=0, must-revalidate"
+
 	file_server
 }
