@@ -7,7 +7,7 @@
 - [docker-compose.yml](docker-compose.yml): Caddy 웹 서버와 cloudflared 터널을 실행합니다. 웹 서버가 정상 응답한 뒤 터널이 시작됩니다.
 - [Caddyfile](Caddyfile): HTML 제공과 www 리디렉션을 설정합니다.
 - [cloudflared.yml](cloudflared.yml): 두 도메인을 Docker 내부의 `http://web:80`으로 연결합니다.
-- `site/index.html`: 첫 화면. 추가 페이지는 `/seedance.html`, `/fpv.html`로 열립니다.
+- `site/index.html`: 첫 화면. 추가 페이지는 `/seedance.html`, `/fpv.html`, `/kakao.html`로 열립니다.
 - `.secrets/tunnel.json`: 이 PC에서 생성한 터널 인증 파일입니다. GitHub 업로드에서 제외되며 별도 비공개 백업이 필요합니다.
 
 외부 방문자는 Cloudflare HTTPS로 접속하고, Cloudflare와 PC 사이는 암호화된 Tunnel을 사용합니다. Caddy는 Docker 내부 HTTP를 제공하므로 원본 서버용 공개 인증서 발급이나 TCP 80·443 개방은 필요 없습니다. 기본 운영 구성은 PC 포트를 바인딩하지 않으므로 Windows의 예약 포트나 다른 프로그램의 포트 사용에 영향을 받지 않습니다.

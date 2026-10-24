@@ -1,0 +1,737 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>카카오톡 체결 메시지 자동 수집 프로젝트 — HongSungIn</title>
+    <meta name="description" content="갤럭시 S25 울트라와 MacroDroid로 카카오톡 체결 메시지를 자동 수집하는 시스템의 구축 과정. 알림 길이 제한을 화면 텍스트 읽기로 우회하고, 긴 체결 메시지를 서버로 전송하기까지의 검증 기록." />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="카카오톡 체결 메시지 자동 수집 프로젝트" />
+    <meta property="og:description" content="MacroDroid로 알림의 길이 제한을 우회하고, 채팅 화면의 긴 메시지를 서버로 전송하기" />
+    <meta property="og:image" content="https://hongzi.us/img/post-kakao.webp" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #faf8f3;
+        --surface: #fffdf8;
+        --surface-2: #f3efe4;
+        --ink: #23211b;
+        --ink-soft: #4d483e;
+        --muted: #8a8374;
+        --line: #e6dfcf;
+        --line-soft: #efe9da;
+        --teal: #0f6a5c;
+        --teal-soft: #e2efe9;
+        --kakao: #f2c94c;
+        --kakao-soft: #fdf3d3;
+        --amber: #96660a;
+        --amber-soft: #f8ecd2;
+        --gray: #6f6a5e;
+        --gray-soft: #edeae2;
+        --code-bg: #1e2226;
+        --code-ink: #e8e6df;
+        color-scheme: light dark;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #16150f;
+          --surface: #1e1d16;
+          --surface-2: #26241a;
+          --ink: #ece7d8;
+          --ink-soft: #c8c1ae;
+          --muted: #9b927d;
+          --line: #37342a;
+          --line-soft: #2b291f;
+          --teal: #57c3ab;
+          --teal-soft: #17362e;
+          --kakao: #f2c94c;
+          --kakao-soft: #3a3115;
+          --amber: #e2b95c;
+          --amber-soft: #382f14;
+          --gray: #b3ab99;
+          --gray-soft: #2a2820;
+          --code-bg: #101214;
+          --code-ink: #e8e6df;
+        }
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0; background: var(--bg); color: var(--ink);
+        font-family: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+        font-size: 16px; line-height: 1.7; -webkit-font-smoothing: antialiased;
+      }
+      .serif { font-family: "Noto Serif KR", serif; }
+      .mono { font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; }
+      a { color: var(--teal); }
+      img { display: block; max-width: 100%; }
+      .wrap { max-width: 1060px; margin: 0 auto; padding: 0 24px; }
+
+      header.site { border-bottom: 1px solid var(--line-soft); }
+      .site-inner { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding: 22px 0 18px; }
+      .wordmark { font-size: 18px; font-weight: 600; text-decoration: none; color: var(--ink); }
+      .crumb { font-size: 13.5px; color: var(--muted); }
+
+      /* ── hero ── */
+      .hero { padding: 54px 0 8px; }
+      .kicker { font-size: 13px; font-weight: 600; letter-spacing: .06em; color: var(--teal); margin: 0 0 14px; }
+      .hero h1 { font-size: 34px; font-weight: 700; line-height: 1.35; letter-spacing: -0.02em; margin: 0 0 14px; }
+      .hero .sub { font-size: 18px; color: var(--ink-soft); line-height: 1.7; margin: 0 0 22px; max-width: 720px; }
+      .statusline { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 8px; }
+      .chip {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 13px; font-weight: 600; padding: 5px 12px; border-radius: 999px;
+      }
+      .chip .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+      .chip.done { background: var(--teal-soft); color: var(--teal); }
+      .chip.check { background: var(--amber-soft); color: var(--amber); }
+      .chip.todo { background: var(--gray-soft); color: var(--gray); }
+      .hero-img { margin-top: 30px; border-radius: 12px; overflow: hidden; border: 1px solid var(--line-soft); }
+      .hero-img img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; }
+
+      /* ── sections ── */
+      section.block { padding: 52px 0 4px; }
+      .block-head { margin-bottom: 18px; }
+      .block-head .no { font-size: 12.5px; font-weight: 600; letter-spacing: .08em; color: var(--muted); }
+      .block-head h2 { font-size: 23px; font-weight: 700; letter-spacing: -0.015em; margin: 4px 0 6px; }
+      .block-head p { margin: 0; color: var(--ink-soft); font-size: 15px; line-height: 1.8; max-width: 760px; }
+      .prose p { color: var(--ink-soft); font-size: 15.5px; line-height: 1.9; margin: 0 0 12px; max-width: 780px; }
+      .prose strong { color: var(--ink); }
+
+      .facts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 22px; }
+      .fact { background: var(--surface); border: 1px solid var(--line-soft); border-radius: 10px; padding: 16px 18px; }
+      .fact .k { font-size: 12.5px; color: var(--muted); margin-bottom: 4px; }
+      .fact .v { font-size: 15.5px; font-weight: 600; line-height: 1.5; }
+
+      /* ── diagram ── */
+      .diagram-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+      .diagram-bar {
+        display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        padding: 12px 16px; border-bottom: 1px solid var(--line-soft);
+        font-size: 13.5px; color: var(--muted);
+      }
+      .zoom-btn {
+        appearance: none; border: 1px solid var(--line); background: var(--bg); color: var(--ink);
+        font: inherit; font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 999px; cursor: pointer; white-space: nowrap;
+      }
+      .zoom-btn:hover { border-color: var(--teal); color: var(--teal); }
+      .diagram-scroll { overflow-x: auto; padding: 22px 18px; }
+      .diagram-scroll .mermaid { display: flex; justify-content: center; min-width: 520px; }
+      .diagram-scroll svg { height: auto; }
+      .diagram-sm .diagram-scroll .mermaid { min-width: 0; }
+      .legend { display: flex; flex-wrap: wrap; gap: 8px 22px; padding: 0 4px; margin-top: 14px; font-size: 13.5px; color: var(--ink-soft); }
+      .legend .swatch { display: inline-block; width: 34px; border-top: 3px solid var(--teal); vertical-align: middle; margin-right: 8px; }
+      .legend .swatch.dash { border-top-style: dashed; border-top-color: var(--muted); }
+
+      /* ── timeline ── */
+      .timeline { position: relative; margin-top: 8px; }
+      .tstep { display: grid; grid-template-columns: 34px 1fr; gap: 16px; padding: 18px 0; border-bottom: 1px solid var(--line-soft); }
+      .tstep:last-child { border-bottom: 0; }
+      .tnode {
+        width: 30px; height: 30px; border-radius: 50%; margin-top: 2px;
+        background: var(--teal-soft); color: var(--teal);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 13.5px; font-weight: 700; font-variant-numeric: tabular-nums;
+      }
+      .tstep h3 { margin: 0 0 6px; font-size: 16.5px; font-weight: 650; letter-spacing: -0.01em; }
+      .tstep p { margin: 0 0 6px; color: var(--ink-soft); font-size: 14.5px; line-height: 1.8; }
+      .tstep p:last-child { margin-bottom: 0; }
+      .tstep .lbl { display: inline-block; font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: .04em; margin-right: 6px; }
+
+      /* ── config / code ── */
+      .cfg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+      .cfg-card { background: var(--surface); border: 1px solid var(--line-soft); border-radius: 10px; padding: 18px 20px; }
+      .cfg-card h3 { margin: 0 0 6px; font-size: 15.5px; font-weight: 650; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+      .cfg-card p { margin: 0; font-size: 14px; color: var(--ink-soft); line-height: 1.75; }
+      .steps-list { margin: 0 0 16px; padding: 0; list-style: none; counter-reset: step; }
+      .steps-list li {
+        display: flex; gap: 14px; align-items: baseline;
+        padding: 11px 2px; border-bottom: 1px solid var(--line-soft); font-size: 15px;
+      }
+      .steps-list li:last-child { border-bottom: 0; }
+      .steps-list .n { color: var(--teal); font-weight: 700; font-variant-numeric: tabular-nums; min-width: 20px; }
+      .steps-list .d { color: var(--muted); font-size: 13.5px; margin-left: 8px; }
+      .codeblock { background: var(--code-bg); border-radius: 10px; overflow: hidden; margin-bottom: 16px; }
+      .codeblock .cb-head {
+        display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,.08);
+        font-size: 12.5px; color: #a9a499;
+      }
+      .copy-btn {
+        appearance: none; border: 1px solid rgba(255,255,255,.22); background: transparent; color: var(--code-ink);
+        font: inherit; font-size: 12.5px; font-weight: 600; padding: 4px 12px; border-radius: 999px; cursor: pointer; white-space: nowrap;
+      }
+      .copy-btn:hover { border-color: var(--kakao); color: var(--kakao); }
+      .codeblock pre {
+        margin: 0; padding: 16px 18px; overflow-x: auto;
+        font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+        font-size: 13.5px; line-height: 1.75; color: var(--code-ink); white-space: pre;
+      }
+
+      /* ── status table ── */
+      .tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+      table.status { border-collapse: collapse; width: 100%; min-width: 620px; }
+      table.status th, table.status td { text-align: left; padding: 13px 16px; font-size: 14.5px; vertical-align: top; }
+      table.status th { font-size: 12.5px; color: var(--muted); letter-spacing: .05em; border-bottom: 1px solid var(--line); background: var(--surface-2); }
+      table.status tr + tr td { border-top: 1px solid var(--line-soft); }
+      table.status td.note { color: var(--ink-soft); font-size: 13.5px; line-height: 1.7; }
+      .badge { display: inline-block; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+      .badge.done { background: var(--teal-soft); color: var(--teal); }
+      .badge.check { background: var(--amber-soft); color: var(--amber); }
+      .badge.todo { background: var(--gray-soft); color: var(--gray); }
+
+      /* ── limits / roadmap ── */
+      .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      .lcard { background: var(--surface); border: 1px solid var(--line-soft); border-radius: 10px; padding: 18px 20px; }
+      .lcard h3 { margin: 0 0 6px; font-size: 15.5px; font-weight: 650; }
+      .lcard p { margin: 0; font-size: 14px; color: var(--ink-soft); line-height: 1.8; }
+      .roadmap { margin: 0; padding: 0; list-style: none; }
+      .roadmap li { display: flex; gap: 14px; align-items: baseline; padding: 13px 2px; border-bottom: 1px solid var(--line-soft); }
+      .roadmap li:last-child { border-bottom: 0; }
+      .roadmap .rn { font-family: "IBM Plex Mono", monospace; font-size: 13px; color: var(--muted); min-width: 26px; }
+      .roadmap .rt { font-size: 15px; font-weight: 600; }
+      .roadmap .rd { display: block; font-size: 13.5px; color: var(--ink-soft); font-weight: 400; margin-top: 2px; line-height: 1.7; }
+
+      .conclusion {
+        margin-top: 8px; background: var(--kakao-soft); border: 1px solid var(--line-soft);
+        border-radius: 12px; padding: 24px 26px;
+      }
+      .conclusion h2 { margin: 0 0 10px; font-size: 20px; font-weight: 700; }
+      .conclusion p { margin: 0 0 10px; color: var(--ink-soft); font-size: 15px; line-height: 1.9; }
+      .conclusion p:last-child { margin-bottom: 0; }
+
+      footer.site { margin-top: 64px; border-top: 1px solid var(--line-soft); padding: 26px 0 40px; font-size: 13px; color: var(--muted); }
+      footer.site .wrap { display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap; padding: 0 24px; }
+      footer.site a { color: var(--ink-soft); text-decoration: none; }
+      footer.site a:hover { text-decoration: underline; }
+
+      /* ── zoom modal ── */
+      .zoom-overlay {
+        position: fixed; inset: 0; z-index: 60; display: none;
+        background: rgba(18, 16, 10, .92); flex-direction: column;
+      }
+      .zoom-overlay.open { display: flex; }
+      .zoom-bar { display: flex; align-items: center; gap: 8px; padding: 14px 18px; }
+      .zoom-bar .zt { color: #e8e6df; font-size: 14px; font-weight: 600; margin-right: auto; }
+      .zoom-bar button {
+        appearance: none; border: 1px solid rgba(255,255,255,.3); background: transparent; color: #e8e6df;
+        font: inherit; font-size: 14px; font-weight: 600; min-width: 42px; padding: 7px 12px; border-radius: 8px; cursor: pointer;
+      }
+      .zoom-bar button:hover { border-color: var(--kakao); color: var(--kakao); }
+      .zoom-stage { flex: 1; overflow: hidden; position: relative; touch-action: none; cursor: grab; }
+      .zoom-stage:active { cursor: grabbing; }
+      .zoom-canvas { position: absolute; left: 50%; top: 50%; transform-origin: center center; background: #fffdf8; border-radius: 10px; padding: 26px; }
+      .zoom-canvas svg { display: block; }
+
+      @media (max-width: 760px) {
+        .hero { padding-top: 38px; }
+        .hero h1 { font-size: 26px; }
+        .hero .sub { font-size: 16px; }
+        .facts { grid-template-columns: 1fr 1fr; }
+        .cfg-grid, .cards { grid-template-columns: 1fr; }
+        .diagram-scroll { padding: 16px 10px; }
+        .site-inner { flex-direction: column; align-items: flex-start; gap: 4px; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="site">
+      <div class="wrap site-inner">
+        <a class="wordmark" href="index.html">HongSungIn</a>
+        <span class="crumb">기술 프로젝트 · 자동화</span>
+      </div>
+    </header>
+
+    <main class="wrap">
+      <!-- ── Hero ─────────────────────────────── -->
+      <section class="hero">
+        <p class="kicker">개인 자동화 프로젝트 · MacroDroid</p>
+        <h1 class="serif">카카오톡 체결 메시지<br />자동 수집 프로젝트</h1>
+        <p class="sub">MacroDroid로 알림의 길이 제한을 우회하고, 채팅 화면의 긴 메시지를 서버로 전송하기 — 갤럭시 S25 울트라에서 증권사 체결 메시지를 추출해 개인 서버로 보내는 시스템의 구축 기록입니다.</p>
+        <div class="statusline" aria-label="진행 상태 요약">
+          <span class="chip done"><span class="dot"></span>핵심 기술 검증 완료</span>
+          <span class="chip check"><span class="dot"></span>자동 트리거 검증 필요</span>
+          <span class="chip todo"><span class="dot"></span>DB 저장은 미구현</span>
+        </div>
+        <div class="hero-img">
+          <img src="img/post-kakao.webp" alt="책상 위의 스마트폰 채팅 화면과 노트북 대시보드를 잇는 자동화 흐름 일러스트" fetchpriority="high" />
+        </div>
+      </section>
+
+      <!-- ── 1. 프로젝트 소개 ───────────────────── -->
+      <section class="block" id="intro">
+        <div class="block-head">
+          <span class="no">01 · 프로젝트 소개</span>
+          <h2>왜 체결 메시지를 자동으로 수집하려 했나</h2>
+        </div>
+        <div class="prose">
+          <p>주식 체결이 이뤄지면 증권사(한국투자증권) 카카오톡 채널로 체결 안내 메시지가 도착합니다. 체결가, 수량, 주문번호가 담긴 긴 메시지인데, 이걸 매매일지에 옮겨 적는 일은 번거롭고 빠뜨리기도 쉽습니다. <strong>휴대폰이 스스로 체결 메시지를 읽어 서버로 보내 주면</strong>, 기록은 자동으로 쌓이고 사람은 매매에만 집중할 수 있습니다.</p>
+          <p>문제는 카카오톡 알림만으로는 긴 메시지를 온전히 가져올 수 없다는 점입니다. 이 프로젝트는 그 한계를 확인하고, <strong>알림이 아니라 채팅 화면 자체를 읽는 방식</strong>으로 우회해 전문(全文)을 서버까지 전달하는 핵심 기술을 먼저 검증한 기록입니다. 자동 실행의 마지막 단계와 DB 저장은 아직 남아 있으며, 이 페이지에서는 검증된 것과 아닌 것을 엄격히 구분해 표시합니다.</p>
+        </div>
+        <div class="facts">
+          <div class="fact"><div class="k">기기</div><div class="v">갤럭시 S25 울트라</div></div>
+          <div class="fact"><div class="k">자동화 도구</div><div class="v">MacroDroid</div></div>
+          <div class="fact"><div class="k">수집 대상</div><div class="v">한국투자증권<br />카카오톡 체결 안내</div></div>
+          <div class="fact"><div class="k">전송 방식</div><div class="v">HTTP POST<br />개인 서버 테스트 API</div></div>
+        </div>
+      </section>
+
+      <!-- ── 2. 시스템 아키텍처 ─────────────────── -->
+      <section class="block" id="architecture">
+        <div class="block-head">
+          <span class="no">02 · 전체 시스템 흐름</span>
+          <h2>시스템 아키텍처</h2>
+          <p>실선은 플로팅 버튼 수동 실행으로 검증한 흐름, 점선은 자동 트리거 검증이 남았거나 추후 구현할 흐름입니다. 다이어그램을 누르면 크게 확대해 볼 수 있습니다.</p>
+        </div>
+        <div class="diagram-card" id="mainDiagramCard">
+          <div class="diagram-bar">
+            <span>전체 흐름도 — 수동 검증 경로와 향후 자동화 경로</span>
+            <button type="button" class="zoom-btn" data-zoom="mainDiagram">⤢ 확대해서 보기</button>
+          </div>
+          <div class="diagram-scroll" data-zoom="mainDiagram" role="button" tabindex="0" aria-label="전체 흐름도 확대해서 보기">
+            <pre class="mermaid" id="mainDiagram">
+flowchart TD
+    A["카카오톡 체결 메시지"]
+    B["카카오톡 알림 감지"]
+    M["플로팅 버튼 수동 실행"]
+    C["카카오톡 앱 실행"]
+    D["증권사 채팅방 자동 열기"]
+    E["화면 텍스트 전체 읽기"]
+    F["kakao_screen 딕셔너리"]
+    G["HTTP POST 전송"]
+    H["서버 테스트 API"]
+    I{"체결 메시지인가?"}
+    J["거래일 및 중복 검증"]
+    K["매매일지 DB"]
+    X["불필요한 메시지 제외"]
+
+    A -.-> B
+    B -.-> C
+    M --> C
+    C --> D --> E --> F --> G --> H
+    H -.-> I
+    I -->|예| J --> K
+    I -->|아니오| X
+            </pre>
+          </div>
+        </div>
+        <div class="legend">
+          <span><span class="swatch"></span>실선 — 수동 실행으로 검증한 기능</span>
+          <span><span class="swatch dash"></span>점선 — 자동 트리거 검증 또는 추후 구현 예정</span>
+        </div>
+
+        <div class="diagram-card diagram-sm" style="margin-top:26px;">
+          <div class="diagram-bar">
+            <span>한눈에 보는 흐름</span>
+            <button type="button" class="zoom-btn" data-zoom="simpleDiagram">⤢ 확대해서 보기</button>
+          </div>
+          <div class="diagram-scroll" data-zoom="simpleDiagram" role="button" tabindex="0" aria-label="요약 흐름도 확대해서 보기">
+            <pre class="mermaid" id="simpleDiagram">
+flowchart LR
+    A["카카오톡"] --> B["MacroDroid"]
+    B --> C["화면 텍스트 추출"]
+    C --> D["HTTP POST"]
+    D --> E["개인 서버"]
+    E -. "향후 구현" .-> F["체결 데이터 검증"]
+    F -.-> G["매매일지 DB"]
+            </pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 3. 구현 과정 ───────────────────────── -->
+      <section class="block" id="process">
+        <div class="block-head">
+          <span class="no">03 · 구현 과정</span>
+          <h2>문제 → 시도 → 결과</h2>
+          <p>막힌 지점과 해결 과정을 순서대로 기록했습니다. 일곱 단계 모두 실제로 수행해 확인한 내용입니다.</p>
+        </div>
+        <div class="timeline" id="timeline"></div>
+      </section>
+
+      <!-- ── 4. MacroDroid 설정 ─────────────────── -->
+      <section class="block" id="config">
+        <div class="block-head">
+          <span class="no">04 · MacroDroid 설정</span>
+          <h2>트리거와 동작 순서</h2>
+          <p>수동 실행은 검증이 끝났고, 알림 트리거 자동 실행은 최종 검증이 남아 있습니다. 설정값은 복사해서 쓸 수 있습니다.</p>
+        </div>
+        <div class="cfg-grid">
+          <div class="cfg-card">
+            <h3>플로팅 버튼 <span class="mono" style="font-size:13.5px;">kakao_read</span> <span class="badge done">검증 완료</span></h3>
+            <p>수동 테스트용 트리거. 버튼을 누르면 카카오톡 실행부터 서버 전송까지 전체 처리가 한 번에 실행됩니다. 현재까지의 모든 검증은 이 경로로 수행했습니다.</p>
+          </div>
+          <div class="cfg-card">
+            <h3>카카오톡 알림 수신 <span class="badge check">최종 검증 필요</span></h3>
+            <p>자동 실행용 트리거. 알림이 오면 같은 동작이 무인으로 실행되도록 연결할 예정이며, 실제 체결 알림 상황에서의 동작은 아직 검증하지 않았습니다.</p>
+          </div>
+        </div>
+        <ol class="steps-list">
+          <li><span class="n">1</span><span>카카오톡 실행</span></li>
+          <li><span class="n">2</span><span>2초 대기<span class="d">앱 실행 안정화</span></span></li>
+          <li><span class="n">3</span><span>UI 자동조작 — 한국투자증권 채팅방 클릭</span></li>
+          <li><span class="n">4</span><span>2초 대기<span class="d">채팅방 로딩</span></span></li>
+          <li><span class="n">5</span><span>화면 텍스트 전체 읽기</span></li>
+          <li><span class="n">6</span><span><span class="mono" style="font-size:13.5px;">kakao_screen</span> 딕셔너리에 저장</span></li>
+          <li><span class="n">7</span><span>HTTP POST로 테스트 서버에 전송</span></li>
+        </ol>
+        <div class="codeblock">
+          <div class="cb-head"><span>HTTP 요청 명세 — 테스트 서버</span><button type="button" class="copy-btn">복사</button></div>
+          <pre>POST /api/macrodroid/test
+Authorization: Bearer •••••••• (실제 토큰은 비공개 — 이 페이지에 기록하지 않음)
+Content-Type: text/plain; charset=utf-8
+
+본문: kakao_screen 딕셔너리에 담긴 화면 텍스트 전문</pre>
+        </div>
+        <div class="codeblock">
+          <div class="cb-head"><span>카카오 개발자 API — 나에게 메시지 보내기 테스트 응답</span><button type="button" class="copy-btn">복사</button></div>
+          <pre>HTTP 200
+{
+  "result_code": 0
+}</pre>
+        </div>
+      </section>
+
+      <!-- ── 5. 구현 상태 ───────────────────────── -->
+      <section class="block" id="status">
+        <div class="block-head">
+          <span class="no">05 · 현재 구현 상태</span>
+          <h2>완료 / 검증 필요 / 미구현</h2>
+          <p>실제로 확인한 것만 완료로 표시합니다. 상태는 아래 표 데이터만 고치면 페이지 전체에 반영되는 구조입니다.</p>
+        </div>
+        <div class="tablewrap">
+          <table class="status">
+            <thead>
+              <tr><th style="width:34%;">기능</th><th style="width:14%;">상태</th><th>비고</th></tr>
+            </thead>
+            <tbody id="statusBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── 6. 기술적 한계 ─────────────────────── -->
+      <section class="block" id="limits">
+        <div class="block-head">
+          <span class="no">06 · 기술적 한계</span>
+          <h2>알고 넘어가야 할 것들</h2>
+        </div>
+        <div class="cards">
+          <div class="lcard">
+            <h3>잠금·화면 꺼짐 상태</h3>
+            <p>화면이 꺼져 있거나 휴대폰이 잠긴 상태에서는 UI 자동조작이 실패할 수 있습니다. 무인 자동 실행의 가장 큰 변수입니다.</p>
+          </div>
+          <div class="lcard">
+            <h3>화면에 보이는 것만 읽힌다</h3>
+            <p>화면 텍스트 읽기는 현재 화면에 표시된 내용만 가져옵니다. 스크롤 밖에 있거나 화면에 표시되지 않은 메시지는 추출할 수 없습니다.</p>
+          </div>
+          <div class="lcard">
+            <h3>카카오톡 UI 변경에 취약</h3>
+            <p>카카오톡 화면 구조나 View ID가 업데이트로 달라지면 채팅방 자동 열기와 텍스트 읽기가 깨질 수 있어, 그때마다 설정을 손봐야 합니다.</p>
+          </div>
+          <div class="lcard">
+            <h3>개인정보 전송 위험</h3>
+            <p>화면 전체를 읽는 방식이라 비밀번호 등 민감정보가 화면에 있으면 함께 전송될 수 있습니다. 전송 전 민감정보 차단은 아직 구현하지 않았습니다.</p>
+          </div>
+          <div class="lcard">
+            <h3>과거 메시지를 현재 거래로 오인할 위험</h3>
+            <p>채팅방에 남은 과거 체결 메시지를 오늘 거래로 저장하면 안 됩니다. 거래일 검증은 아직 구현하지 않았으므로, 지금 단계의 수집 데이터는 기록용으로만 봅니다.</p>
+          </div>
+          <div class="lcard">
+            <h3>중복 방지 미구현 · 테스트와 실전의 구분</h3>
+            <p>같은 메시지가 중복 전송·저장되는 것을 막는 장치도 아직 없습니다. 또한 현재 서버는 테스트 API 수신까지만 확인한 상태로, 실제 매매일지 DB 저장 기능과는 구분됩니다.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 7. 향후 개발 ───────────────────────── -->
+      <section class="block" id="roadmap">
+        <div class="block-head">
+          <span class="no">07 · 향후 개발</span>
+          <h2>남은 과제</h2>
+          <p>자동 트리거 검증이 먼저, 그다음이 서버 쪽 분석과 DB 연결입니다.</p>
+        </div>
+        <ol class="roadmap" id="roadmapList"></ol>
+      </section>
+
+      <!-- ── 결론 ─────────────────────────────── -->
+      <section class="block" id="conclusion">
+        <div class="conclusion">
+          <h2>결론 — 핵심 기술은 검증됐다</h2>
+          <p>카카오톡 알림의 길이 제한은 <strong>채팅 화면의 텍스트를 직접 읽는 방식</strong>으로 우회할 수 있고, 그렇게 추출한 긴 체결 메시지를 개인 서버까지 온전히 전달할 수 있음을 확인했습니다. 채팅방 자동 열기부터 전문 전송까지, 수동 실행 기준으로는 전체 흐름이 동작합니다.</p>
+          <p>남은 일은 분명합니다. 실제 체결 알림으로 무인 자동 실행을 검증하고, 서버에서 체결 여부·거래일·중복을 걸러낸 뒤에야 매매일지 DB에 연결합니다. 완료되지 않은 단계를 완료로 표시하지 않는 것이 이 기록의 원칙입니다.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site">
+      <div class="wrap">
+        <a href="index.html">← HongSungIn 글 목록으로</a>
+        <span>2026. 10. 24 기록 · 이 페이지에는 인증 토큰·계좌번호 등 민감정보를 기록하지 않습니다</span>
+      </div>
+    </footer>
+
+    <!-- 확대 보기 -->
+    <div class="zoom-overlay" id="zoomOverlay" role="dialog" aria-modal="true" aria-label="다이어그램 확대 보기">
+      <div class="zoom-bar">
+        <span class="zt" id="zoomTitle">다이어그램</span>
+        <button type="button" id="zoomOut" aria-label="축소">−</button>
+        <button type="button" id="zoomReset">100%</button>
+        <button type="button" id="zoomIn" aria-label="확대">+</button>
+        <button type="button" id="zoomClose">닫기 ✕</button>
+      </div>
+      <div class="zoom-stage" id="zoomStage">
+        <div class="zoom-canvas" id="zoomCanvas"></div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+      /* ─────────────────────────────────────────────
+         데이터 — 진행 상태는 여기서만 수정합니다.
+         steps(구현 과정) · features(기능 상태) · roadmap(향후 개발)을
+         고치면 타임라인·상태표·로드맵에 자동 반영됩니다.
+         status 값: 'done' 완료 · 'check' 검증 필요 · 'todo' 미구현/예정
+         ───────────────────────────────────────────── */
+      var DATA = {
+        steps: [
+          {
+            title: 'HTTP 전송 테스트 및 413 오류 해결',
+            problem: '서버로 텍스트를 보내자 HTTP 413(본문 크기 초과 계열) 오류가 돌아왔습니다.',
+            tried: '원인 후보를 본문 전송 방식으로 좁히고, Content-Type과 텍스트 본문 설정을 수정했습니다.',
+            result: 'HTTP 200으로 정상 처리되는 것을 확인했습니다.'
+          },
+          {
+            title: '카카오톡 알림 내용 표시 설정',
+            problem: '카카오톡 알림이 와도 메시지 내용이 비어 있어 가져올 텍스트가 없었습니다.',
+            tried: '카카오톡 알림 내용 설정이 ‘표시 안 함’으로 되어 있는 것을 확인하고 ‘이름 + 메시지’로 변경했습니다.',
+            result: '알림에서 메시지 텍스트를 가져올 수 있게 됐습니다.'
+          },
+          {
+            title: '긴 알림 텍스트 잘림 문제 발견',
+            problem: '긴 체결 안내 메시지가 알림에서 중간에 잘려, 주문번호 같은 뒷부분이 누락됐습니다.',
+            tried: '알림 텍스트 기반 수집의 구조적 한계로 판단하고, 화면 자체를 읽는 방식으로 전환하기로 했습니다.',
+            result: '이 전환이 이 프로젝트의 핵심 우회 방법이 됐습니다.'
+          },
+          {
+            title: '화면 텍스트 전체 읽기로 원문 추출 성공',
+            desc: 'MacroDroid의 ‘화면 텍스트 전체 읽기’로 채팅 화면의 원문을 추출했습니다. 체결 안내의 주문번호까지 전문이 온전히 가져와지는 것을 확인했습니다.'
+          },
+          {
+            title: '카카오톡 채팅방 자동 열기 성공',
+            desc: 'UI 자동조작으로 한국투자증권 채팅방을 자동으로 여는 동작을 검증했습니다. 카카오톡 실행 → 대기 → 채팅방 클릭 순서로 안정적으로 열립니다.'
+          },
+          {
+            title: 'HTTP 서버로 체결 메시지 전문 전송 성공',
+            desc: '추출한 화면 텍스트를 kakao_screen 딕셔너리에 담아 테스트 서버 API(/api/macrodroid/test)로 HTTP POST 전송하고, 서버 수신을 확인했습니다.'
+          },
+          {
+            title: '카카오 API 테스트 메시지 발송 성공',
+            desc: 'Kakao Developers의 ‘나에게 메시지 보내기’ API를 테스트해 HTTP 200과 result_code: 0을 확인했고, 나와의 채팅에 메시지가 표시됐습니다. 다만 이 방법은 실제 수신 알림 트리거를 검증하는 데는 적합하지 않다는 것도 확인했습니다.'
+          }
+        ],
+        features: [
+          { name: '카카오톡 알림 감지 및 HTTP 전송', status: 'done', note: '알림을 감지해 서버로 보내는 기본 흐름 동작 확인' },
+          { name: '긴 카카오톡 체결 메시지 전체 추출', status: 'done', note: '화면 텍스트 전체 읽기 — 체결 안내의 주문번호까지 전문 추출' },
+          { name: '한국투자증권 채팅방 자동 열기', status: 'done', note: 'UI 자동조작으로 대상 채팅방 자동 진입' },
+          { name: '플로팅 버튼으로 전체 처리 실행', status: 'done', note: 'kakao_read 수동 실행으로 전 과정 검증' },
+          { name: '개인 서버 HTTP POST 수신', status: 'done', note: '테스트 API /api/macrodroid/test 수신 확인' },
+          { name: '카카오 개발자 API 테스트 메시지 발송', status: 'done', note: 'HTTP 200 · result_code: 0 · 나와의 채팅에 표시 확인' },
+          { name: '실제 수신 알림으로 무인 자동 실행', status: 'check', note: '알림 트리거 연결 후 실제 체결 알림 상황에서의 최종 검증 전' },
+          { name: '매매일지 DB 자동 저장', status: 'todo', note: '서버 분석·거래일 검증·중복 방지와 함께 추후 구현' }
+        ],
+        roadmap: [
+          { title: '카톡 알림 자동 실행 검증', desc: '실제 체결 알림이 도착한 상황에서 무인으로 전체 처리가 실행되는지 확인합니다.' },
+          { title: '민감정보 차단', desc: '전송 전 화면 텍스트에서 비밀번호 등 민감한 패턴을 걸러내는 필터를 넣습니다.' },
+          { title: '체결 메시지 서버 분석', desc: '서버에서 수신 텍스트가 실제 체결 메시지인지 판정하는 로직을 구현합니다.' },
+          { title: '날짜 검증', desc: '거래일을 확인해 과거 체결 메시지가 현재 거래로 저장되지 않게 합니다.' },
+          { title: '중복 방지', desc: '동일 메시지의 중복 전송·저장을 막는 장치를 넣습니다.' },
+          { title: '매매일지 DB 연결', desc: '검증을 통과한 데이터만 매매일지 DB에 자동 저장합니다.' }
+        ]
+      };
+
+      var STATUS_LABEL = { done: '완료', check: '검증 필요', todo: '미구현' };
+
+      function el(tag, cls, text) {
+        var n = document.createElement(tag);
+        if (cls) n.className = cls;
+        if (text != null) n.textContent = text;
+        return n;
+      }
+
+      /* ── 타임라인 렌더링 ── */
+      (function () {
+        var box = document.getElementById('timeline');
+        DATA.steps.forEach(function (s, i) {
+          var row = el('div', 'tstep');
+          row.appendChild(el('div', 'tnode', String(i + 1)));
+          var body = el('div');
+          body.appendChild(el('h3', null, s.title));
+          if (s.desc) body.appendChild(el('p', null, s.desc));
+          [['문제', s.problem], ['시도', s.tried], ['결과', s.result]].forEach(function (pair) {
+            if (!pair[1]) return;
+            var p = el('p');
+            p.appendChild(el('span', 'lbl', pair[0]));
+            p.appendChild(document.createTextNode(pair[1]));
+            body.appendChild(p);
+          });
+          row.appendChild(body);
+          box.appendChild(row);
+        });
+      })();
+
+      /* ── 기능 상태표 렌더링 ── */
+      (function () {
+        var tbody = document.getElementById('statusBody');
+        DATA.features.forEach(function (f) {
+          var tr = el('tr');
+          tr.appendChild(el('td', null, f.name));
+          var td = el('td');
+          td.appendChild(el('span', 'badge ' + f.status, STATUS_LABEL[f.status]));
+          tr.appendChild(td);
+          tr.appendChild(el('td', 'note', f.note));
+          tbody.appendChild(tr);
+        });
+      })();
+
+      /* ── 로드맵 렌더링 ── */
+      (function () {
+        var list = document.getElementById('roadmapList');
+        DATA.roadmap.forEach(function (r, i) {
+          var li = el('li');
+          li.appendChild(el('span', 'rn', 'R' + (i + 1)));
+          var div = el('div');
+          div.appendChild(el('span', 'rt', r.title));
+          div.appendChild(el('span', 'rd', r.desc));
+          li.appendChild(div);
+          list.appendChild(li);
+        });
+      })();
+
+      /* ── 코드 복사 ── */
+      document.querySelectorAll('.codeblock').forEach(function (block) {
+        var btn = block.querySelector('.copy-btn');
+        var pre = block.querySelector('pre');
+        if (!btn || !pre) return;
+        btn.addEventListener('click', function () {
+          function done() {
+            btn.textContent = '복사됨';
+            setTimeout(function () { btn.textContent = '복사'; }, 1800);
+          }
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(pre.textContent).then(done, function () { fallback(); });
+          } else { fallback(); }
+          function fallback() {
+            var ta = document.createElement('textarea');
+            ta.value = pre.textContent;
+            ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            try { document.execCommand('copy'); } catch (e) {}
+            document.body.removeChild(ta);
+            done();
+          }
+        });
+      });
+
+      /* ── Mermaid ── */
+      if (window.mermaid) {
+        mermaid.initialize({
+          startOnLoad: true,
+          theme: 'base',
+          securityLevel: 'strict',
+          flowchart: { htmlLabels: true, useMaxWidth: true },
+          themeVariables: {
+            background: 'transparent',
+            primaryColor: '#e2efe9',
+            primaryBorderColor: '#0f6a5c',
+            primaryTextColor: '#23211b',
+            lineColor: '#0f6a5c',
+            secondaryColor: '#fdf3d3',
+            tertiaryColor: '#fffdf8',
+            fontFamily: 'Pretendard Variable, Pretendard, sans-serif',
+            fontSize: '15px'
+          }
+        });
+      }
+
+      /* ── 다이어그램 확대 ── */
+      (function () {
+        var overlay = document.getElementById('zoomOverlay');
+        var stage = document.getElementById('zoomStage');
+        var canvas = document.getElementById('zoomCanvas');
+        var title = document.getElementById('zoomTitle');
+        var scale = 1, tx = 0, ty = 0;
+
+        function apply() {
+          canvas.style.transform = 'translate(-50%, -50%) translate(' + tx + 'px,' + ty + 'px) scale(' + scale + ')';
+        }
+        function fit(svg) {
+          var stageW = stage.clientWidth - 40, stageH = stage.clientHeight - 40;
+          var w = svg.viewBox && svg.viewBox.baseVal && svg.viewBox.baseVal.width ? svg.viewBox.baseVal.width : svg.getBBox().width;
+          var h = svg.viewBox && svg.viewBox.baseVal && svg.viewBox.baseVal.height ? svg.viewBox.baseVal.height : svg.getBBox().height;
+          scale = Math.min(stageW / w, stageH / h, 1.6);
+          if (!isFinite(scale) || scale <= 0) scale = 1;
+          tx = 0; ty = 0;
+          apply();
+        }
+        function openZoom(id) {
+          var src = document.getElementById(id);
+          if (!src) return;
+          var svg = src.querySelector('svg') || src;
+          canvas.innerHTML = '';
+          var clone = svg.cloneNode(true);
+          clone.removeAttribute('style');
+          clone.style.maxWidth = 'none';
+          canvas.appendChild(clone);
+          title.textContent = id === 'mainDiagram' ? '전체 흐름도' : '한눈에 보는 흐름';
+          overlay.classList.add('open');
+          document.body.style.overflow = 'hidden';
+          requestAnimationFrame(function () { fit(clone); });
+        }
+        function closeZoom() {
+          overlay.classList.remove('open');
+          document.body.style.overflow = '';
+        }
+        document.querySelectorAll('[data-zoom]').forEach(function (t) {
+          t.addEventListener('click', function () { openZoom(t.getAttribute('data-zoom')); });
+          t.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openZoom(t.getAttribute('data-zoom')); }
+          });
+        });
+        document.getElementById('zoomClose').addEventListener('click', closeZoom);
+        document.getElementById('zoomIn').addEventListener('click', function () { scale = Math.min(scale * 1.25, 6); apply(); });
+        document.getElementById('zoomOut').addEventListener('click', function () { scale = Math.max(scale / 1.25, 0.2); apply(); });
+        document.getElementById('zoomReset').addEventListener('click', function () {
+          var svg = canvas.querySelector('svg');
+          if (svg) fit(svg);
+        });
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeZoom(); });
+        stage.addEventListener('wheel', function (e) {
+          if (!overlay.classList.contains('open')) return;
+          e.preventDefault();
+          scale = Math.min(6, Math.max(0.2, scale * (e.deltaY < 0 ? 1.1 : 0.9)));
+          apply();
+        }, { passive: false });
+
+        var dragging = false, lastX = 0, lastY = 0;
+        stage.addEventListener('pointerdown', function (e) {
+          dragging = true; lastX = e.clientX; lastY = e.clientY;
+          stage.setPointerCapture(e.pointerId);
+        });
+        stage.addEventListener('pointermove', function (e) {
+          if (!dragging) return;
+          tx += e.clientX - lastX; ty += e.clientY - lastY;
+          lastX = e.clientX; lastY = e.clientY;
+          apply();
+        });
+        stage.addEventListener('pointerup', function () { dragging = false; });
+        stage.addEventListener('pointercancel', function () { dragging = false; });
+      })();
+    </script>
+  </body>
+</html>
