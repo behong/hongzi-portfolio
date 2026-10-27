@@ -1,0 +1,717 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<link rel="icon" href="data:," />
+<meta name="description" content="AI로 매매하는 사람들은 실제로 무엇을 하나 — 규칙 기반부터 초고빈도 매매, LLM 에이전트까지 여섯 가지 방식을 규제기관 통계와 학술 연구로 정리한 지도." />
+<meta property="og:title" content="AI 트레이딩의 세계" />
+<meta property="og:description" content="AI 트레이딩은 하나가 아니라 여섯 가지 다른 게임이다. 규제기관 전수 통계로 본 성과의 실상과 살아남는 소수의 원칙." />
+<meta property="og:type" content="article" />
+<title>AI 트레이딩의 세계</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@600;700;900&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{
+  --bg:#f7f4ee; --surface:#fffdf8; --surface2:#efe9dd; --ink:#1c1a16; --ink2:#4c463c; --muted:#7d7668;
+  --line:#ddd4c2; --teal:#0e6b5e; --teal-soft:#dceee9; --amber:#9a5b12; --amber-soft:#f6e7cd;
+  --red:#a33327; --red-soft:#f6ded9; --good:#0e6b5e; --radius:14px;
+  --shadow:0 1px 2px rgba(28,26,22,.06),0 8px 28px rgba(28,26,22,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#131512; --surface:#1c1f1c; --surface2:#252824; --ink:#ece9e1; --ink2:#c9c4b6; --muted:#9a9587;
+    --line:#3a3d38; --teal:#4fc3ae; --teal-soft:#17332e; --amber:#e0a458; --amber-soft:#3a2c17;
+    --red:#e88a7c; --red-soft:#3d2320; --good:#4fc3ae;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 28px rgba(0,0,0,.25);
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Pretendard Variable",Pretendard,"Noto Sans KR",system-ui,sans-serif;line-height:1.65;font-size:16px;-webkit-font-smoothing:antialiased}
+a{color:var(--teal);text-decoration-thickness:1px;text-underline-offset:3px}
+.wrap{max-width:1060px;margin:0 auto;padding:0 20px 72px}
+h1,h2,h3{font-family:"Noto Serif KR",serif;line-height:1.3;letter-spacing:-.01em}
+h2{font-size:clamp(1.45rem,3.4vw,2rem);margin:0 0 10px;font-weight:900}
+h3{font-size:1.12rem;margin:0 0 8px;font-weight:700}
+p{margin:0 0 12px}
+.small{font-size:.86rem;color:var(--ink2)}
+.src{font-size:.78rem;color:var(--muted)}
+.src a{color:var(--muted);text-decoration:underline}
+
+/* hero */
+.hero{padding:52px 0 8px}
+.hero .q{font-size:.92rem;font-weight:700;color:var(--teal);margin-bottom:14px}
+.hero h1{font-size:clamp(1.9rem,5.2vw,3.1rem);font-weight:900;margin:0 0 16px;max-width:22ch}
+.hero .lede{font-size:clamp(1.02rem,2.4vw,1.18rem);color:var(--ink2);max-width:64ch;margin-bottom:22px}
+.hero .lede strong{color:var(--ink)}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 13px;font-size:.83rem;font-weight:600;color:var(--ink2)}
+.chip b{color:var(--ink)}
+
+/* key takeaways */
+.takeaways{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:26px 0 8px}
+.take{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+.take .n{font-family:"Noto Serif KR",serif;font-size:1.7rem;font-weight:900;color:var(--teal);line-height:1;margin-bottom:8px}
+.take p{font-size:.92rem;color:var(--ink2);margin:0}
+.take p strong{color:var(--ink)}
+
+/* sections */
+section{margin-top:56px}
+.sec-head{border-top:2px solid var(--ink);padding-top:18px;margin-bottom:18px}
+.sec-head .k{font-size:.82rem;font-weight:800;color:var(--teal);letter-spacing:.02em;margin-bottom:4px}
+.sec-head p{color:var(--ink2);max-width:70ch;margin:0}
+
+/* category cards */
+.cats{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.cat{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);position:relative}
+.cat.mine{border:2px solid var(--teal)}
+.cat .num{position:absolute;top:16px;right:18px;font-family:"Noto Serif KR",serif;font-size:1.5rem;font-weight:900;color:var(--surface2);color:var(--muted);opacity:.55}
+.cat h3{padding-right:36px}
+.cat .tagline{font-size:.9rem;color:var(--ink2);margin-bottom:12px}
+.cat dl{display:grid;grid-template-columns:74px 1fr;gap:4px 10px;font-size:.86rem;margin:0}
+.cat dt{font-weight:800;color:var(--ink2)}
+.cat dd{margin:0;color:var(--ink2)}
+.cat dd strong{color:var(--ink)}
+.badge{display:inline-block;font-size:.74rem;font-weight:800;border-radius:6px;padding:2px 8px;margin-bottom:10px}
+.badge.you{background:var(--teal);color:#fff}
+@media (prefers-color-scheme: dark){.badge.you{color:#0c2420}}
+.badge.research{background:var(--amber-soft);color:var(--amber)}
+.badge.pro{background:var(--surface2);color:var(--ink2)}
+.badge.noaccess{background:var(--red-soft);color:var(--red)}
+
+.callout{background:var(--teal-soft);border-radius:var(--radius);padding:20px 22px;margin-top:16px}
+.callout h3{margin-bottom:6px}
+.callout p{margin:0;color:var(--ink2);font-size:.95rem}
+.callout p strong{color:var(--ink)}
+.warn{background:var(--amber-soft)}
+.warn p{color:var(--ink2)}
+
+/* pipeline */
+.pipe{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:18px 0}
+.pipe .step{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 12px;text-align:center}
+.pipe .step .i{font-size:1.25rem;display:block;margin-bottom:4px;color:var(--teal)}
+.pipe .step b{display:block;font-size:.92rem;margin-bottom:2px}
+.pipe .step span{font-size:.78rem;color:var(--muted);line-height:1.45;display:block}
+.pipe .arrow{align-self:center;text-align:center;color:var(--muted);font-weight:900;display:none}
+
+/* tables */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);box-shadow:var(--shadow)}
+table{border-collapse:collapse;width:100%;font-size:.88rem;min-width:640px}
+th,td{padding:11px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+thead th{background:var(--surface2);font-weight:800;font-size:.82rem;white-space:nowrap}
+tbody tr:last-child td{border-bottom:none}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.hl{font-weight:900;color:var(--red)}
+.hl-good{font-weight:900;color:var(--good)}
+
+/* bars */
+.bars{display:grid;gap:16px;margin:18px 0}
+.bar-row{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow)}
+.bar-row .top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.bar-row .label{font-weight:700;font-size:.95rem}
+.bar-row .val{font-family:"Noto Serif KR",serif;font-size:1.45rem;font-weight:900;color:var(--red);white-space:nowrap}
+.bar-row .val.good{color:var(--good)}
+.track{height:12px;background:var(--surface2);border-radius:99px;margin:10px 0 8px;overflow:hidden}
+.fill{height:100%;border-radius:99px;background:var(--red)}
+.fill.good{background:var(--teal)}
+.fill.amber{background:var(--amber)}
+.bar-row .note{font-size:.83rem;color:var(--ink2);margin:0}
+
+/* calculators */
+.calc{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);margin-top:16px}
+.calc h3{display:flex;align-items:center;gap:8px}
+.calc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:14px 0}
+.field label{display:block;font-size:.8rem;font-weight:800;color:var(--ink2);margin-bottom:5px}
+.field input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);font-size:1rem;font-family:inherit;font-variant-numeric:tabular-nums}
+.field input:focus{outline:2px solid var(--teal);outline-offset:1px;border-color:transparent}
+.calc-out{display:flex;flex-wrap:wrap;gap:14px;align-items:center;background:var(--surface2);border-radius:10px;padding:14px 16px}
+.calc-out .big{font-family:"Noto Serif KR",serif;font-size:1.6rem;font-weight:900;line-height:1.1}
+.calc-out .verdict{font-size:.9rem;color:var(--ink2);flex:1;min-width:220px}
+.formula{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.85rem;background:var(--surface2);border-radius:10px;padding:14px 16px;white-space:pre-wrap;line-height:1.7;overflow-x:auto}
+
+/* checklist */
+.practices{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;counter-reset:pr}
+.practice{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px 16px 52px;position:relative;box-shadow:var(--shadow)}
+.practice::before{counter-increment:pr;content:counter(pr);position:absolute;left:16px;top:14px;width:26px;height:26px;border-radius:50%;background:var(--teal);color:#fff;font-weight:900;font-size:.85rem;display:flex;align-items:center;justify-content:center}
+@media (prefers-color-scheme: dark){.practice::before{color:#0c2420}}
+.practice h3{font-size:.98rem;font-family:inherit;font-weight:800;margin-bottom:4px}
+.practice p{font-size:.87rem;color:var(--ink2);margin:0}
+
+/* journal */
+.journal-fields{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0 16px}
+.jf{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 11px;font-size:.83rem;font-weight:600}
+.jf.key{border-color:var(--teal);color:var(--teal);font-weight:800}
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--teal);color:#fff;border:none;border-radius:10px;padding:12px 20px;font-size:.95rem;font-weight:800;font-family:inherit;cursor:pointer}
+.btn:hover{filter:brightness(1.08)}
+@media (prefers-color-scheme: dark){.btn{color:#0c2420}}
+.btn.ghost{background:transparent;color:var(--teal);border:1.5px solid var(--teal)}
+.btn-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+.toast{font-size:.85rem;color:var(--good);font-weight:700;align-self:center}
+
+/* two col */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.panel ul{margin:0;padding-left:18px;color:var(--ink2);font-size:.92rem}
+.panel li{margin-bottom:7px}
+.panel li strong{color:var(--ink)}
+
+footer{margin-top:64px;border-top:2px solid var(--ink);padding-top:20px}
+footer h2{font-size:1.15rem}
+footer ol{padding-left:20px;color:var(--ink2);font-size:.85rem}
+footer li{margin-bottom:6px;overflow-wrap:anywhere}
+.openq{background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:18px 20px}
+.openq ul{margin:0;padding-left:18px;color:var(--ink2);font-size:.9rem}
+.openq li{margin-bottom:6px}
+
+@media (max-width:820px){
+  /* wide comparison tables become stacked cards — no sideways scroll */
+  .tbl-wrap{overflow-x:visible}
+  table{min-width:0}
+  table,tbody,tr,td{display:block;width:100%}
+  thead{display:none}
+  tbody tr{padding:10px 0 14px;border-bottom:1px solid var(--line)}
+  tbody tr:last-child{border-bottom:none}
+  td{border-bottom:none;padding:5px 16px}
+  td::before{display:block;font-size:.74rem;font-weight:800;color:var(--teal);margin-bottom:1px}
+  #workflow td:nth-child(1){font-size:1rem;padding-top:8px}
+  #workflow td:nth-child(1)::before{content:"단계";color:var(--muted)}
+  #workflow td:nth-child(2)::before{content:"규칙 기반 (1)"}
+  #workflow td:nth-child(3)::before{content:"ML · 통계 (2)"}
+  #workflow td:nth-child(4)::before{content:"HFT · 마켓메이킹 (3)"}
+  #workflow td:nth-child(5)::before{content:"LLM 감성 · 에이전트 (4–5)"}
+  #workflow td:nth-child(6)::before{content:"강화학습 (6)"}
+  #tools td:nth-child(1){font-size:1.02rem;padding-top:8px}
+  #tools td:nth-child(1)::before{content:"도구";color:var(--muted)}
+  #tools td:nth-child(2)::before{content:"정체"}
+  #tools td:nth-child(3)::before{content:"시장 / 사용자"}
+  #tools td:nth-child(4)::before{content:"성숙도 평가"}
+  .takeaways{grid-template-columns:1fr}
+  .cats{grid-template-columns:1fr}
+  .pipe{grid-template-columns:1fr 1fr}
+  .pipe .step:last-child{grid-column:1/-1}
+  .calc-grid{grid-template-columns:1fr 1fr}
+  .practices{grid-template-columns:1fr}
+  .two{grid-template-columns:1fr}
+  .hero{padding-top:36px}
+}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *{transition:none!important}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p style="margin:0 0 6px;font-size:14px;"><a href="index.html">← HongSungIn 홈으로</a></p>
+
+  <!-- HERO -->
+  <header class="hero">
+    <p class="q">“다들 AI로 매매한다는데, 실제로는 어떻게 하는 거야?”</p>
+    <h1>AI 트레이딩은 하나가 아니라, 여섯 가지 다른 게임이다</h1>
+    <p class="lede">점수제 신호 + 텔레그램 알림 + 수동 체결로 돌아가는 <strong>당신의 시스템(autoSamNix)</strong>은 그중 첫 번째 게임 — 규칙 기반 기술적 시스템 — 에 속합니다. 이 페이지는 나머지 다섯 가지가 실제로 무엇을 하는지, 규제기관·거래소·학술 연구가 말하는 <strong>성과의 실상</strong>, 그리고 오래 살아남는 소수가 공통으로 지키는 원칙을 출처와 함께 정리한 지도입니다.</p>
+    <div class="meta-row">
+      <span class="chip">조사일 <b>2026년 10월 27일</b></span>
+      <span class="chip">근거 <b>규제기관·거래소 통계, 학술 논문, 공식 문서</b></span>
+      <span class="chip">당신의 위치 <b>카테고리 1 · 규칙 기반</b></span>
+    </div>
+  </header>
+
+  <div class="takeaways">
+    <div class="take"><div class="n">6가지</div><p>“AI 트레이딩”이라는 한 단어 뒤에는 <strong>규칙 기반부터 초고빈도 매매, LLM 에이전트까지</strong> 데이터도, 보유 기간도, 경쟁자도 전혀 다른 게임들이 섞여 있습니다.</p></div>
+    <div class="take"><div class="n">93%</div><p>인도 규제기관 SEBI 조사에서 개인 선물·옵션 트레이더의 <strong>93%가 손실을 봤습니다</strong>(FY22–FY24). 화려한 수익 인증이 아니라 이 숫자가 기본값입니다.</p></div>
+    <div class="take"><div class="n">예측 &lt; 과정</div><p>실무에서 돈이 되는 쪽은 예측 모델이 아니라 <strong>검증·리스크·포지션 크기·비용·기록</strong>입니다. 살아남는 소수와 실패하는 다수를 가르는 것도 이 부분입니다.</p></div>
+  </div>
+
+  <!-- 1. CATEGORIES -->
+  <section id="cats">
+    <div class="sec-head">
+      <p class="k">지도 1 · 여섯 가지 방식</p>
+      <h2>AI로 매매하는 사람들은 실제로 무엇을 하나</h2>
+      <p>아래 여섯 가지는 서로 경쟁 관계가 아닙니다. 초고빈도 매매(3번)는 마이크로초 단위의 게임이라 개인이 진입할 수 없고, LLM 에이전트(5번)는 아직 연구 단계입니다. 각 방식이 “무엇을 하고, 어떤 데이터를 쓰고, 얼마나 들고 있는지”를 먼저 구분하는 게 출발점입니다.</p>
+    </div>
+
+    <div class="cats">
+      <article class="cat mine">
+        <span class="num">1</span>
+        <span class="badge you">당신의 시스템이 여기</span>
+        <h3>규칙 기반 기술적 시스템</h3>
+        <p class="tagline">사람이 쓴 고정 규칙(if-then)으로 점수를 매겨 신호를 냅니다. 데이터에서 스스로 학습하지는 않습니다.</p>
+        <dl>
+          <dt>하는 일</dt><dd>예: “RSI + 이평선 교차 + 거래량 급증 = 점수, <strong>점수 ≥ 기준이면 알림</strong>, 손절은 Y”</dd>
+          <dt>데이터</dt><dd>가격·거래량, 이동평균·RSI·MACD·볼린저밴드 같은 파생 지표</dd>
+          <dt>보유 기간</dt><dd>수 분 ~ 수 일 (당신처럼 장중 시스템이면 당일)</dd>
+          <dt>쓰는 사람</dt><dd>개인 트레이더, 소규모 시스템 펀드, 느린 형태의 추세추종 CTA</dd>
+        </dl>
+      </article>
+
+      <article class="cat">
+        <span class="num">2</span>
+        <span class="badge pro">기관의 본업</span>
+        <h3>통계·머신러닝 예측 모델</h3>
+        <p class="tagline">대량의 사례로 학습한 모델이 “다음에 무슨 일이 일어날지”를 추정하거나 종목 순위를 매깁니다. 핵심은 하나의 예측이 아니라 <strong>약한 신호 수십~수백 개를 합치는 것</strong>입니다.</p>
+        <dl>
+          <dt>하는 일</dt><dd>회귀·랜덤포레스트·그래디언트 부스팅·신경망으로 기대수익·순위 예측 → 포트폴리오 구성</dd>
+          <dt>데이터</dt><dd>가격·거래량, 재무(실적·가치·퀄리티), 대형사는 카드 소비·위성·웹 트래픽 같은 대안 데이터까지</dd>
+          <dt>보유 기간</dt><dd>대부분 수 일 ~ 수 개월, 일부 장중</dd>
+          <dt>쓰는 사람</dt><dd>르네상스·투시그마 같은 시스템 헤지펀드. 마이크로소프트 Qlib이 이 연구 흐름을 위한 오픈소스 플랫폼</dd>
+        </dl>
+      </article>
+
+      <article class="cat">
+        <span class="num">3</span>
+        <span class="badge noaccess">개인은 진입 불가</span>
+        <h3>초고빈도 매매(HFT) · 마켓메이킹</h3>
+        <p class="tagline">계속해서 살 가격과 팔 가격을 동시에 제시하고 그 사이의 작은 차이(스프레드)를 법니다. 거래당 이익은 극히 작고, 속도와 물량이 사업 그 자체입니다.</p>
+        <dl>
+          <dt>하는 일</dt><dd>호가 제시·취소를 초고속으로 반복, 재고는 밀리초 단위로 헤지. 다른 한 축은 거래소 간 찰나의 가격차를 잡는 지연 차익거래</dd>
+          <dt>데이터</dt><dd>호가창 전체 데이터, 거래소 직결 피드, 거래소 옆에 서버를 두는 코로케이션</dd>
+          <dt>보유 기간</dt><dd>밀리초 ~ 수 시간, 대부분 당일 청산</dd>
+          <dt>쓰는 사람</dt><dd>시타델 시큐리티즈, 제인 스트리트, 옵티버, 버투 같은 전문 회사. 코로케이션·직결 피드·C++/FPGA 엔지니어링이 필요해 개인은 할 수 없음</dd>
+        </dl>
+      </article>
+
+      <article class="cat">
+        <span class="num">4</span>
+        <span class="badge pro">신호의 재료로 사용</span>
+        <h3>LLM·NLP 감성 / 뉴스 분석</h3>
+        <p class="tagline">뉴스·실적 발표·중앙은행 성명·SNS 글을 읽어 종목별로 좋다/나쁘다/중립 점수를 냅니다. 단, 이 점수는 대개 <strong>매매 규칙의 입력값 하나</strong>일 뿐, 규칙 자체는 아닙니다.</p>
+        <dl>
+          <dt>하는 일</dt><dd>텍스트를 읽고 감성 점수 산출 또는 이벤트 추출 → 기존 규칙에 결합</dd>
+          <dt>데이터</dt><dd>뉴스, 공시, 실적 콜 녹취, 소셜미디어</dd>
+          <dt>보유 기간</dt><dd>장중 ~ 수 일 (뉴스 효과는 빨리 사라짐)</dd>
+          <dt>쓰는 사람</dt><dd>텍스트 신호를 얹는 퀀트 펀드, 리서치 데스크, 뉴스를 요약하는 데 LLM을 쓰는 개인</dd>
+        </dl>
+      </article>
+
+      <article class="cat">
+        <span class="num">5</span>
+        <span class="badge research">연구 단계 · 실전 검증 없음</span>
+        <h3>LLM 에이전트 프레임워크</h3>
+        <p class="tagline">LLM 여러 개에 역할을 나눠줍니다 — 펀더멘털 분석가, 감성 분석가, 기술 분석가, 강세·약세 연구원, 리스크 관리자, 트레이더 — 서로 토론한 뒤 매수/보유/매도 제안을 냅니다.</p>
+        <dl>
+          <dt>하는 일</dt><dd>역할을 나눈 에이전트들이 텍스트로 토론 → 근거와 함께 거래 제안 생성</dd>
+          <dt>데이터</dt><dd>4번과 동일 + 가격·재무 데이터를 텍스트/표로 입력</dd>
+          <dt>보유 기간</dt><dd>공개된 실험은 대부분 <strong>일 단위</strong> 결정. 결정 한 번에 LLM 호출이 여러 번이라 장중 실시간에는 느리고 비쌈</dd>
+          <dt>쓰는 사람</dt><dd>연구자·취미 개발자. 대표작 TradingAgents — §4에서 성숙도를 따로 봅니다</dd>
+        </dl>
+      </article>
+
+      <article class="cat">
+        <span class="num">6</span>
+        <span class="badge research">학계 중심 · 실전은 집행 쪽</span>
+        <h3>강화학습(RL)</h3>
+        <p class="tagline">시뮬레이션 안에서 시행착오로 배우는 에이전트. 상태 = 시장+포지션, 행동 = 매수/매도/보유와 크기, 보상 = 비용·위험을 뺀 이익. 알고리즘 이름은 PPO, DQN, A2C 등.</p>
+        <dl>
+          <dt>하는 일</dt><dd>가상 환경에서 수만 번 거래하며 정책(행동 규칙)을 스스로 학습</dd>
+          <dt>데이터</dt><dd>과거 가격·거래량을 시뮬레이션 환경으로 변환, 집행용 RL은 호가 데이터</dd>
+          <dt>보유 기간</dt><dd>공개된 주식 실험은 대부분 일 단위</dd>
+          <dt>쓰는 사람</dt><dd>학술 연구실(FinRL 생태계), 일부 기관의 <strong>주문 집행</strong>(큰 주문을 쪼개 비용 줄이기 — JP모건의 LOXM이 인용되는 사례). 검증된 개인 실전 기록은 사실상 없음</dd>
+        </dl>
+      </article>
+    </div>
+
+    <div class="callout">
+      <h3>그래서, 당신의 시스템은 어디에 있나</h3>
+      <p>점수제 지표 + 텔레그램 알림 + 수동 체결은 <strong>카테고리 1</strong>이며, 사람이 리스크 관리자와 집행자 역할을 겸하는 구조입니다. 흔하고 정당한 설계입니다 — Freqtrade나 한국투자증권이 2026년에 내놓은 전략 빌더 예시(이동평균·모멘텀)도 같은 발상 위에 자동 체결만 얹은 것입니다. 이 구조의 자연스러운 업그레이드는 “점수를 ChatGPT로 교체”가 아니라 <strong>검증 방식(§5), 비용 계산(§3), 매매일지(§6)</strong>입니다. LLM을 붙인다면 가장 방어 가능한 위치는 가장자리 — 코딩 보조, 뉴스 요약, 일지 리뷰 — 이고, 그 출력은 결정이 아니라 “신뢰하지 않는 입력값”으로 취급해야 합니다.</p>
+    </div>
+
+    <div class="callout warn">
+      <h3>숫자 두 개는 솔직하게 짚고 갑니다</h3>
+      <p><strong>HFT 비중:</strong> “미국 주식 거래량의 몇 %가 HFT인가”는 정의에 따라 추정치가 크게 갈립니다. Bookmap이 인용한 학술·업계 추정으로는 HFT가 직접 개시한 거래량 기준 약 <strong>10–40%</strong>, 넓은 의미의 알고리즘 매매까지 포함하면 <strong>60% 이상</strong>이라는 수치도 있습니다. 하나의 숫자로 단정하지 마세요. <span class="src">출처: <a href="https://bookmap.com/blog/stop-trading-like-its-2010-whats-changed-in-the-market-microstructure" target="_blank" rel="noopener">Bookmap, 시장 미세구조 정리</a></span></p>
+      <p style="margin-top:10px"><strong>ChatGPT 뉴스 예측 연구:</strong> Lopez-Lira &amp; Tang 논문(arXiv:2304.07619, 이후 <em>Journal of Financial Economics</em> 게재)은 뉴스 헤드라인에 대한 ChatGPT의 좋고/나쁨 판정이 <strong>다음 날 수익률을 유의하게 예측했고</strong>, 전통적 감성 분석보다 나았으며, 소형주와 부정적 뉴스에서 더 강했고, GPT-4급 모델만 해냈다고 보고합니다. 진짜 결과입니다. 다만 주의가 더 중요합니다 — ① 뉴스의 첫 가격 반응은 당신이 거래할 수 있기 전에 이미 일어나 있는 경우가 많고, ② 후속 연구들은 LLM 사용이 늘수록 전략 수익이 줄어드는(가격이 더 효율적으로 변하는) 양상을 보고하며, ③ LLM 백테스트에는 “모델이 훈련 데이터에서 그 뉴스와 그 이후를 이미 외웠을 수 있다”는 미래참조 문제가 따라붙습니다. <span class="src">출처: <a href="https://arxiv.org/abs/2304.07619v1" target="_blank" rel="noopener">arXiv:2304.07619</a> · 미래참조 검증 논문 <a href="https://arxiv.org/html/2309.17322" target="_blank" rel="noopener">arXiv:2309.17322</a></span></p>
+    </div>
+  </section>
+
+  <!-- 2. WORKFLOW -->
+  <section id="workflow">
+    <div class="sec-head">
+      <p class="k">지도 2 · 일의 흐름</p>
+      <h2>방식이 달라도 파이프라인은 다섯 칸, 다른 건 가운데 한 칸뿐</h2>
+      <p>여섯 가지 방식 모두 아래 다섯 단계를 거칩니다. 방식마다 달라지는 건 사실상 2번(신호)뿐이고, 나머지 네 칸 — 데이터, 리스크, 집행, 측정 — 이 실무 노력의 대부분을 차지합니다.</p>
+    </div>
+
+    <div class="pipe" aria-label="매매 파이프라인 5단계">
+      <div class="step"><span class="i">①</span><b>데이터</b><span>깨끗하게, 시간 순서대로, 미래 정보 없이</span></div>
+      <div class="step"><span class="i">②</span><b>신호</b><span>규칙 / ML 모델 / LLM 점수 / RL 정책</span></div>
+      <div class="step"><span class="i">③</span><b>리스크·크기</b><span>얼마나, 최대 손실, 상관관계, 킬스위치</span></div>
+      <div class="step"><span class="i">④</span><b>집행</b><span>주문 방식, 체결가, 슬리피지 기록</span></div>
+      <div class="step"><span class="i">⑤</span><b>측정</b><span>일지, 기대값, 낙폭, 복기</span></div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>단계</th><th>규칙 기반 (1)</th><th>ML·통계 (2)</th><th>HFT (3)</th><th>LLM 감성·에이전트 (4–5)</th><th>강화학습 (6)</th></tr></thead>
+        <tbody>
+          <tr><td><strong>1. 데이터</strong></td><td>OHLCV 봉, 분할 조정, 빠진 봉 확인</td><td>최초 공표 시점 기준 재무(나중에 수정된 값 아님), 상장폐지 종목까지 포함한 유니버스</td><td>틱·호가 원본 피드, 시계 동기화</td><td>뉴스의 <em>발표 시각</em> 기준 타임스탬프(사건 시각 아님), 중복 기사 제거</td><td>2번과 동일 + 비용·지연을 모형화한 시뮬레이터</td></tr>
+          <tr><td><strong>2. 신호</strong></td><td>지표 점수가 기준선 돌파</td><td>모델이 순위·예측 출력, 여러 신호를 결합</td><td>공정가치 ± 스프레드, 재고 쏠림 조정</td><td>LLM 점수 / 에이전트 토론 → 제안</td><td>학습된 정책이 상태 → 행동으로 변환</td></tr>
+          <tr><td><strong>3. 리스크·크기</strong></td><td>거래당 고정 % 리스크, 손절, 일일 손실 한도, 최대 동시 포지션</td><td>변동성 타게팅, 팩터·섹터 한도, “메타 라벨링”(두 번째 모델이 첫 신호를 따를지와 크기를 결정)</td><td>재고 한도, 자동 헤지, 마이크로초 킬스위치</td><td>TradingAgents는 별도 리스크 팀 + 포트폴리오 매니저가 트레이더 제안을 승인/거부 (논문 초록에서 확인)</td><td>보상함수에 낙폭·비용 페널티가 없으면 에이전트는 무모한 크기를 학습함</td></tr>
+          <tr><td><strong>4. 집행</strong></td><td>알림 보고 수동 주문, 또는 증권사 API. 지정가/시장가 선택</td><td>VWAP/TWAP — 큰 주문을 시간으로 쪼개 시장 충격 줄이기</td><td>코로케이션, 거래소 간 스마트 라우팅</td><td>연구 코드는 대개 모의 거래소나 페이퍼 브로커 (§4 참조)</td><td>대개 시뮬레이션만. 실전은 별도 브로커 연결을 직접 구현</td></tr>
+          <tr><td><strong>5. 측정</strong></td><td>거래별 일지: 셋업 태그, 진입·청산, 알림가 대비 슬리피지</td><td>표본 외 샤프, 회전율, 비용 귀속, 신호 감쇠 모니터링</td><td>체결률, 역선택, 종목별·시간별 손익</td><td>프롬프트·모델 버전·결정을 전부 로그 — LLM은 모델이 바뀌면 답이 달라 기본적으로 재현 불가</td><td>훈련 vs 테스트 격차가 핵심 지표. 실전은 별개의 테스트</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="src" style="margin-top:8px">TradingAgents 승인 구조 출처: <a href="https://arxiv.org/abs/2412.20138v1" target="_blank" rel="noopener">Xiao et al., arXiv:2412.20138</a> (직접 열람 확인)</p>
+
+    <div class="callout">
+      <h3>“노력의 몇 %가 리스크 관리인가” — 정직한 답</h3>
+      <p>감사(audit)된 단일 비율을 제시하는 신뢰할 만한 출처는 없습니다. 이 페이지는 그런 숫자를 지어내지 않습니다. 대신 방향이 같은 독립적인 증거 셋이 있습니다. ① 마이크로소프트 Qlib은 스스로를 “알파 탐색, 리스크 모델링, 포트폴리오 최적화, 주문 집행까지 퀀트 투자의 전 과정”으로 설명합니다 — 모델은 최소 다섯 모듈 중 하나입니다. ② 로페스 데 프라도의 『금융 머신러닝의 진보』(2018)는 분량의 대부분을 예측기가 아니라 <strong>검증</strong>(퍼지·엠바고 교차검증, 메타 라벨링, 디플레이티드 샤프)에 할애합니다 — 즉 “스스로를 속이지 않는 법”입니다. ③ 개인 트레이더의 실패 복기에서는 낡은 데이터, 놓친 신호, 주문 크기 제약, 모형화 안 된 수수료·슬리피지, 사람의 망설임 같은 “지루한 원인”이 반복됩니다. <strong>경험칙(측정된 통계가 아닌 조언): 프로젝트 시간의 절반 이상이 “더 좋은 신호 찾기”에 가고 있다면, 프로젝트가 거꾸로 서 있는 겁니다.</strong> <span class="src">출처: <a href="https://github.com/microsoft/qlib" target="_blank" rel="noopener">Qlib GitHub</a></span></p>
+    </div>
+
+    <div class="calc" id="expectancy">
+      <h3>🧮 기대값 계산기 — 승률만으로는 아무것도 모릅니다</h3>
+      <p class="small">R은 “그 거래에서 걸기로 계획한 위험 금액”의 단위입니다(예: 손절까지의 거리 × 수량). 아래 두 예시를 직접 바꿔 보면서 확인하세요. 45% 승률이어도 이길 때 2R을 벌면 돈을 벌고, 60% 승률이어도 이길 때 0.5R밖에 못 벌면 돈을 잃습니다.</p>
+      <div class="formula">기대값(거래당) = (승률 × 평균 이익) − (패률 × 평균 손실)
+예시 A: 승률 45%, 평균 이익 2.0R, 평균 손실 1.0R → 0.45×2.0 − 0.55×1.0 = +0.35R
+예시 B: 승률 60%, 평균 이익 0.5R, 평균 손실 1.0R → 0.60×0.5 − 0.40×1.0 = −0.10R  ← “승률 60%”인데 손실</div>
+      <div class="calc-grid">
+        <div class="field"><label for="inWin">승률 (%)</label><input id="inWin" type="number" inputmode="decimal" value="45" min="0" max="100" step="1"></div>
+        <div class="field"><label for="inAvgWin">평균 이익 (R)</label><input id="inAvgWin" type="number" inputmode="decimal" value="2.0" min="0" step="0.1"></div>
+        <div class="field"><label for="inAvgLoss">평균 손실 (R)</label><input id="inAvgLoss" type="number" inputmode="decimal" value="1.0" min="0" step="0.1"></div>
+        <div class="field"><label for="inCost">거래당 비용 (R)</label><input id="inCost" type="number" inputmode="decimal" value="0.1" min="0" step="0.05"></div>
+      </div>
+      <div class="calc-out">
+        <div><div class="small" style="font-weight:800">거래당 기대값 (비용 차감 후)</div><div class="big" id="expOut">+0.25R</div></div>
+        <div class="verdict" id="expVerdict"></div>
+      </div>
+      <p class="small" style="margin-top:12px;margin-bottom:0">포지션 크기의 고전 공식인 켈리 기준 — <code>f = p − (1−p)/b</code> (p = 승률, b = 평균 이익 ÷ 평균 손실) — 은 추정이 정확할 때만 최적입니다. 추정은 절대 정확하지 않으므로, 실무에서 켈리를 쓰는 사람도 <strong>절반 이하를 “상한”으로만</strong> 씁니다. 많은 개인 시스템 트레이더는 더 단순한 고정 비율(계좌의 0.5–2%를 거래당 위험으로) 규칙을 씁니다. 켈리 값이 0 이하로 나오면, 측정한 우위 자체가 없다는 뜻이고 크기로는 해결이 안 됩니다.</p>
+    </div>
+
+    <div class="calc" id="costdrag">
+      <h3>🧮 비용 드래그 계산기 — 장중 시스템의 진짜 적</h3>
+      <p class="small">비용은 의견이 아니라 산수입니다. 왕복 비용 × 연간 거래 횟수만큼 수익률이 매년 깎입니다.</p>
+      <div class="formula">연간 비용 드래그 ≈ 왕복 1회 비용 × 연간 왕복 횟수
+왕복 0.2% × 연 50회 ≈ 연 10%p   |   왕복 0.2% × 연 3회 ≈ 연 0.6%p</div>
+      <div class="calc-grid" style="grid-template-columns:repeat(2,1fr)">
+        <div class="field"><label for="inRt">왕복 비용 (% · 수수료+세금+스프레드+슬리피지)</label><input id="inRt" type="number" inputmode="decimal" value="0.2" min="0" step="0.05"></div>
+        <div class="field"><label for="inTrades">연간 왕복 거래 횟수</label><input id="inTrades" type="number" inputmode="decimal" value="50" min="0" step="1"></div>
+      </div>
+      <div class="calc-out">
+        <div><div class="small" style="font-weight:800">연간 비용 드래그 (근사)</div><div class="big" id="costOut">≈ 10.0%p</div></div>
+        <div class="verdict">보유 기간이 짧고 회전이 잦을수록, 거래당 우위가 먼저 이 비용을 넘어야 남는 게 생깁니다. 신호가 난 봉의 종가에 비용 없이 체결된다고 가정한 백테스트는 “보수적인 근사”가 아니라, 더 쉬운 다른 전략을 테스트한 것입니다.</div>
+      </div>
+      <p class="src" style="margin-top:10px;margin-bottom:0">공식·슬리피지 정의 출처: <a href="https://www.quantinsti.com/articles/transaction-costs-automated-trading/" target="_blank" rel="noopener">QuantInsti, How Transaction Costs Affect Automated Trading</a> — 권고: 모든 수수료를 모형화하고, 시장가에는 편도 스프레드의 절반을 더하고, 빠른 신호에는 슬리피지를 얹고, <strong>비용을 올려서 스트레스 테스트하라. “실제로 낼 비용보다 낮아야만 돌아가는 전략은 돌아가는 게 아니다.”</strong></p>
+    </div>
+  </section>
+
+  <!-- 3. PERFORMANCE -->
+  <section id="performance">
+    <div class="sec-head">
+      <p class="k">지도 3 · 성과의 실상</p>
+      <h2>기본값은 “대부분 잃는다” — 블로거가 아니라 규제기관의 숫자</h2>
+      <p>아래는 각국 규제기관·거래소의 전수(全數) 데이터와 학술 연구입니다. 시장과 상품이 서로 다르므로 숫자를 서로 평균 내면 안 됩니다. 다만 방향은 어디서든 같습니다.</p>
+    </div>
+
+    <div class="bars">
+      <div class="bar-row">
+        <div class="top"><span class="label">인도 개인 선물·옵션 트레이더 손실 비율 (FY22–FY24, 1천만 명 이상)</span><span class="val">93%</span></div>
+        <div class="track"><div class="fill" style="width:93%"></div></div>
+        <p class="note">1인당 평균 손실 약 20만 루피(거래비용 포함), 전체 손실 1.8조 루피 초과. 비용 차감 후 10만 루피 넘게 번 사람은 <strong>1%</strong>뿐. 손실 본 사람의 75% 이상이 계속 거래했습니다. 같은 기간 외국인·자기매매 이익의 <strong>96–97%는 알고리즘 매매 주체</strong>가 가져갔습니다. 개인들이 낸 거래비용만 3년간 약 5조 루피(중개수수료 51%, 거래소 수수료 20%), FY24 한 해 1인당 평균 약 2.6만 루피.</p>
+        <p class="src">출처: 인도 증권거래위원회(SEBI) 2024년 9월 연구, StudyCafe 요약 (직접 열람 확인) — <a href="https://studycafe.in/sebi-study-reveals-93-of-individual-traders-incurred-losses-in-equity-fo-between-fy22-and-fy24-345333.html" target="_blank" rel="noopener">studycafe.in</a></p>
+      </div>
+
+      <div class="bar-row">
+        <div class="top"><span class="label">브라질 지수선물 데이트레이더 — 300일 이상 지속한 1,551명 중 손실 비율</span><span class="val">97%</span></div>
+        <div class="track"><div class="fill" style="width:97%"></div></div>
+        <p class="note">시작한 사람은 19,646명. 은행 창구 직원의 초봉보다 많이 번 사람은 <strong>0.4%</strong>뿐이었고, “하면서 는다”는 학습 효과의 증거는 없었습니다.</p>
+        <p class="src">출처: Chague, De-Losso &amp; Giovannetti (2020), 요약 경유 — <a href="https://enlightenedstocktrading.com/what-percentage-of-traders-lose-money/" target="_blank" rel="noopener">enlightenedstocktrading.com</a></p>
+      </div>
+
+      <div class="bar-row">
+        <div class="top"><span class="label">인도 개인 장중(현물) 트레이더 손실 비율 (FY23)</span><span class="val">71%</span></div>
+        <div class="track"><div class="fill amber" style="width:71%"></div></div>
+        <p class="note">연 500회 넘게 거래하는 그룹에서는 <strong>80%</strong>가 손실 — 더 많이 거래할수록 더 나빴습니다.</p>
+        <p class="src">출처: SEBI 장중 연구 (2024년 7월), 2차 요약 경유</p>
+      </div>
+
+      <div class="bar-row">
+        <div class="top"><span class="label">대만 데이트레이더 — 수수료 후 “예측 가능하게, 꾸준히” 수익을 낸 비율 (1992–2006 전수 기록, 약 45만 명)</span><span class="val good">&lt; 1%</span></div>
+        <div class="track"><div class="fill good" style="width:2%"></div></div>
+        <p class="note">평범한 한 해에 이익을 본 사람은 약 20%였지만, 그중 실력으로 꾸준히 버는 사람은 1% 미만이었습니다. 실력이 있는 경우 그 실력은 지속됐습니다 — 즉 자기 확신이 아니라 <strong>데이터로 식별 가능</strong>하다는 뜻입니다. “올해 수익 났다”는 가장 약한 증거입니다.</p>
+        <p class="src">출처: Barber, Lee, Liu &amp; Odean (2014), <em>The Cross-Section of Speculator Skill</em>, 요약 경유 — <a href="https://www.gwhlds.com/hub/what-percentage-of-day-traders-are-profitable.html" target="_blank" rel="noopener">gwhlds.com</a></p>
+      </div>
+
+      <div class="bar-row">
+        <div class="top"><span class="label">EU·영국·호주 개인 CFD 계좌 손실 비율 (규제기관 공시)</span><span class="val">68–89%</span></div>
+        <div class="track"><div class="fill amber" style="width:78%"></div></div>
+        <p class="note">시장·연도별로 범위: ESMA 74–89%, 영국 FCA 약 75%, 호주 ASIC는 FY2024 개인 CFD 투자자의 68%가 손실. 위 연구들과 상품·정의가 다르므로 섞어 쓰지 마세요.</p>
+        <p class="src">출처: 각국 규제기관 공시를 모은 2차 요약 경유</p>
+      </div>
+    </div>
+
+    <div class="two">
+      <div class="panel">
+        <h3>전문가 펀드도 죽습니다</h3>
+        <ul>
+          <li>헤지펀드 연간 폐쇄율은 통상 <strong>5–10%</strong>로 추정, 위기 때는 더 높음. 신규 펀드의 약 <strong>30%가 3년 안에 문을 닫습니다</strong> (CAIA 수치, 2차 인용).</li>
+          <li>규모가 생존을 가릅니다: Hedgeweek이 인용한 골드만삭스 데이터에서, <strong>10억 달러 이상</strong>으로 시작한 펀드의 5년 생존율은 <strong>84%</strong>, <strong>2,500만 달러</strong>로 시작한 펀드는 <strong>50% 미만</strong>이었습니다.</li>
+        </ul>
+        <p class="src">출처: <a href="https://hedgeweek.com/news/hedge-fund-start-ups-face-tougher-fundraising-as-industry-giants-dominate" target="_blank" rel="noopener">Hedgeweek</a></p>
+      </div>
+      <div class="panel">
+        <h3>“AI 펀드가 시장을 이긴다”는 말에 대하여</h3>
+        <ul>
+          <li>Eurekahedge AI 헤지펀드 지수: 한 요약(Amundi)에서는 2010년 이후 연 <strong>8.44%</strong> (같은 기간 전체 헤지펀드 지수 4.27%, CTA 2.62%). 다른 집계에서는 2009년 12월–2024년 7월 연 <strong>9.8%</strong> vs <strong>S&amp;P 500 13.7%</strong>.</li>
+          <li>둘 다 사실일 수 있습니다 — 종료 시점과 지수 구성이 다르기 때문입니다. 어느 쪽도 “AI 펀드가 시장을 이긴다”를 뒷받침하지 않습니다.</li>
+          <li>이 지수는 자기 보고(self-report) 방식이고, 죽은 펀드는 지수에서 빠지는 <strong>생존 편향</strong>이 있습니다.</li>
+        </ul>
+        <p class="src">출처: Amundi 디지북 요약 및 AI Trading Book 집계 (2차 요약 경유)</p>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <h3>출처 없는 “90/90/90 법칙”은 인용하지 마세요</h3>
+      <p>“90%가 90일 안에 자금의 90%를 잃는다”는 유명한 문구는, 위 요약 중 하나가 추적해 봐도 <strong>뒤에 있는 연구가 없습니다.</strong> 위에 있는, 출처를 댈 수 있는 숫자들이 이미 충분히 나쁩니다.</p>
+    </div>
+  </section>
+
+  <!-- 4. WHY BACKTESTS DIE -->
+  <section id="overfit">
+    <div class="sec-head">
+      <p class="k">지도 4 · 백테스트가 실전에서 죽는 이유</p>
+      <h2>과최적화 — “과거에서는 완벽했다”는 가장 흔한 사망 원인</h2>
+      <p>백테스트란 규칙을 과거 데이터에 돌려 보는 검증입니다. 문제는, 충분히 많이 시도하면 <strong>운만으로</strong>도 과거가 완벽해 보인다는 것이 연구로 증명돼 있다는 점입니다.</p>
+    </div>
+
+    <div class="bars">
+      <div class="bar-row">
+        <div class="top"><span class="label">설정 조합을 45개 넘게 시험하면 생기는 일 (5년 표본 기준)</span><span class="val">샤프 1.0 → 0</span></div>
+        <p class="note" style="margin-top:8px">Bailey, Borwein, López de Prado &amp; Zhu의 연구가 보인 것: 5년 데이터에 <strong>45개 이상의 전략 변형</strong>을 시험하면, 표본 내(in-sample) 샤프지수 1.0짜리 조합이 나오는 것은 거의 보장되고, 그 조합의 표본 외 기대 샤프는 <strong>0</strong>입니다. 쉽게 말해 지표 조합을 충분히 많이 돌리면 하나는 순전히 운으로 훌륭해 보입니다. 처방: <strong>시험한 횟수를 반드시 기록</strong>하고, 디플레이티드 샤프지수와 백테스트 과최적화 확률(PBO)을 쓸 것.</p>
+        <p class="src">출처: CXO Advisory의 연구 요약 — <a href="https://www.cxoadvisory.com/big-ideas/insidiousness-of-overfitting-investment-strategies-via-iterative-backtests/" target="_blank" rel="noopener">cxoadvisory.com</a> · 원 연구: <em>Pseudo-Mathematics and Financial Charlatanism</em> (2014), <em>The Probability of Backtest Overfitting</em> (2016)</p>
+      </div>
+
+      <div class="bar-row">
+        <div class="top"><span class="label">학술지에 “발견”으로 실린 예측 지표 97개의 운명 — 발표 전 수익률 = 100으로 두면</span><span class="val">100 → 74 → 42</span></div>
+        <div class="track"><div class="fill amber" style="width:74%"></div></div>
+        <p class="note">표본 외(out-of-sample) 구간에서는 수익률이 <strong>26% 낮았고</strong>(데이터 마이닝으로 설명 가능한 몫의 상한), <strong>발표된 뒤에는 58% 낮아졌습니다</strong>(투자자들이 그 신호를 거래해 버려 사라진 몫). 진짜 우위조차 시들고, 알려지면 더 빨리 시듭니다.</p>
+        <p class="src">출처: McLean &amp; Pontiff (2016), <em>Journal of Finance</em>, “Does Academic Research Destroy Stock Return Predictability?”</p>
+      </div>
+    </div>
+
+    <div class="two">
+      <div class="panel">
+        <h3>기준 자체가 올라갔습니다</h3>
+        <p class="small" style="margin:0">Harvey, Liu &amp; Zhu (2016, <em>Review of Financial Studies</em>)는 발표된 팩터 수백 개를 검토한 뒤, 기존 유의성 기준으로는 <strong>금융경제학의 “발견” 대부분이 거짓일 가능성이 높다</strong>고 주장했습니다. 새 팩터는 통상의 2.0이 아니라 <strong>t-통계량 3.0 이상</strong>을 넘어야 합니다. 모두가 이미 수없이 시험해 본 시장에서는, 다음 발견을 믿는 문턱이 그만큼 높아진 겁니다. 내 백테스트가 샤프 3 초과, 최대낙폭 5% 미만, 추세 시스템에서 승률 80% 초과를 보여준다면 — 축하할 일이 아니라 의심할 일입니다.</p>
+      </div>
+      <div class="panel">
+        <h3>LLM 백테스트만의 특수한 함정</h3>
+        <p class="small" style="margin:0">LLM은 인터넷으로 훈련됐습니다. 학습 컷오프 이전 헤드라인으로 돌린 백테스트는 일반적인 의미의 “표본 외”가 아닙니다 — 모델이 그 기사, 그 뒤의 주가 반응, 후일담 해설을 훈련 때 봤을 수 있으니까요. Lopez-Lira &amp; Tang은 거래 가능한 부분을 컷오프 이후 헤드라인 중심으로 다뤄 이 문제를 피하려 했지만, SNS의 “GPT가 시장을 이겼다” 백테스트 대부분은 이 처리를 하지 않습니다. <strong>컷오프 처리 방식을 명시하지 않은 LLM 백테스트는 미검증으로 취급하세요.</strong></p>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:14px">
+      <h3>공개된 “AI 매매 성과”가 실전에서 살아남지 못하는 체크리스트</h3>
+      <ul>
+        <li><strong>선택:</strong> 시도한 수많은 변형 중 최고만 공개됩니다. 시도 횟수는 대개 공개되지 않습니다.</li>
+        <li><strong>누수(미래참조):</strong> 특성값에 미래 정보, 수정된 재무 수치, 결과를 외운 LLM, 시간을 무작위로 섞은 훈련/테스트 분리.</li>
+        <li><strong>비용을 없다고 가정:</strong> 스프레드·슬리피지·수수료·세금 없음, 존재한 적 없는 가격에 체결된 것으로 처리.</li>
+        <li><strong>국면 전환:</strong> 패턴이 특정 시장 국면(예: 추세장·저금리) 소속이었고 그 국면이 끝남. 비슷한 포지션을 든 펀드들이 동시에 풀면서 증폭되기도 합니다 — 2007년 8월 “퀀트 지진”이 기관 쪽의 대표 사례입니다.</li>
+        <li><strong>용량과 혼잡:</strong> 작은 돈에서 되던 신호가 큰 돈에서는 자기 가격을 움직이고, 발표되면 차익거래로 사라집니다 (위 58%).</li>
+        <li><strong>운영 실패:</strong> 데이터 피드 공백, API 호출 한도, 장 시작 때 죽은 봇, 버전이 바뀐 모델 API. 연구용 코드는 이 중 어느 것도 처리하지 않습니다.</li>
+      </ul>
+      <p class="src">종합 출처: FinRL 난제 정리 논문 (Liu et al., arXiv:2304.13174) — 낮은 신호대잡음비, 생존 편향, 과최적화(“기존 연구는 주로 백테스트 결과만 보고한다”), 지연, 시뮬레이션과 현실의 간극을 RL 기준으로 열거 — <a href="https://arxiv.org/pdf/2304.13174" target="_blank" rel="noopener">arxiv.org/pdf/2304.13174</a></p>
+    </div>
+  </section>
+
+  <!-- 5. TOOLS -->
+  <section id="tools">
+    <div class="sec-head">
+      <p class="k">지도 5 · 실제로 쓰는 도구들</p>
+      <h2>개인이 실제로 쓰는 건 “AI 에이전트”가 아니라 이쪽입니다</h2>
+      <p>성숙한 도구는 자기가 <em>하지 않는 것</em>을 문서에 명시합니다. 미성숙한 도구는 <em>할 수 있을 것</em>으로 마케팅합니다. 그 어조의 차이 자체가 증거입니다.</p>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>도구</th><th>정체</th><th>시장 / 사용자</th><th>성숙도 평가</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Freqtrade</strong></td><td>무료 오픈소스 파이썬 암호화폐 매매 봇. 데이터 다운로드, 전략 작성, 백테스트, 하이퍼파라미터 최적화, 모의 실행(dry-run), 거래소 API 실전, 텔레그램·웹 UI 제어</td><td>암호화폐 현물·일부 선물 (바이낸스·크라켄·바이비트·OKX 등)</td><td><span class="hl-good">자기 영역에서는 성숙.</span> 수년간의 릴리스와 큰 커뮤니티, 정직한 문서(“시뮬레이션은 미래를 예측하지 않는다”). 단, <strong>주식 봇이 아닙니다</strong> — 한국 주식에 쓰려면 데이터·브로커 층을 직접 짜야 하고, 그 시점부터는 사실상 Freqtrade를 쓰는 게 아닙니다.</td></tr>
+          <tr><td><strong>QuantConnect / LEAN</strong></td><td>LEAN은 오픈소스 이벤트 기반 알고리즘 트레이딩 엔진(코어 C#, 알고리즘은 Python/C#). QuantConnect는 그 위의 클라우드 플랫폼 — 데이터, 수수료·슬리피지·결제를 모형화한 백테스트, 지원 브로커 실전 배포</td><td>다자산: 주식·옵션·선물·외환·암호화폐, 주로 미국·글로벌 브로커 (IB, Alpaca 등)</td><td><span class="hl-good">개인이 빌릴 수 있는 가장 기관급 옵션.</span> 학습 곡선과 클라우드 비용이 있고, 한국 시장·브로커가 본거지는 아님 — 착수 전에 현재 브로커·데이터 지원 범위를 확인할 것. <span class="src"><a href="https://www.quantconnect.com/docs/v2/lean-engine" target="_blank" rel="noopener">공식 문서</a></span></td></tr>
+          <tr><td><strong>Alpaca</strong></td><td>깔끔한 REST/WebSocket API를 주는 미국 증권사. 미국 주식·ETF(및 암호화폐·옵션) 무수수료, 모의자금 <strong>페이퍼 트레이딩</strong> 환경이 널리 쓰임. 리서치 플랫폼이 아니라 브로커 — 신호·리스크·스케줄링·로깅은 전부 본인 몫</td><td>미국 주식·ETF API 트레이더</td><td><span class="hl-good">브로커 API로서는 성숙.</span> 책임 분담이 핵심: 집행 말고는 전부 당신 것입니다. 한국 상장 주식으로 가는 길은 아닙니다.</td></tr>
+          <tr><td><strong>Backtrader / vectorbt / Backtesting.py 등</strong></td><td>파이썬 백테스트 라이브러리. 데이터와 규칙을 넣으면 체결을 시뮬레이션해 샤프·낙폭·거래 통계를 냄</td><td>데이터를 구할 수 있는 모든 시장 (KRX 데이터만 구하면 가능)</td><td><span class="hl-good">테스트 하네스로서는 유용하고 정직.</span> 실전 브로커 연결·리스크 층·모니터링은 상자 안에 없습니다. 흔하고 합리적인 개인 패턴: 여기서 프로토타입 → 집행부만 브로커 API로 다시 구현.</td></tr>
+          <tr><td><strong>Microsoft Qlib</strong></td><td>오픈소스 “AI 지향 퀀트 투자 플랫폼”: 데이터 처리, ML 모델 모음(지도학습·시장 동역학·RL), 백테스트, 포트폴리오 최적화</td><td>연구자. 예시 데이터·흐름은 미국·중국 주식 중심</td><td>진지한 <strong>연구 인프라</strong>이지 개인용 봇이 아님. 학습 곡선이 가파르고 한국 개인 계좌용 실전 기능은 없음. “완전한 워크플로가 어떻게 구성되는가”의 모범으로 가치가 있음 (§2). <span class="src"><a href="https://github.com/microsoft/qlib" target="_blank" rel="noopener">GitHub</a></span></td></tr>
+          <tr><td><strong>한국투자증권(KIS) Open API</strong></td><td>공식 증권사 API: 시세·주문·잔고는 REST, 실시간은 WebSocket. 국내·해외 주식, 선물·옵션, 채권. 앱키/시크릿 → 토큰 방식. 기본 한도는 보도 기준 <strong>초당 20회(TPS)</strong>, 2026년 캠페인으로 활성 API 트레이더는 40–100 TPS까지 확대. 2026년에는 <strong>전략 빌더(이동평균·모멘텀 등으로 매수·매도 기준 설정)와 백테스트</strong>(수익률·손실 구간·자산 변화 검토)를 담은 무료 GitHub 샘플 코드, AI 코딩 연동(자연어 조건 → 코드·데이터·테스트), MCP 도구까지 공개</td><td>코드를 짜는 한국 개인 트레이더 (주로 Python)</td><td><span class="hl-good">현재 한국에서 가장 개인 친화적인 공식 경로.</span> 2026년 전략·백테스트 공개는 규칙 기반 장중 흐름과 직접 맞닿아 있습니다. 그래도 증권사 API일 뿐 전략이 아님 — 검증·리스크 한도·모니터링은 본인 몫. <span class="src">출처: <a href="https://en.sedaily.com/finance/2026/04/07/korea-investment-adds-strategy-builder-backtesting-to-open" target="_blank" rel="noopener">서울경제 (직접 열람 확인)</a> · <a href="https://www.mk.co.kr/en/stock/12140377" target="_blank" rel="noopener">매일경제 (TPS·MCP)</a></span></td></tr>
+          <tr><td><strong>키움증권 OpenAPI+</strong></td><td>한국 개인 자동매매의 오랜 incumbent. HTS의 조건검색식을 자동 매수·매도 프로그램으로 연결하는 생태계(블로그·외주·유료 제작)가 큼. 기술적으로는 <strong>Windows 전용, ActiveX/COM 기반</strong> (Python에서는 PyQt5/win32com 또는 pykiwoom 같은 래퍼로 접근), 본인 PC에 HTS/OpenAPI+를 설치·로그인해 둬야 함</td><td>한국 개인, 국내 주식. 한국어 커뮤니티 지식이 방대함</td><td><span class="hl-good">검증됐고 널리 쓰이지만 레거시 기술.</span> PC를 켜고 로그인 상태를 유지해야 하고, COM 이벤트 처리·호출 한도·화면번호 관리가 커뮤니티에서 반복되는 고충. KIS 같은 REST형 API가 나온 배경이기도 합니다. 이 항목의 근거는 공식 문서가 아닌 커뮤니티·블로그 층이므로, 구체적 동작은 KOA Studio·현행 키움 문서에서 확인할 것.</td></tr>
+          <tr><td><strong>TradingAgents</strong> (Tauric Research)</td><td>트레이딩 회사를 흉내 낸 멀티에이전트 LLM 프레임워크: 펀더멘털·감성·뉴스·기술 분석가 에이전트, 강세 vs 약세 연구원 토론, 트레이더 제안, 리스크 팀·포트폴리오 매니저 승인. 논문(Xiao et al., arXiv:2412.20138)은 <em>그 실험 안에서</em> 누적수익·샤프·최대낙폭이 기준선보다 좋았다고 보고</td><td>연구자·파이썬 가능한 취미 개발자, 일 단위 주식 결정</td><td><strong>연구 데모이지 매매 상품이 아님.</strong> GitHub README 요약 기준 승인된 주문은 <strong>모의 거래소</strong>로 가고(브로커 없음), 용도는 연구 목적이며, 실행할 때마다 LLM 요금이 청구됩니다. 강점: 읽기 좋고 구조화된 종목 논거 + 전체 추론 로그. 약점: 짧은 백테스트 구간, 제거되지 않은 LLM 미래참조, 종목당 느리고 비싼 결정, 모델이 바뀌면 재현 불가, 독립 감사된 실전 기록 없음. <span class="src"><a href="https://arxiv.org/abs/2412.20138v1" target="_blank" rel="noopener">arXiv (직접 열람 확인)</a></span></td></tr>
+          <tr><td><strong>FinGPT</strong> (AI4Finance)</td><td>오픈소스 금융 LLM 계열: 금융 텍스트로 오픈 모델(Llama 등)을 LoRA 어댑터로 가볍게 미세조정 — 감성, 예측, 로보어드바이징, 질의응답. 감성 모델 하나를 약 <strong>17달러</strong>로 학습했다는 프로젝트 요약이 있을 만큼 미세조정 비용이 낮고, 모델·데이터를 공개</td><td>금융 텍스트 부품을 만드는 연구자</td><td><strong>시스템이 아니라 부품.</strong> 합리적 사용처는 감성 점수를 “범위가 정해진 입력값 하나”로 쓰는 것. 데이터 품질 보장도, 리스크 층도, 집행도 없고, 대표 벤치마크는 실전 손익이 아니라 텍스트 분류 데이터셋(Financial PhraseBank 등) 성적입니다.</td></tr>
+          <tr><td><strong>FinRobot</strong> (AI4Finance)</td><td>금융 <em>분석</em>용 오픈소스 AI 에이전트 플랫폼: 데이터 API를 부르고 코드를 짜서 주식 리서치 스타일 보고서·밸류에이션·문서 분석을 생성</td><td>애널리스트형 리서치 자동화</td><td><strong>리서치·분석 플랫폼이지 트레이더가 아님.</strong> 프로젝트 자체의 자리매김도 금융 응용·주식 리서치입니다. 이번 조사에서 검증된 실전 매매 성과 증거는 찾지 못했습니다. <span class="src"><a href="https://arxiv.org/html/2405.14767v2" target="_blank" rel="noopener">arXiv:2405.14767</a></span></td></tr>
+          <tr><td><strong>FinRL / FinRL-Meta</strong> (AI4Finance)</td><td>주식·암호화폐·포트폴리오 과제를 위한 RL 라이브러리 + 시뮬레이션 환경. 예제 에이전트는 PPO·A2C·DQN (Stable-Baselines3/ElegantRL 기반)</td><td>금융 RL을 배우는 학생·연구자</td><td><span class="hl-good">훌륭한 교실, 완성형 봇은 아님.</span> 프로젝트 요약 스스로 명시: 올인원 실전 봇은 기본 제공되지 않고, 실전에는 실시간 데이터·수수료·슬리피지·지연을 직접 구현해야 하며, 학습된 에이전트는 과거 데이터에 과최적화됩니다.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="src" style="margin-top:8px">Freqtrade·LEAN·Backtrader 설명 출처: <a href="https://tradingstrategy.ai/docs/learn/algorithmic-trading-frameworks.html" target="_blank" rel="noopener">Trading Strategy 문서</a> · <a href="https://www.quantconnect.com/docs/v2/lean-engine" target="_blank" rel="noopener">QuantConnect LEAN 문서</a> · Alpaca 언급: <a href="https://blog.traderspost.io/article/best-pine-script-alternatives-for-algo-trading" target="_blank" rel="noopener">TradersPost 정리</a>. 그 밖의 국내 증권사(미래에셋 등) API는 세부 확인이 되지 않았습니다 — 설계 전에 각 증권사 개발자 포털에서 직접 확인하세요.</p>
+  </section>
+
+  <!-- 6. SYNTHESIS + JOURNAL -->
+  <section id="survive">
+    <div class="sec-head">
+      <p class="k">지도 6 · 살아남는 소수의 공통점</p>
+      <h2>비법 지표는 없다 — 전부 §3·§4의 실패 원인의 “해법”이다</h2>
+      <p>아래 열 가지는 어느 한 구루의 주장이 아니라, 앞에서 본 실패 모드 하나하나에 대한 직접적인 대응책입니다. 당신의 시스템에 이미 들어간 것(핵심패턴 필수화, 셋업 쿨다운, 이벤트 블랙아웃, 슬리피지 기록)도 이 목록과 같은 방향입니다.</p>
+    </div>
+
+    <div class="practices">
+      <div class="practice"><h3>데이터를 보기 전에 가설을 글로 쓴다</h3><p>한 문장: 어떤 시장 행동을 이용하는가, 왜 지속돼야 하는가, 반대편 거래자는 누구인가. 못 쓰겠으면 그건 데이터 마이닝하러 가는 길입니다. (대응: 데이터 스누핑)</p></div>
+      <div class="practice"><h3>시험 횟수를 센다</h3><p>실패한 변형까지 전부 로그로 남깁니다. 45개 변형이면 샤프 1.0이 운으로 나온다는 연구 때문에, 세지 않은 탐색은 자기 최고의 결과를 스스로 무효화합니다. 파라미터는 적게.</p></div>
+      <div class="practice"><h3>검증은 시간 순서로, 층층이</h3><p>표본 내 개발 → 안 건드린 표본 외 테스트 → 워크포워드(창을 굴리며 매번 “안 본 구간”만 이어붙여 판정) → 마지막 10–20% 홀드아웃은 맨 끝에 한 번만. ML이면 퍼지·엠바고 분리. 시계열을 무작위로 섞는 분리는 절대 금지.</p></div>
+      <div class="practice"><h3>비용은 비관적으로, 그리고 두 배로 스트레스</h3><p>수수료·세금·편도 스프레드 절반·거래당 슬리피지를 넣고, 비용 2배로 다시 돌려서도 기대값이 양수일 때만 유지. 실전 슬리피지(체결가 vs 신호가)를 거래마다 기록 — 그 시계열이 지표 하나보다 값집니다.</p></div>
+      <div class="practice"><h3>규칙을 얼린 채로 페이퍼 트레이딩</h3><p>실시간 데이터·모의 체결로, 사전에 약속한 기간 동안 규칙 무변경. 거래가 충분히 쌓이고 나쁜 국면도 한 번은 포함될 때까지. 중간에 규칙을 바꾸고 싶은 충동은 일지에 적고, 시계는 리셋됩니다.</p></div>
+      <div class="practice"><h3>크기는 확신이 아니라 위험으로 정한다</h3><p>거래당 고정 비율 리스크(손절까지 거리 기준), 동시 포지션 수 상한, 포트폴리오 전체 캡. 켈리는 상한으로만, 그 절반 이하로. 음의 기대값은 어떤 크기로도 못 구합니다 — §2 계산기부터 확인.</p></div>
+      <div class="practice"><h3>낙폭 한도와 킬스위치를 미리 정한다</h3><p>형태의 예(수치는 본인 계좌에 맞게): 일일 손실 한도에 닿으면 그날은 알림을 무시, 주간 한도에 닿으면 크기 절반, 최대낙폭에 닿으면 페이퍼로 복귀해 복기. 침착할 때 적어 두는 이유 — 한도의 일은 가장 지키기 싫은 날에 결정하는 것이기 때문입니다.</p></div>
+      <div class="practice"><h3>매매일지는 “방법 태그”로 나눠 쓴다</h3><p>거래마다: 일시, 종목, <strong>셋업/방법 태그</strong>(어떤 신호, 어떤 점수 구간), 계획한 R, 진입, 청산, 청산 사유, 수수료, 신호가 대비 슬리피지, 규칙을 지켰는지 한 줄. 그리고 태그별로 기대값·평균 이익/손실·최대낙폭·거래 수를 복기합니다. 한 셋업 +0.3R, 다른 셋업 −0.4R이면 “본전”이 아니라 좋은 시스템이 나쁜 시스템을 먹여 살리는 중이고, 태그 없이는 절대 안 보입니다. 복기는 나쁜 하루 뒤가 아니라 일정(50거래마다, 또는 월 1회)으로.</p></div>
+      <div class="practice"><h3>실전은 최소 크기로, 확대는 실전 증거로만</h3><p>첫 실전 크기는 실제 체결과 실제 감정이 생기는 최소 단위. 사전에 정한 실전 거래 수가 쌓이고 기대값·슬리피지가 페이퍼 기간과 일치할 때만 확대. 연승 뒤에 키우는 건 가장 약한 증거로 키우는 겁니다 (대만·브라질 데이터 참조).</p></div>
+      <div class="practice"><h3>신호의 “은퇴”를 계획한다</h3><p>발표된 예측 지표는 발표 후 수익이 58% 줄었습니다. 셋업별 롤링 기대값을 감시하고, 나빠지면 집행·비용·국면부터 확인 → 크기 축소 → 은퇴 순으로. 시드는 신호에 지표 하나를 더 얹는 건 대개 2번 단계(과최적화)를 다시 시작하는 일입니다.</p></div>
+    </div>
+
+    <div class="calc" style="margin-top:20px">
+      <h3>📓 당신의 매매일지 — 최소 항목</h3>
+      <p class="small">“어떤 방법으로 매매했고, 성과가 어땠는지”가 자동으로 쌓이려면 거래마다 아래가 필요합니다. 당신의 시스템에는 이미 신호 기록(<code>box_signals.json</code>), <code>/entry</code> 슬리피지, <code>/exit</code> 실전 청산 기록(<code>trades.json</code>), 통합 <code>/stats</code>가 들어가 있으니, 핵심은 <strong>셋업 태그별로 기대값을 보는 것</strong>입니다. 아래 CSV 양식은 텔레그램 기록과 별개로 스프레드시트에서 복기할 때 쓰는 용도입니다.</p>
+      <div class="journal-fields">
+        <span class="jf">날짜·시각</span><span class="jf">종목</span><span class="jf key">셋업/방법 태그 ★</span><span class="jf">신호 점수·구간</span><span class="jf">계획 위험 (R)</span><span class="jf">신호 제시가</span><span class="jf">실제 진입가</span><span class="jf key">슬리피지 ★</span><span class="jf">청산가</span><span class="jf">청산 사유</span><span class="jf">수수료·세금</span><span class="jf key">실현 손익 (R) ★</span><span class="jf">보유 시간</span><span class="jf">규칙 준수 여부</span><span class="jf">메모 한 줄</span>
+      </div>
+      <p class="small">★ 표시 셋이 핵심입니다 — 태그가 있어야 “방법별 성과”가 되고, 슬리피지가 있어야 백테스트와 실전의 간극이 보이고, R 단위 손익이 있어야 서로 다른 거래를 같은 저울로 비교할 수 있습니다.</p>
+      <div class="btn-row">
+        <button class="btn" id="dlCsv" type="button">⬇ 매매일지 CSV 양식 다운로드</button>
+        <button class="btn ghost" id="cpHead" type="button">헤더만 복사하기</button>
+        <span class="toast" id="cpToast" role="status"></span>
+      </div>
+    </div>
+
+    <div class="callout">
+      <h3>현실적인 기대치로 마무리합니다</h3>
+      <p>이 사업의 프로 버전 — 르네상스·투시그마급 시스템 펀드와, SEBI FY24 데이터에서 자기매매·외국인 이익의 96–97%를 가져간 알고리즘 데스크 — 은 수년에 걸쳐 쌓은 인프라와 연구 인력의 사업이고, 거기서도 펀드는 매년 문을 닫습니다. 증거가 남겨 주는 개인 버전은 더 좁고 소박합니다: <strong>잘 이해한 셋업 한두 개, 작고 통제된 위험, 표본 외 검증, 정직한 비용 계산, 방법별로 기록하는 일지, 희망이 아니라 규칙으로 멈추는 것.</strong> 이미 점수제 장중 신호와 수동 체결을 굴리고 있는 사람에게 이건 격하가 아닙니다. 한 사람의 규율로 실제로 경쟁할 수 있는 영역이 정확히 여기 — 속도가 아니라 과정이 우위인 곳 — 이기 때문입니다.</p>
+    </div>
+  </section>
+
+  <!-- OPEN QUESTIONS -->
+  <section id="openq">
+    <div class="sec-head">
+      <p class="k">확인하지 못한 것</p>
+      <h2>이번 조사로 답하지 못한 질문들</h2>
+      <p>없는 숫자는 만들지 않았습니다. 아래는 “모른다”고 적어 두는 편이 정직한 항목들입니다.</p>
+    </div>
+    <div class="openq">
+      <ul>
+        <li><strong>“전문가가 리스크 vs 모델링에 쓰는 시간 비율”</strong> — 감사된 단일 수치를 주는 신뢰할 만한 출처가 없어, 이 페이지는 비율 대신 플랫폼 구조와 방법론 문헌으로 논증했습니다.</li>
+        <li><strong>키움·미래에셋 공식 API의 현행 사양</strong>(호출 한도·수수료·REST 제공 여부) — 증권사 개발자 포털을 직접 열람하지 못했습니다. 커뮤니티 설명만으로 설계하지 말고 포털에서 확인하세요.</li>
+        <li><strong>TradingAgents·FinGPT·FinRobot·FinRL 기반 시스템의 독립 감사된 실전(실자금) 기록</strong> — 찾지 못했습니다. 발견된 성과 주장은 전부 각 프로젝트 논문의 백테스트·페이퍼 결과입니다.</li>
+        <li><strong>한국 시장 개인 알고리즘 트레이더의 수익 통계</strong> — SEBI에 견줄 만한 KRX·금융감독원의 계좌 단위 연구를 찾지 못했습니다. 그래서 대만·브라질·인도 숫자를 시장명을 붙여 인용했습니다.</li>
+        <li><strong>Eurekahedge AI 지수의 현재 구성과 2024년 이후 값</strong> — 인용 수치는 날짜가 붙은 요약 기준이며, 자기 보고·생존 편향이 있어 “AI 펀드가 시장을 이긴다”는 주장의 반박 용도로만 썼습니다.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <h2>출처</h2>
+    <p class="small">전부 2026년 10월 27일 열람. “직접 열람 확인”은 조사 과정에서 페이지를 열어 읽은 것, 나머지는 검색 인덱스를 통해 읽은 것입니다.</p>
+    <ol>
+      <li>SEBI 연구 (StudyCafe 요약, 2024-09-23 보도자료 기반) — 개인 F&amp;O 트레이더 93% 손실 — 직접 열람 확인 — <a href="https://studycafe.in/sebi-study-reveals-93-of-individual-traders-incurred-losses-in-equity-fo-between-fy22-and-fy24-345333.html" target="_blank" rel="noopener">studycafe.in</a></li>
+      <li>Xiao, Sun, Luo &amp; Wang — <em>TradingAgents: Multi-Agents LLM Financial Trading Framework</em>, arXiv:2412.20138 — 직접 열람 확인 — <a href="https://arxiv.org/abs/2412.20138v1" target="_blank" rel="noopener">arxiv.org/abs/2412.20138v1</a></li>
+      <li>서울경제 — <em>Korea Investment Adds Strategy Builder, Backtesting to Open API</em> (2026-04-07) — 직접 열람 확인 — <a href="https://en.sedaily.com/finance/2026/04/07/korea-investment-adds-strategy-builder-backtesting-to-open" target="_blank" rel="noopener">en.sedaily.com</a></li>
+      <li>Barber, Lee, Liu &amp; Odean (대만) / Chague, De-Losso &amp; Giovannetti (브라질) — 데이트레이더 전수 연구 요약 — <a href="https://www.gwhlds.com/hub/what-percentage-of-day-traders-are-profitable.html" target="_blank" rel="noopener">gwhlds.com</a></li>
+      <li>데이트레이더 손실률 종합 (대만·브라질·SEBI 장중·EU/ASIC) — <a href="https://enlightenedstocktrading.com/what-percentage-of-traders-lose-money/" target="_blank" rel="noopener">enlightenedstocktrading.com</a></li>
+      <li>CXO Advisory — Bailey, Borwein, López de Prado &amp; Zhu 연구 요약 (변형 45개↑ / 5년 → 표본 내 샤프 1.0, 표본 외 기대 0) — <a href="https://www.cxoadvisory.com/big-ideas/insidiousness-of-overfitting-investment-strategies-via-iterative-backtests/" target="_blank" rel="noopener">cxoadvisory.com</a></li>
+      <li>McLean &amp; Pontiff (2016, <em>Journal of Finance</em>) — 표본 외 −26%, 발표 후 −58% · Harvey, Liu &amp; Zhu (2016, <em>Review of Financial Studies</em>) — t &gt; 3.0 기준 (도서관 카탈로그 초록 경유)</li>
+      <li>Lopez-Lira &amp; Tang — <em>Can ChatGPT Forecast Stock Price Movements?</em>, arXiv:2304.07619 — <a href="https://arxiv.org/abs/2304.07619v1" target="_blank" rel="noopener">arxiv.org/abs/2304.07619v1</a></li>
+      <li><em>Assessing Look-Ahead Bias in Stock Return Predictions Generated by GPT Sentiment Analysis</em>, arXiv:2309.17322 — <a href="https://arxiv.org/html/2309.17322" target="_blank" rel="noopener">arxiv.org/html/2309.17322</a></li>
+      <li>Liu et al. — FinRL 난제 서베이, arXiv:2304.13174 — <a href="https://arxiv.org/pdf/2304.13174" target="_blank" rel="noopener">arxiv.org/pdf/2304.13174</a></li>
+      <li>Yang et al. — <em>FinRobot</em>, arXiv:2405.14767 — <a href="https://arxiv.org/html/2405.14767v2" target="_blank" rel="noopener">arxiv.org/html/2405.14767v2</a> · FinGPT 논문 arXiv:2306.06031</li>
+      <li>QuantInsti — <em>How Transaction Costs Affect Automated Trading</em> (왕복 0.2% × 연 50회 ≈ 연 10%p) — <a href="https://www.quantinsti.com/articles/transaction-costs-automated-trading/" target="_blank" rel="noopener">quantinsti.com</a></li>
+      <li>Trading Strategy 문서 — <em>Algorithmic trading frameworks for Python</em> (Freqtrade·LEAN·Backtrader) — <a href="https://tradingstrategy.ai/docs/learn/algorithmic-trading-frameworks.html" target="_blank" rel="noopener">tradingstrategy.ai</a></li>
+      <li>QuantConnect — <em>LEAN Engine</em> 문서 — <a href="https://www.quantconnect.com/docs/v2/lean-engine" target="_blank" rel="noopener">quantconnect.com</a></li>
+      <li>Microsoft — <em>Qlib: an AI-oriented Quant investment platform</em> (GitHub) — <a href="https://github.com/microsoft/qlib" target="_blank" rel="noopener">github.com/microsoft/qlib</a></li>
+      <li>TradersPost — <em>Best Pine Script Alternatives for Algo Trading</em> (QuantConnect 브로커 목록·Alpaca, Freqtrade 거래소) — <a href="https://blog.traderspost.io/article/best-pine-script-alternatives-for-algo-trading" target="_blank" rel="noopener">blog.traderspost.io</a></li>
+      <li>매일경제(MK) — 한국투자증권 Open API 활성화 캠페인 (기본 20 TPS, 최대 100 TPS, MCP 도구) — <a href="https://www.mk.co.kr/en/stock/12140377" target="_blank" rel="noopener">mk.co.kr</a></li>
+      <li>Bookmap — <em>Stop Trading Like It’s 2010</em> (HFT 비중 추정: 학술 10–40% ~ 넓은 알고리즘 60%+) — <a href="https://bookmap.com/blog/stop-trading-like-its-2010-whats-changed-in-the-market-microstructure" target="_blank" rel="noopener">bookmap.com</a></li>
+      <li>Hedgeweek — 헤지펀드 스타트업 자금 조달 (골드만삭스: 10억 달러↑ 시작 5년 생존 84% vs 2,500만 달러 50% 미만) — <a href="https://hedgeweek.com/news/hedge-fund-start-ups-face-tougher-fundraising-as-industry-giants-dominate" target="_blank" rel="noopener">hedgeweek.com</a></li>
+    </ol>
+    <p class="small" style="margin-top:16px">이 페이지는 2026년 10월 27일 조사 시점의 스냅샷입니다. 특정 전략의 수익을 보장하지 않으며, 수치는 각 출처의 시장·기간·정의 안에서만 유효합니다.</p>
+  </footer>
+</div>
+
+<script>
+(function(){
+  function num(id){ var v = parseFloat(document.getElementById(id).value); return isNaN(v) ? 0 : v; }
+  function fmt(n, d){ var s = (n >= 0 ? "+" : "−") + Math.abs(n).toFixed(d) + "R"; return s; }
+
+  function calcExp(){
+    var p = Math.min(100, Math.max(0, num("inWin"))) / 100;
+    var aw = Math.max(0, num("inAvgWin"));
+    var al = Math.max(0, num("inAvgLoss"));
+    var cost = Math.max(0, num("inCost"));
+    var gross = p * aw - (1 - p) * al;
+    var net = gross - cost;
+    var out = document.getElementById("expOut");
+    var verd = document.getElementById("expVerdict");
+    out.textContent = fmt(net, 2);
+    out.style.color = net > 0 ? "var(--good)" : (net < 0 ? "var(--red)" : "var(--ink)");
+    var per100 = (net * 100).toFixed(0);
+    if (net > 0.05) {
+      verd.textContent = "양의 기대값입니다. 이 수치들이 표본 외·실전 기록에서 나온 것이라면, 100거래당 약 " + per100 + "R의 기대 이익 구조입니다. 단, 비용을 두 배로 올려도 양수인지 꼭 다시 확인하세요.";
+    } else if (net >= -0.05 && net <= 0.05) {
+      verd.textContent = "사실상 0 — 우위가 있다고 말할 수 없는 구간입니다. 비용 추정 오차만으로도 쉽게 음수로 뒤집힙니다. 표본을 더 모으거나, 이 셋업은 관찰만 하는 게 안전합니다.";
+    } else {
+      verd.textContent = "음의 기대값입니다. 승률을 올려도, 거래 횟수를 늘려도 이 구조로는 잃습니다 — 횟수를 늘리면 더 빨리 잃을 뿐입니다. 평균 이익을 키우거나(손절·익절 구조), 손실 구간 셋업을 분리해 태그별로 다시 계산하세요.";
+    }
+  }
+  ["inWin","inAvgWin","inAvgLoss","inCost"].forEach(function(id){
+    document.getElementById(id).addEventListener("input", calcExp);
+  });
+  calcExp();
+
+  function calcCost(){
+    var rt = Math.max(0, num("inRt"));
+    var n = Math.max(0, num("inTrades"));
+    var drag = rt / 100 * n * 100; /* in percentage points, simple sum (report's approximation) */
+    document.getElementById("costOut").textContent = "≈ " + drag.toFixed(1) + "%p";
+  }
+  ["inRt","inTrades"].forEach(function(id){
+    document.getElementById(id).addEventListener("input", calcCost);
+  });
+  calcCost();
+
+  var HEADERS = ["날짜","시각","종목코드","종목명","셋업/방법 태그","신호 점수","점수 구간","계획 위험(R)","신호 제시가","실제 진입가","슬리피지(%)","수량","청산가","청산 사유","수수료·세금","실현 손익(원)","실현 손익(R)","보유 시간(분)","규칙 준수 여부","메모"];
+  var SAMPLE = ["2026-10-28","09:35","0193T0","KODEX SK하이닉스 레버리지","박스 하단 지지반등","72","70-79","1","","","","","","목표 도달","","","","","예","(예시 행 — 지우고 사용하세요)"];
+
+  document.getElementById("dlCsv").addEventListener("click", function(){
+    var csv = "﻿" + HEADERS.join(",") + "\n" + SAMPLE.map(function(c){ return '"' + String(c).replace(/"/g,'""') + '"'; }).join(",") + "\n";
+    var blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = "trade-journal-template.csv";
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+    showToast("CSV 양식을 내려받았습니다.");
+  });
+
+  document.getElementById("cpHead").addEventListener("click", function(){
+    var text = HEADERS.join(",");
+    function done(){ showToast("헤더를 복사했습니다."); }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, function(){ fallback(); });
+    } else { fallback(); }
+    function fallback(){
+      var ta = document.createElement("textarea");
+      ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); done(); } catch(e) { showToast("복사에 실패했습니다 — 길게 눌러 직접 복사해 주세요."); }
+      document.body.removeChild(ta);
+    }
+  });
+
+  var toastTimer = null;
+  function showToast(msg){
+    var t = document.getElementById("cpToast");
+    t.textContent = msg;
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ t.textContent = ""; }, 3200);
+  }
+})();
+</script>
+<footer style="border-top:1px solid var(--line);margin-top:44px;padding:24px 20px 34px;text-align:center;font-size:13.5px;color:var(--muted);">이 페이지는 HongSungIn(hongzi.us)의 리서치 기록입니다 · <a href="index.html">글 목록으로 돌아가기</a></footer>
+</body>
+</html>
