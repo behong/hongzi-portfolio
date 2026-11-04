@@ -15,6 +15,25 @@ services:
       retries: 3
       start_period: 10s
 
+  private:
+    build: ./private-app
+    container_name: portfolio-private
+    env_file:
+      - ./.secrets/private.env
+    restart: unless-stopped
+    init: true
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8766/private/health', timeout=5)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
   tunnel:
     image: cloudflare/cloudflared:latest
     container_name: portfolio-tunnel
