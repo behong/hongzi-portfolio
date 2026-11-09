@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>집 서버 RDP 무차별 대입을 발견한 날 — 닫고, 좁히고, 감시를 달기까지 — HongSungIn</title>
+    <meta name="description" content="침입 감시를 붙이려고 점검하던 중, 집 서버의 원격 데스크톱(3389)이 인터넷에 열려 있고 관리자 계정을 향한 무차별 대입이 실시간으로 진행 중이라는 걸 발견했다. 15분에 로그온 실패 626건. 침투 흔적이 없음을 로그로 확인한 뒤, 포트포워딩 삭제 → Tailscale 전용으로 축소 → 계정 정리 → 기기 승인 → 실시간 알림 감시까지 하루에 끝낸 대응 기록과, 그 과정에서 배운 교훈을 정리했다." />
+    <link rel="canonical" href="https://hongzi.us/post/rdp-brute-force-defense.html" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="HongSungIn" />
+    <meta property="og:title" content="집 서버 RDP 무차별 대입을 발견한 날 — 닫고, 좁히고, 감시를 달기까지" />
+    <meta property="og:description" content="침입 감시를 붙이려고 점검하던 중, 집 서버의 원격 데스크톱(3389)이 인터넷에 열려 있고 관리자 계정을 향한 무차별 대입이 실시간으로 진행 중이라는 걸 발견했다. 15분에 로그온 실패 626건. 침투 흔적이 없음을 로그로 확인한 뒤, 포트포워딩 삭제 → Tailscale 전용으로 축소 → 계정 정리 → 기기 승인 → 실시간 알림 감시까지 하루에 끝낸 대응 기록과, 그 과정에서 배운 교훈을 정리했다." />
+    <meta property="og:url" content="https://hongzi.us/post/rdp-brute-force-defense.html" />
+    <meta property="og:image" content="https://hongzi.us/img/post-rdp-hero.webp" />
+    <meta property="article:published_time" content="2026-11-09" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="google-site-verification" content="TE_a5yGhqMM-wjQRCvo9Cc7LzAlbduAlwCKos1kQ6Qw" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #faf8f4;
+        --surface: #fffdfa;
+        --ink: #26231e;
+        --ink-soft: #4c4740;
+        --muted: #8a8378;
+        --line: #e7e1d6;
+        --line-soft: #efe9de;
+        --accent: #5d6f5c;
+        --accent-soft: #eef0ea;
+        --tag: #6d675c;
+        color-scheme: light dark;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #161512;
+          --surface: #1d1c18;
+          --ink: #ece7db;
+          --ink-soft: #c9c2b2;
+          --muted: #9a927f;
+          --line: #2e2b24;
+          --line-soft: #26241f;
+          --accent: #a8bfa2;
+          --accent-soft: #23281f;
+          --tag: #a89f8c;
+        }
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+        font-size: 16px;
+        line-height: 1.7;
+        -webkit-font-smoothing: antialiased;
+      }
+      .serif { font-family: "Noto Serif KR", "Pretendard Variable", serif; }
+      a { color: inherit; }
+      img { display: block; max-width: 100%; }
+
+      .wrap { max-width: 1060px; margin: 0 auto; padding: 0 24px; }
+
+      /* ── header ─────────────────────────── */
+      header.site {
+        border-bottom: 1px solid var(--line-soft);
+      }
+      .site-inner {
+        display: flex; align-items: baseline; justify-content: space-between;
+        gap: 16px; padding: 26px 0 22px;
+      }
+      .wordmark { font-size: 19px; font-weight: 600; letter-spacing: -0.01em; text-decoration: none; }
+      .wordmark span { color: var(--muted); font-weight: 400; }
+      nav.main { display: flex; gap: 26px; }
+      nav.main a {
+        font-size: 14px; color: var(--ink-soft); text-decoration: none; letter-spacing: -0.01em;
+      }
+      nav.main a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 5px; text-decoration-color: var(--line); }
+
+      /* ── intro ──────────────────────────── */
+      .intro { padding: 72px 0 18px; max-width: 640px; }
+      .intro h1 {
+        font-size: 30px; font-weight: 500; line-height: 1.45; letter-spacing: -0.015em;
+        margin: 0 0 18px;
+      }
+      .intro p { margin: 0; color: var(--ink-soft); font-size: 16.5px; line-height: 1.85; }
+      .intro .where { margin-top: 22px; font-size: 14px; color: var(--muted); }
+      .intro .where strong { color: var(--ink-soft); font-weight: 600; }
+
+      /* ── filter ─────────────────────────── */
+      .filterbar {
+        display: flex; flex-wrap: wrap; gap: 6px 4px; align-items: center;
+        padding: 30px 0 8px; margin-top: 34px;
+        border-top: 1px solid var(--line-soft);
+      }
+      .filterbar button {
+        appearance: none; border: 0; background: none; cursor: pointer;
+        font: inherit; font-size: 14.5px; color: var(--muted);
+        padding: 6px 12px; border-radius: 999px;
+      }
+      .filterbar button:hover { color: var(--ink); }
+      .filterbar button[aria-pressed="true"] {
+        color: var(--ink); background: var(--accent-soft); font-weight: 600;
+      }
+      .filter-count { margin-left: auto; font-size: 13px; color: var(--muted); }
+
+      /* ── cards ──────────────────────────── */
+      .featured { padding: 28px 0 6px; }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line-soft);
+        border-radius: 10px;
+        overflow: hidden;
+        text-decoration: none;
+        display: flex; flex-direction: column;
+        transition: border-color .18s ease;
+        cursor: pointer;
+      }
+      .card:hover { border-color: var(--line); }
+      .card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+      .card .thumb { overflow: hidden; background: var(--accent-soft); }
+      .card .thumb img { width: 100%; height: 100%; object-fit: cover; }
+      .card .body { padding: 20px 22px 22px; display: flex; flex-direction: column; gap: 8px; }
+      .tag { font-size: 12.5px; color: var(--tag); letter-spacing: 0.01em; }
+      .card h3 {
+        margin: 0; font-size: 19px; font-weight: 600; line-height: 1.5; letter-spacing: -0.015em;
+      }
+      .card p { margin: 0; font-size: 14.5px; color: var(--ink-soft); line-height: 1.7; }
+      .meta { margin-top: 4px; font-size: 12.5px; color: var(--muted); display: flex; gap: 10px; flex-wrap: wrap; }
+      .meta i { font-style: normal; color: var(--line); }
+      .more {
+        margin-top: 6px; font-size: 13.5px; font-weight: 600; color: var(--accent);
+        display: inline-flex; align-items: center; gap: 5px;
+      }
+      .card:hover .more { text-decoration: underline; text-underline-offset: 4px; }
+
+      .featured .card { flex-direction: row; }
+      .featured .thumb { flex: 1.25; min-height: 300px; }
+      .featured .thumb img { position: absolute; inset: 0; }
+      .featured .thumb { position: relative; }
+      .featured .body { flex: 1; justify-content: center; padding: 34px 36px; gap: 12px; }
+      .featured h3 { font-size: 25px; line-height: 1.45; }
+      .featured p { font-size: 15.5px; }
+
+      .grid {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 26px;
+        padding: 26px 0 10px;
+      }
+      .grid .thumb { aspect-ratio: 3 / 2; }
+      .grid .thumb img { height: 100%; }
+
+      .empty-note { display: none; padding: 40px 0; color: var(--muted); font-size: 15px; }
+
+      /* ── detail ─────────────────────────── */
+      .detail { padding: 44px 0 10px; max-width: 760px; }
+      .backlink {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 14px; color: var(--ink-soft); text-decoration: none;
+        padding: 6px 0;
+      }
+      .backlink:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 5px; text-decoration-color: var(--line); }
+      .detail-head { margin: 26px 0 22px; }
+      .detail-head h2 {
+        margin: 10px 0 12px; font-size: 30px; font-weight: 600;
+        line-height: 1.4; letter-spacing: -0.02em;
+      }
+      .detail-hero { border-radius: 10px; overflow: hidden; border: 1px solid var(--line-soft); background: var(--accent-soft); }
+      .detail-hero img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+      .post-fig { margin: 20px 0 6px; }
+      .post-fig img { width: 100%; height: auto; display: block; border-radius: 10px; border: 1px solid var(--line-soft); }
+      .post-fig figcaption { margin-top: 8px; font-size: 0.85em; opacity: 0.65; text-align: center; line-height: 1.5; }
+      .detail-body { padding: 10px 0 0; }
+      .detail-body section { margin-top: 34px; }
+      .detail-body h3 {
+        font-size: 18px; font-weight: 600; letter-spacing: -0.01em;
+        margin: 0 0 10px;
+      }
+      .detail-body p { margin: 0 0 12px; color: var(--ink-soft); font-size: 15.5px; line-height: 1.85; }
+      .detail-body p.small { font-size: 13.5px; color: var(--muted); }
+      .detail-body ul { margin: 0 0 12px; padding-left: 20px; color: var(--ink-soft); font-size: 15.5px; line-height: 1.85; }
+      .detail-body li { margin-bottom: 6px; }
+      .detail-body li::marker { color: var(--muted); }
+      .watchbox {
+        margin-top: 36px; padding: 18px 20px;
+        background: var(--accent-soft); border-radius: 10px;
+        font-size: 14.5px; color: var(--ink-soft); line-height: 1.75;
+      }
+      .watchbox strong { color: var(--ink); font-weight: 600; }
+      .watchbox a { color: var(--accent); font-weight: 600; text-decoration: none; }
+      .watchbox a:hover { text-decoration: underline; text-underline-offset: 4px; }
+      .linklist { list-style: none; margin: 0; padding: 0; }
+      .linklist li {
+        padding: 13px 0; border-bottom: 1px solid var(--line-soft);
+        display: flex; flex-direction: column; gap: 2px; margin: 0;
+      }
+      .linklist li:last-child { border-bottom: 0; }
+      .linklist a {
+        font-weight: 600; font-size: 15.5px; color: var(--accent);
+        text-decoration: none; width: fit-content;
+      }
+      .linklist a:hover { text-decoration: underline; text-underline-offset: 4px; }
+      .linklist .d { font-size: 14px; color: var(--ink-soft); line-height: 1.7; }
+      .detail-nav {
+        margin-top: 48px; padding-top: 22px; border-top: 1px solid var(--line-soft);
+        display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+      }
+      .detail-nav a { font-size: 14px; color: var(--ink-soft); text-decoration: none; max-width: 46%; }
+      .detail-nav a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 5px; text-decoration-color: var(--line); }
+      .detail-nav .dir { display: block; font-size: 12px; color: var(--muted); margin-bottom: 3px; }
+      .detail-nav .next { text-align: right; margin-left: auto; }
+
+      /* ── add content ────────────────────── */
+      .addgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; margin-top: 18px; }
+      .addstep h3 { font-size: 16px; font-weight: 600; margin: 0 0 8px; letter-spacing: -0.01em; }
+      .addstep h3 .n { color: var(--accent); margin-right: 7px; font-variant-numeric: tabular-nums; }
+      .addstep p { margin: 0; font-size: 14.5px; color: var(--ink-soft); line-height: 1.75; }
+      .tpl {
+        margin-top: 30px; border: 1px solid var(--line-soft); border-radius: 10px;
+        background: var(--surface); overflow: hidden;
+      }
+      .tpl-head {
+        display: flex; align-items: center; justify-content: space-between; gap: 14px;
+        padding: 13px 18px; border-bottom: 1px solid var(--line-soft);
+        font-size: 13.5px; color: var(--muted);
+      }
+      .tpl-head button {
+        appearance: none; border: 1px solid var(--line); background: var(--bg);
+        color: var(--ink); font: inherit; font-size: 13.5px; font-weight: 600;
+        padding: 6px 14px; border-radius: 999px; cursor: pointer; white-space: nowrap;
+      }
+      .tpl-head button:hover { border-color: var(--accent); color: var(--accent); }
+      .tpl pre {
+        margin: 0; padding: 18px; overflow-x: auto;
+        font-family: "Pretendard Variable", Pretendard, sans-serif;
+        font-size: 14.5px; line-height: 1.9; color: var(--ink-soft); white-space: pre-wrap;
+      }
+
+      /* ── notes list ─────────────────────── */
+      section.block { padding: 64px 0 8px; }
+      .block-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 8px; }
+      .block-head h2 { font-size: 21px; font-weight: 600; letter-spacing: -0.015em; margin: 0; }
+      .block-head p { margin: 0; font-size: 14px; color: var(--muted); }
+      .notes { border-top: 1px solid var(--line); }
+      .note {
+        display: grid; grid-template-columns: 108px 1fr auto; gap: 20px; align-items: baseline;
+        padding: 18px 4px; border-bottom: 1px solid var(--line-soft);
+      }
+      .note time { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+      .note .t { font-size: 15.5px; font-weight: 550; }
+      .note .d { font-size: 14px; color: var(--ink-soft); margin-top: 2px; }
+      .note .cat { font-size: 12.5px; color: var(--tag); white-space: nowrap; }
+
+      /* ── about ──────────────────────────── */
+      .about {
+        display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px;
+        padding: 66px 0 20px; margin-top: 56px;
+        border-top: 1px solid var(--line-soft);
+      }
+      .about h2 { font-size: 21px; font-weight: 600; letter-spacing: -0.015em; margin: 0 0 14px; }
+      .about p { margin: 0 0 12px; color: var(--ink-soft); font-size: 15.5px; line-height: 1.85; }
+      .facts { margin: 0; padding: 0; list-style: none; }
+      .facts li {
+        display: flex; justify-content: space-between; gap: 18px;
+        padding: 11px 0; border-bottom: 1px solid var(--line-soft);
+        font-size: 14.5px;
+      }
+      .facts li:last-child { border-bottom: 0; }
+      .facts .k { color: var(--muted); white-space: nowrap; }
+      .facts .v { text-align: right; font-weight: 550; }
+
+      footer.site {
+        margin-top: 70px; border-top: 1px solid var(--line-soft);
+        padding: 30px 0 44px;
+        display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+        font-size: 13.5px; color: var(--muted);
+      }
+
+      .hidden { display: none !important; }
+
+      @media (max-width: 760px) {
+        .intro { padding: 48px 0 8px; }
+        .intro h1 { font-size: 25px; }
+        .featured .card { flex-direction: column; }
+        .featured .thumb { min-height: 0; aspect-ratio: 3 / 2; flex: none; }
+        .featured .body { padding: 22px; }
+        .featured h3 { font-size: 21px; }
+        .grid { grid-template-columns: 1fr; gap: 20px; }
+        .addgrid { grid-template-columns: 1fr; gap: 20px; }
+        .detail { padding-top: 30px; }
+        .detail-head h2 { font-size: 24px; }
+        .detail-nav a { max-width: 100%; }
+        .detail-nav .next { text-align: left; margin-left: 0; }
+        .about { grid-template-columns: 1fr; gap: 30px; padding-top: 48px; }
+        .note { grid-template-columns: 1fr; gap: 2px; }
+        .note .cat { order: -1; }
+        .site-inner { flex-direction: column; align-items: flex-start; gap: 8px; padding: 20px 0 16px; }
+        .wordmark { font-size: 17px; }
+        nav.main { gap: 20px; flex-wrap: wrap; }
+        nav.main a { font-size: 13.5px; }
+        .filter-count { display: none; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        .card { transition: none; }
+      }
+    
+      .detail-head h1 { margin: 10px 0 12px; font-size: 30px; font-weight: 600; line-height: 1.4; letter-spacing: -0.02em; }
+      .postfoot { border-top: 1px solid var(--line-soft); margin-top: 44px; padding: 22px 0 36px; font-size: 13.5px; color: var(--muted); }
+      .postfoot a { color: var(--ink-soft); text-decoration: none; }
+      .postfoot a:hover { text-decoration: underline; text-underline-offset: 4px; }
+    </style>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"집 서버 RDP 무차별 대입을 발견한 날 — 닫고, 좁히고, 감시를 달기까지","description":"침입 감시를 붙이려고 점검하던 중, 집 서버의 원격 데스크톱(3389)이 인터넷에 열려 있고 관리자 계정을 향한 무차별 대입이 실시간으로 진행 중이라는 걸 발견했다. 15분에 로그온 실패 626건. 침투 흔적이 없음을 로그로 확인한 뒤, 포트포워딩 삭제 → Tailscale 전용으로 축소 → 계정 정리 → 기기 승인 → 실시간 알림 감시까지 하루에 끝낸 대응 기록과, 그 과정에서 배운 교훈을 정리했다.","image":["https://hongzi.us/img/post-rdp-hero.webp"],"datePublished":"2026-11-09","author":{"@type":"Person","name":"HongSungIn","url":"https://hongzi.us/"},"mainEntityOfPage":"https://hongzi.us/post/rdp-brute-force-defense.html"}</script>
+  <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LJ6Q1XBCL7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-LJ6Q1XBCL7');
+    </script>
+      <meta name="google-adsense-account" content="ca-pub-4973471145275269">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4973471145275269" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <div class="wrap">
+      <article class="detail">
+        <a class="backlink" href="/#posts">← 글 목록으로</a>
+        <div class="detail-head">
+          <span class="tag">기록 · 보안</span>
+          <h1 class="serif">집 서버 RDP 무차별 대입을 발견한 날 — 닫고, 좁히고, 감시를 달기까지</h1>
+          <div class="meta">2026. 11. 09<i>·</i>홈서버 보안 기록 · RDP 무차별 대입 대응</div>
+        </div>
+        <div class="detail-hero"><img src="/img/post-rdp-hero.webp" alt="Tailscale 관리자 콘솔의 기기 관리(Device management) 화면 — 새 기기 수동 승인 설정을 보여주는 다크 테마 대시보드 캡처" /></div>
+        <div class="detail-body">
+        <section>
+          <h3>발견 — 감시를 만들려다 실제 공격을 봤다</h3>
+          <p>집 서버에 침입 감시를 붙이기로 하고, 사전 점검으로 보안 로그부터 들여다봤다. 목적은 감시의 기준선을 잡는 것이었는데, 로그가 보여 준 건 기준선이 아니라 진행 중인 공격이었다.</p>
+          <p>원격 데스크톱 포트(3389)가 인터넷에 열려 있었고, 외부 IP 여럿이 관리자(Administrator) 계정의 비밀번호를 무차별 대입하고 있었다. 공격이 몰린 15분 구간에서만 로그온 실패 이벤트가 626건 쌓였다. 회사 서버도 아니고, 집에서 블로그와 자동매매를 굴리는 노트북 한 대가 표적이었다.</p>
+          <p>가장 먼저 확인한 건 '이미 뚫렸는가'였다. 최근 7일간 원격 데스크톱 로그온 성공 기록은 0건, 관리자 그룹 구성원도 원래 계정뿐이었다. 공격은 문 앞에서 두드리기만 했을 뿐, 안으로 들어온 흔적은 없었다.</p>
+        </section>
+        <section>
+          <h3>왜 열려 있었나 — 편의로 열어 둔 문은 부채로 남는다</h3>
+          <p>원인은 공유기의 포트포워딩이었다. 밖에서 집 서버에 접속할 일이 있을 때 편하려고 열어 둔 규칙이, 용도가 끝난 뒤에도 그대로 남아 있었다. 여기에 UPnP까지 켜져 있어, 집 안 어떤 프로그램이든 필요하면 알아서 포트를 열 수 있는 상태였다.</p>
+          <ul>
+            <li>DMZ는 꺼져 있었다 — 그나마 다행인 부분</li>
+            <li>게스트 계정이 활성화돼 있었다 — 점검에서 발견해 바로 비활성화했다</li>
+            <li>언제 만들었는지 기억나지 않는 계정 하나도 활성화 상태였다 — 용도를 확인하고 비활성화했다</li>
+          </ul>
+          <figure class="post-fig"><img src="/img/post-rdp-upnp.webp" alt="공유기 고급 NAT 설정 화면 — DMZ 미사용과 포트포워드 UPnP 릴레이가 켜져 있던 상태" loading="lazy" />
+            <figcaption>공유기 고급 NAT 설정 — 포트포워드 UPnP 릴레이가 켜져 있던 화면. 이날 이 토글을 끄는 것으로 공유기 정리를 마쳤다.</figcaption>
+          </figure>
+        </section>
+        <section>
+          <h3>대응 — 자물쇠를 세게 거는 대신, 문을 옮겼다</h3>
+          <p>비밀번호만 바꾸는 것으로는 부족했다. 문 자체가 인터넷 거리에 나와 있는 게 문제였기 때문이다. 대응 방향은 '더 센 자물쇠'가 아니라 '문 위치 옮기기'로 잡았다.</p>
+          <p>검증은 다른 기기에서 했다. 가상망 주소로는 접속이 되고, 같은 집 LAN 주소로는 안 되는 것까지 확인하고 나서야 대응을 끝냈다.</p>
+          <ul>
+            <li>공유기 포트포워딩 삭제 — 인터넷에서 3389로 들어오는 길 자체를 제거</li>
+            <li>RDP 허용 범위를 Tailscale 대역으로만 축소 — 방화벽 규칙의 원격 주소를 가상망 대역으로 한정하고 네트워크 수준 인증(NLA)을 켰다. 이제 같은 집 와이파이에서도 LAN 주소로는 못 붙고 Tailscale 주소로만 붙는다</li>
+            <li>Tailscale 기기 승인 활성화 — 계정 로그인을 해도 새 기기는 관리자 승인을 거쳐야 집 서버에 닿는다</li>
+            <li>안 쓰는 계정 정리 — 게스트와 미사용 계정 비활성화</li>
+          </ul>
+        </section>
+        <section>
+          <h3>복구 과정의 사고 — 로그오프 한 번이 만든 연쇄</h3>
+          <p>대응 도중 사고도 하나 냈다. 공격을 차단하는 과정에서 원격 세션을 로그오프했는데, 그 세션에서 돌던 Docker Desktop이 함께 종료되며 집 서버의 사이트와 서비스가 전부 멈췄다. 설상가상으로 Tailscale까지 가상망에서 이탈해, 서버가 통째로 오프라인처럼 보이는 상황이 됐다.</p>
+          <p>원인은 Tailscale의 '무인 실행(Unattended mode)'이 꺼져 있던 것이었다. 이 설정이 꺼져 있으면 사용자가 로그오프할 때 Tailscale 연결도 함께 끊긴다. 서비스 자체는 살아 있었지만 연결 상태를 잃은 채 복구되지 않았다. 집의 다른 PC로 우회 접속해 무인 실행을 켜는 것으로 해결했고, 이후 재부팅과 재접속에서도 가상망 주소와 기기 이름이 그대로 유지되는 것을 확인했다.</p>
+          <ul>
+            <li>서버 용도 기기에서는 로그오프 금지 — 세션을 비울 때는 연결 끊기만 쓸 것</li>
+            <li>원격 접속 도구의 '무인 실행'류 설정을 먼저 확인할 것 — 로그오프·재부팅 뒤에도 연결이 살아 있어야 서버다</li>
+          </ul>
+          <figure class="post-fig"><img src="/img/post-rdp-tnc.webp" alt="다른 PC에서 집 서버로 포트 접속을 시험해 경로 상태를 확인하는 명령 프롬프트 화면" loading="lazy" />
+            <figcaption>우회 접속한 집의 다른 PC에서 집 서버의 포트 상태를 시험하는 화면 — 경로별로 열리고 닫힌 것을 대조해 복구를 확인했다.</figcaption>
+          </figure>
+        </section>
+        <section>
+          <h3>감시 — 이제는 두드리면 바로 안다</h3>
+          <p>마지막으로 실시간 감시를 달았다. 보안 이벤트가 발생하는 순간 예약 작업이 깨어나 텔레그램으로 알리는 구조다. 감시 항목은 계정 생성, 관리자 그룹 추가, 짧은 시간에 몰리는 로그온 실패, 허용 목록에 없는 계정·외부 IP의 로그온, SSH 접속 성공이다. 내 원격 접속은 등록된 키 지문으로 구분해 라벨을 붙여 두어, 낯선 접속과 헷갈리지 않게 했다.</p>
+          <p>자동 차단까지는 만들지 않기로 했다. 포트를 가상망 안으로 옮긴 지금은 밖에서 두드릴 문 자체가 거의 없고, 확률 낮은 기능에 복잡도를 들이는 것보다 알림을 보고 판단하는 편이 낫다고 봤다. 실제 공격 패턴이 다시 나타나면 그때 만든다.</p>
+        </section>
+        <section>
+          <h3>교훈</h3>
+          <ul>
+            <li>포트는 편의가 아니라 부채다 — 열 때는 이유가 있었겠지만, 이유가 사라진 포트는 공격 표면으로만 남는다. 열어 둔 길의 목록을 주기적으로 점검할 것</li>
+            <li>감시는 사고 뒤가 아니라 전에 다는 것이다 — 이번에는 감시를 달러 갔다가 공격을 발견했다. 순서가 반대였다면 발견이 훨씬 늦었을 것이다</li>
+            <li>침투 여부는 추측이 아니라 로그로 — '뚫렸을 것 같다'는 불안과 '성공 기록 0건'이라는 확인은 완전히 다르다</li>
+            <li>복구 절차도 공격만큼 위험하다 — 성급한 로그오프 한 번이, 공격보다 긴 서비스 중단을 만들 뻔했다</li>
+          </ul>
+        </section>
+        <section>
+          <h3>출처 · 바로가기</h3>
+          <ul class="linklist">
+            <li><a href="https://tailscale.com/kb/1084/device-approval" target="_blank" rel="noopener">Tailscale — Device Approval 문서</a> <span class="d">새 기기를 관리자 승인이 있어야 네트워크에 받아들이는 기기 승인 설정 문서입니다.</span></li>
+            <li><a href="https://tailscale.com/kb/1080/run-unattended" target="_blank" rel="noopener">Tailscale — Run unattended 문서</a> <span class="d">로그오프·재부팅 후에도 연결을 유지하는 무인 실행 모드 문서입니다. 서버 용도 기기에는 사실상 필수 설정입니다.</span></li>
+            <li><a href="/post/cloudflare-home-server.html">이전 글 — Cloudflare 하나로 집 서버 사이트 굴리기</a> <span class="d">이 서버가 어떤 구조로 사이트들을 굴리고 있는지 정리한 전수 조사 기록입니다.</span></li>
+          </ul>
+        </section>
+        </div>
+      <nav class="detail-nav" aria-label="다른 글">
+        <a class="next" href="/post/cloudflare-home-server.html"><span class="dir">다음 글</span>Cloudflare 하나로 집 서버 사이트 굴리기 — 터널·Pages·Workers·R2 활용과 정리 기록</a>
+      </nav>
+      </article>
+      <footer class="postfoot">© 2026 HongSungIn · <a href="/">hongzi.us 홈으로</a></footer>
+    </div>
+  </body>
+</html>

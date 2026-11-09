@@ -52,6 +52,11 @@ function renderPost(post, idx) {
     if (sec.items && sec.items.length) {
       out += '          <ul>\n' + sec.items.map((it) => `            <li>${esc(it)}</li>`).join('\n') + '\n          </ul>\n';
     }
+    if (sec.img) {
+      out += `          <figure class="post-fig"><img src="/${esc(sec.img)}" alt="${esc(sec.alt || '')}" loading="lazy" />\n`;
+      if (sec.caption) out += `            <figcaption>${esc(sec.caption)}</figcaption>\n`;
+      out += '          </figure>\n';
+    }
     return out + '        </section>';
   }).join('\n');
   let linksSec = '';
