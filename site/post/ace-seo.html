@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>새로 만든 홈페이지, 검색에 잡히게 만들기 — 자이에이스 부동산 사이트 SEO 1차 작업 기록 — HongSungIn</title>
+    <meta name="description" content="사이트를 새로 만들었다고 끝이 아니다. 네이버·구글 검색에 잡히지 않으면 없는 사이트나 마찬가지 — 자이에이스 부동산 홈페이지 리뉴얼에 맞춰 메타 태그부터 구조화 데이터, 서치어드바이저, 스마트플레이스까지 SEO 기본 세팅을 한 번에 진행한 기록입니다." />
+    <link rel="canonical" href="https://hongzi.us/post/ace-seo.html" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="HongSungIn" />
+    <meta property="og:title" content="새로 만든 홈페이지, 검색에 잡히게 만들기 — 자이에이스 부동산 사이트 SEO 1차 작업 기록" />
+    <meta property="og:description" content="사이트를 새로 만들었다고 끝이 아니다. 네이버·구글 검색에 잡히지 않으면 없는 사이트나 마찬가지 — 자이에이스 부동산 홈페이지 리뉴얼에 맞춰 메타 태그부터 구조화 데이터, 서치어드바이저, 스마트플레이스까지 SEO 기본 세팅을 한 번에 진행한 기록입니다." />
+    <meta property="og:url" content="https://hongzi.us/post/ace-seo.html" />
+    <meta property="og:image" content="https://hongzi.us/img/post-ace-seo.webp" />
+    <meta property="article:published_time" content="2026-10-22" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="google-site-verification" content="TE_a5yGhqMM-wjQRCvo9Cc7LzAlbduAlwCKos1kQ6Qw" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #faf8f4;
+        --surface: #fffdfa;
+        --ink: #26231e;
+        --ink-soft: #4c4740;
+        --muted: #8a8378;
+        --line: #e7e1d6;
+        --line-soft: #efe9de;
+        --accent: #5d6f5c;
+        --accent-soft: #eef0ea;
+        --tag: #6d675c;
+        color-scheme: light dark;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #161512;
+          --surface: #1d1c18;
+          --ink: #ece7db;
+          --ink-soft: #c9c2b2;
+          --muted: #9a927f;
+          --line: #2e2b24;
+          --line-soft: #26241f;
+          --accent: #a8bfa2;
+          --accent-soft: #23281f;
+          --tag: #a89f8c;
+        }
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+        font-size: 16px;
+        line-height: 1.7;
+        -webkit-font-smoothing: antialiased;
+      }
+      .serif { font-family: "Noto Serif KR", "Pretendard Variable", serif; }
+      a { color: inherit; }
+      img { display: block; max-width: 100%; }
+
+      .wrap { max-width: 1060px; margin: 0 auto; padding: 0 24px; }
+
+      /* ── header ─────────────────────────── */
+      header.site {
+        border-bottom: 1px solid var(--line-soft);
+      }
+      .site-inner {
+        display: flex; align-items: baseline; justify-content: space-between;
+        gap: 16px; padding: 26px 0 22px;
+      }
+      .wordmark { font-size: 19px; font-weight: 600; letter-spacing: -0.01em; text-decoration: none; }
+      .wordmark span { color: var(--muted); font-weight: 400; }
+      nav.main { display: flex; gap: 26px; }
+      nav.main a {
+        font-size: 14px; color: var(--ink-soft); text-decoration: none; letter-spacing: -0.01em;
+      }
+      nav.main a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 5px; text-decoration-color: var(--line); }
+
+      /* ── intro ──────────────────────────── */
+      .intro { padding: 72px 0 18px; max-width: 640px; }
+      .intro h1 {
+        font-size: 30px; font-weight: 500; line-height: 1.45; letter-spacing: -0.015em;
+        margin: 0 0 18px;
+      }
+      .intro p { margin: 0; color: var(--ink-soft); font-size: 16.5px; line-height: 1.85; }
+      .intro .where { margin-top: 22px; font-size: 14px; color: var(--muted); }
+      .intro .where strong { color: var(--ink-soft); font-weight: 600; }
+
+      /* ── filter ─────────────────────────── */
+      .filterbar {
+        display: flex; flex-wrap: wrap; gap: 6px 4px; align-items: center;
+        padding: 30px 0 8px; margin-top: 34px;
+        border-top: 1px solid var(--line-soft);
+      }
+      .filterbar button {
+        appearance: none; border: 0; background: none; cursor: pointer;
+        font: inherit; font-size: 14.5px; color: var(--muted);
+        padding: 6px 12px; border-radius: 999px;
+      }
+      .filterbar button:hover { color: var(--ink); }
+      .filterbar button[aria-pressed="true"] {
+        color: var(--ink); background: var(--accent-soft); font-weight: 600;
+      }
+      .filter-count { margin-left: auto; font-size: 13px; color: var(--muted); }
+
+      /* ── cards ──────────────────────────── */
+      .featured { padding: 28px 0 6px; }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line-soft);
+        border-radius: 10px;
+        overflow: hidden;
+        text-decoration: none;
+        display: flex; flex-direction: column;
+        transition: border-color .18s ease;
+        cursor: pointer;
+      }
+      .card:hover { border-color: var(--line); }
+      .card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+      .card .thumb { overflow: hidden; background: var(--accent-soft); }
+      .card .thumb img { width: 100%; height: 100%; object-fit: cover; }
+      .card .body { padding: 20px 22px 22px; display: flex; flex-direction: column; gap: 8px; }
+      .tag { font-size: 12.5px; color: var(--tag); letter-spacing: 0.01em; }
+      .card h3 {
+        margin: 0; font-size: 19px; font-weight: 600; line-height: 1.5; letter-spacing: -0.015em;
+      }
+      .card p { margin: 0; font-size: 14.5px; color: var(--ink-soft); line-height: 1.7; }
+      .meta { margin-top: 4px; font-size: 12.5px; color: var(--muted); display: flex; gap: 10px; flex-wrap: wrap; }
+      .meta i { font-style: normal; color: var(--line); }
+      .more {
+        margin-top: 6px; font-size: 13.5px; font-weight: 600; color: var(--accent);
+        display: inline-flex; align-items: center; gap: 5px;
+      }
+      .card:hover .more { text-decoration: underline; text-underline-offset: 4px; }
+
+      .featured .card { flex-direction: row; }
+      .featured .thumb { flex: 1.25; min-height: 300px; }
+      .featured .thumb img { position: absolute; inset: 0; }
+      .featured .thumb { position: relative; }
+      .featured .body { flex: 1; justify-content: center; padding: 34px 36px; gap: 12px; }
+      .featured h3 { font-size: 25px; line-height: 1.45; }
+      .featured p { font-size: 15.5px; }
+
+      .grid {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 26px;
+        padding: 26px 0 10px;
+      }
+      .grid .thumb { aspect-ratio: 3 / 2; }
+      .grid .thumb img { height: 100%; }
+
+      .empty-note { display: none; padding: 40px 0; color: var(--muted); font-size: 15px; }
+
+      /* ── detail ─────────────────────────── */
+      .detail { padding: 44px 0 10px; max-width: 760px; }
+      .backlink {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 14px; color: var(--ink-soft); text-decoration: none;
+        padding: 6px 0;
+      }
+      .backlink:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 5px; text-decoration-color: var(--line); }
+      .detail-head { margin: 26px 0 22px; }
+      .detail-head h2 {
+        margin: 10px 0 12px; font-size: 30px; font-weight: 600;
+        line-height: 1.4; letter-spacing: -0.02em;
+      }
+      .detail-hero { border-radius: 10px; overflow: hidden; border: 1px solid var(--line-soft); background: var(--accent-soft); }
+      .detail-hero img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+      .detail-body { padding: 10px 0 0; }
+      .detail-body section { margin-top: 34px; }
+      .detail-body h3 {
+        font-size: 18px; font-weight: 600; letter-spacing: -0.01em;
+        margin: 0 0 10px;
+      }
+      .detail-body p { margin: 0 0 12px; color: var(--ink-soft); font-size: 15.5px; line-height: 1.85; }
+      .detail-body p.small { font-size: 13.5px; color: var(--muted); }
+      .detail-body ul { margin: 0 0 12px; padding-left: 20px; color: var(--ink-soft); font-size: 15.5px; line-height: 1.85; }
+      .detail-body li { margin-bottom: 6px; }
+      .detail-body li::marker { color: var(--muted); }
+      .watchbox {
+        margin-top: 36px; padding: 18px 20px;
+        background: var(--accent-soft); border-radius: 10px;
+        font-size: 14.5px; color: var(--ink-soft); line-height: 1.75;
+      }
+      .watchbox strong { color: var(--ink); font-weight: 600; }
+      .watchbox a { color: var(--accent); font-weight: 600; text-decoration: none; }
+      .watchbox a:hover { text-decoration: underline; text-underline-offset: 4px; }
+      .linklist { list-style: none; margin: 0; padding: 0; }
+      .linklist li {
+        padding: 13px 0; border-bottom: 1px solid var(--line-soft);
+        display: flex; flex-direction: column; gap: 2px; margin: 0;
+      }
+      .linklist li:last-child { border-bottom: 0; }
+      .linklist a {
+        font-weight: 600; font-size: 15.5px; color: var(--accent);
+        text-decoration: none; width: fit-content;
+      }
+      .linklist a:hover { text-decoration: underline; text-underline-offset: 4px; }
+      .linklist .d { font-size: 14px; color: var(--ink-soft); line-height: 1.7; }
+      .detail-nav {
+        margin-top: 48px; padding-top: 22px; border-top: 1px solid var(--line-soft);
+        display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+      }
+      .detail-nav a { font-size: 14px; color: var(--ink-soft); text-decoration: none; max-width: 46%; }
+      .detail-nav a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 5px; text-decoration-color: var(--line); }
+      .detail-nav .dir { display: block; font-size: 12px; color: var(--muted); margin-bottom: 3px; }
+      .detail-nav .next { text-align: right; margin-left: auto; }
+
+      /* ── add content ────────────────────── */
+      .addgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; margin-top: 18px; }
+      .addstep h3 { font-size: 16px; font-weight: 600; margin: 0 0 8px; letter-spacing: -0.01em; }
+      .addstep h3 .n { color: var(--accent); margin-right: 7px; font-variant-numeric: tabular-nums; }
+      .addstep p { margin: 0; font-size: 14.5px; color: var(--ink-soft); line-height: 1.75; }
+      .tpl {
+        margin-top: 30px; border: 1px solid var(--line-soft); border-radius: 10px;
+        background: var(--surface); overflow: hidden;
+      }
+      .tpl-head {
+        display: flex; align-items: center; justify-content: space-between; gap: 14px;
+        padding: 13px 18px; border-bottom: 1px solid var(--line-soft);
+        font-size: 13.5px; color: var(--muted);
+      }
+      .tpl-head button {
+        appearance: none; border: 1px solid var(--line); background: var(--bg);
+        color: var(--ink); font: inherit; font-size: 13.5px; font-weight: 600;
+        padding: 6px 14px; border-radius: 999px; cursor: pointer; white-space: nowrap;
+      }
+      .tpl-head button:hover { border-color: var(--accent); color: var(--accent); }
+      .tpl pre {
+        margin: 0; padding: 18px; overflow-x: auto;
+        font-family: "Pretendard Variable", Pretendard, sans-serif;
+        font-size: 14.5px; line-height: 1.9; color: var(--ink-soft); white-space: pre-wrap;
+      }
+
+      /* ── notes list ─────────────────────── */
+      section.block { padding: 64px 0 8px; }
+      .block-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 8px; }
+      .block-head h2 { font-size: 21px; font-weight: 600; letter-spacing: -0.015em; margin: 0; }
+      .block-head p { margin: 0; font-size: 14px; color: var(--muted); }
+      .notes { border-top: 1px solid var(--line); }
+      .note {
+        display: grid; grid-template-columns: 108px 1fr auto; gap: 20px; align-items: baseline;
+        padding: 18px 4px; border-bottom: 1px solid var(--line-soft);
+      }
+      .note time { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+      .note .t { font-size: 15.5px; font-weight: 550; }
+      .note .d { font-size: 14px; color: var(--ink-soft); margin-top: 2px; }
+      .note .cat { font-size: 12.5px; color: var(--tag); white-space: nowrap; }
+
+      /* ── about ──────────────────────────── */
+      .about {
+        display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px;
+        padding: 66px 0 20px; margin-top: 56px;
+        border-top: 1px solid var(--line-soft);
+      }
+      .about h2 { font-size: 21px; font-weight: 600; letter-spacing: -0.015em; margin: 0 0 14px; }
+      .about p { margin: 0 0 12px; color: var(--ink-soft); font-size: 15.5px; line-height: 1.85; }
+      .facts { margin: 0; padding: 0; list-style: none; }
+      .facts li {
+        display: flex; justify-content: space-between; gap: 18px;
+        padding: 11px 0; border-bottom: 1px solid var(--line-soft);
+        font-size: 14.5px;
+      }
+      .facts li:last-child { border-bottom: 0; }
+      .facts .k { color: var(--muted); white-space: nowrap; }
+      .facts .v { text-align: right; font-weight: 550; }
+
+      footer.site {
+        margin-top: 70px; border-top: 1px solid var(--line-soft);
+        padding: 30px 0 44px;
+        display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+        font-size: 13.5px; color: var(--muted);
+      }
+
+      .hidden { display: none !important; }
+
+      @media (max-width: 760px) {
+        .intro { padding: 48px 0 8px; }
+        .intro h1 { font-size: 25px; }
+        .featured .card { flex-direction: column; }
+        .featured .thumb { min-height: 0; aspect-ratio: 3 / 2; flex: none; }
+        .featured .body { padding: 22px; }
+        .featured h3 { font-size: 21px; }
+        .grid { grid-template-columns: 1fr; gap: 20px; }
+        .addgrid { grid-template-columns: 1fr; gap: 20px; }
+        .detail { padding-top: 30px; }
+        .detail-head h2 { font-size: 24px; }
+        .detail-nav a { max-width: 100%; }
+        .detail-nav .next { text-align: left; margin-left: 0; }
+        .about { grid-template-columns: 1fr; gap: 30px; padding-top: 48px; }
+        .note { grid-template-columns: 1fr; gap: 2px; }
+        .note .cat { order: -1; }
+        .site-inner { flex-direction: column; align-items: flex-start; gap: 8px; padding: 20px 0 16px; }
+        .wordmark { font-size: 17px; }
+        nav.main { gap: 20px; flex-wrap: wrap; }
+        nav.main a { font-size: 13.5px; }
+        .filter-count { display: none; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        .card { transition: none; }
+      }
+    
+      .detail-head h1 { margin: 10px 0 12px; font-size: 30px; font-weight: 600; line-height: 1.4; letter-spacing: -0.02em; }
+      .postfoot { border-top: 1px solid var(--line-soft); margin-top: 44px; padding: 22px 0 36px; font-size: 13.5px; color: var(--muted); }
+      .postfoot a { color: var(--ink-soft); text-decoration: none; }
+      .postfoot a:hover { text-decoration: underline; text-underline-offset: 4px; }
+    </style>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"새로 만든 홈페이지, 검색에 잡히게 만들기 — 자이에이스 부동산 사이트 SEO 1차 작업 기록","description":"사이트를 새로 만들었다고 끝이 아니다. 네이버·구글 검색에 잡히지 않으면 없는 사이트나 마찬가지 — 자이에이스 부동산 홈페이지 리뉴얼에 맞춰 메타 태그부터 구조화 데이터, 서치어드바이저, 스마트플레이스까지 SEO 기본 세팅을 한 번에 진행한 기록입니다.","image":["https://hongzi.us/img/post-ace-seo.webp"],"datePublished":"2026-10-22","author":{"@type":"Person","name":"HongSungIn","url":"https://hongzi.us/"},"mainEntityOfPage":"https://hongzi.us/post/ace-seo.html"}</script>
+  <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LJ6Q1XBCL7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-LJ6Q1XBCL7');
+    </script>
+      <meta name="google-adsense-account" content="ca-pub-4973471145275269">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4973471145275269" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <div class="wrap">
+      <article class="detail">
+        <a class="backlink" href="/#posts">← 글 목록으로</a>
+        <div class="detail-head">
+          <span class="tag">기록 · 사이트 SEO</span>
+          <h1 class="serif">새로 만든 홈페이지, 검색에 잡히게 만들기 — 자이에이스 부동산 사이트 SEO 1차 작업 기록</h1>
+          <div class="meta">2026. 10. 22<i>·</i>자이에이스 부동산 · ace.hongzi.us</div>
+        </div>
+        <div class="detail-hero"><img src="/img/post-ace-seo.webp" alt="햇살이 들어오는 밝은 거실, 창가의 소파와 꽃이 놓인 테이블 — 자이에이스 부동산 홈페이지 대표 이미지" /></div>
+        <div class="detail-body">
+        <section>
+          <h3>들어가며</h3>
+          <p>사이트를 새로 만들었다고 끝이 아니다. 네이버·구글 검색에 잡히지 않으면 없는 사이트나 마찬가지다. 오늘 와이프가 운영하는 자이에이스 부동산(용인 수지 동천동) 홈페이지 ace.hongzi.us를 리뉴얼한 김에, 검색 노출을 위한 기본 세팅을 한 번에 진행했다. 순수 정적 HTML 사이트 기준으로 정리한다.</p>
+        </section>
+        <section>
+          <h3>1. 검색 결과에 보이는 얼굴부터 — 메타 태그</h3>
+          <p>가장 먼저 손댄 건 페이지 제목과 설명이다.</p>
+          <ul>
+            <li>제목: “자이에이스 부동산 | 용인 수지 동천동 부동산 · 동천자이 매매·전세·상가” — 상호만 있던 제목에 실제 검색어 조합(지역 + 업종 + 대표 단지)을 앞에 배치했다.</li>
+            <li>설명(description): 어떤 부동산인지 한 문장으로. 검색 결과 제목 아래에 그대로 노출되는 문구다.</li>
+            <li>OG 태그 9종 + 대표 이미지(1200×630): 카카오톡이나 문자로 링크를 공유했을 때 미리보기가 깔끔하게 뜨도록.</li>
+            <li>canonical 태그: 이 페이지의 정식 주소가 무엇인지 검색엔진에 명시.</li>
+          </ul>
+        </section>
+        <section>
+          <h3>2. 기계가 읽는 자기소개 — 구조화 데이터(JSON-LD)</h3>
+          <p>사람이 읽는 소개글과 별개로, 검색엔진과 AI가 읽는 표준 형식(schema.org의 RealEstateAgent)으로 상호·주소·대표전화·개설등록번호·대표자명을 페이지에 심었다. 동네 부동산 검색에서 “여기가 실제 등록된 중개사무소”라는 걸 검색엔진이 확신하게 만드는 장치다. 좌표는 정확한 값을 확인하지 못해 억지로 넣지 않았다. 틀린 정보는 없는 것보다 나쁘다.</p>
+        </section>
+        <section>
+          <h3>3. 로봇 안내문과 목차 — robots.txt, sitemap.xml</h3>
+          <ul>
+            <li>robots.txt: 검색 로봇에게 “어디를 읽어도 되는지 + 사이트맵은 여기 있다”고 안내하는 파일.</li>
+            <li>sitemap.xml: 사이트의 페이지 목차. 지금은 메인 1페이지뿐이라 단출하지만, 나중에 중개 이야기 글이 개별 페이지로 늘어나면 그때부터 진가를 발휘한다.</li>
+          </ul>
+        </section>
+        <section>
+          <h3>4. 네이버 서치어드바이저 — 도메인을 재사용한 덕</h3>
+          <p>등록하러 들어가 보니, ace.hongzi.us가 이미 등록돼 있었다. 예전에 같은 도메인으로 워드프레스 사이트를 운영하면서 등록해 둔 것이 남아 있었던 것. 도메인을 버리지 않고 재사용하면 이런 자산이 따라온다.</p>
+          <p>오늘 한 일:</p>
+          <ul>
+            <li>웹 페이지 수집 요청: 메인 페이지를 다시 읽어가라고 요청 (구 사이트 정보를 들고 있던 상태라 필수였다)</li>
+            <li>사이트맵 제출: 이미 7월에 제출된 기록이 있어 중복 제출이 막혔고, 삭제 후 재등록했다. 여기서 하나 배운 것 — 제출 입력란에는 전체 주소가 아니라 sitemap.xml 파일명만 넣어야 한다. 앞부분 도메인은 칸에 고정돼 있어서 전체 주소를 붙여 넣으면 주소가 겹쳐 오류가 난다.</li>
+            <li>robots.txt 화면에서 수집요청: 네이버가 들고 있던 robots가 옛 워드프레스 시절 것이라 새것으로 다시 읽도록 요청했다.</li>
+          </ul>
+        </section>
+        <section>
+          <h3>5. 함정 — 사이트를 갈아엎으면 소유확인이 위험하다</h3>
+          <p>서치어드바이저 소유는 기존 사이트 기준으로 인증된 상태였다. 문제는 새 사이트에는 네이버 소유확인용 메타 태그가 없다는 것. 당장은 인증이 살아 있어 문제가 없지만, 네이버가 재확인을 돌리는 시점에 등록이 떨어질 수 있다. 대응은 단순하다. 목록에 “소유확인 연장” 안내가 뜨면 그때 확인 코드(HTML 태그)를 받아 새 사이트에 심으면 된다. 사이트를 통째로 교체할 계획이라면 이 부분을 체크리스트에 넣어둘 것.</p>
+        </section>
+        <section>
+          <h3>6. 지도(스마트플레이스)를 따로 봐야 하는 이유</h3>
+          <p>검색만큼 중요한 게 네이버 지도다. “동천동 부동산” 같은 검색은 플레이스 결과가 먼저 뜬다. 직접 확인해 보니:</p>
+          <ul>
+            <li>“자이에이스공인중개사사무소”로 이미 등록·노출 중, 주소(고기로 89 상가 에이동 102호) 일치</li>
+            <li>업주 소개글, 대표 키워드, 매장 사진, 영업시간, 안심번호까지 등록된 관리 중인 플레이스였다</li>
+            <li>단, 홈페이지 링크만 비어 있었다 — 지도에서 관심을 갖고 온 사람이 홈페이지로 넘어올 길이 없는 상태</li>
+          </ul>
+        </section>
+        <section>
+          <h3>정리</h3>
+          <p>스마트플레이스 관리에서 홈페이지 항목에 ace.hongzi.us를 연결하는 게 남은 숙제다. 지도 손님이 홈페이지의 중개 이야기까지 보고 오게 되면 신뢰도가 달라진다.</p>
+          <p>오늘의 체크리스트를 압축하면 이렇다.</p>
+          <ul>
+            <li>1. 제목·설명·OG·canonical 등 메타 세팅</li>
+            <li>2. 구조화 데이터(JSON-LD)로 업체 정보 명시</li>
+            <li>3. robots.txt + sitemap.xml 배치</li>
+            <li>4. 서치어드바이저에서 수집 요청 + 사이트맵 제출</li>
+            <li>5. 소유확인 상태 점검 (사이트 교체 시 재확인 리스크)</li>
+            <li>6. 스마트플레이스 등록·정보 확인, 홈페이지 링크 연결</li>
+          </ul>
+        </section>
+        <section>
+          <h3>남은 단계</h3>
+          <p>남은 단계는 구글 서치콘솔 등록(소유확인 코드를 받으면 같은 방식으로 삽입)과, 중개 이야기를 개별 페이지로 쌓아 검색 유입을 늘리는 콘텐츠 작업이다. 세팅은 한 번이면 되지만, 결국 순위를 만드는 건 콘텐츠다.</p>
+        </section>
+        <section>
+          <h3>출처 · 바로가기</h3>
+          <ul class="linklist">
+            <li><a href="https://ace.hongzi.us" target="_blank" rel="noopener">자이에이스 부동산 — ace.hongzi.us</a> <span class="d">이번 SEO 작업의 대상 사이트. 용인 수지 동천동, 동천자이 매매·전세·상가를 다루는 자이에이스 부동산 홈페이지입니다.</span></li>
+            <li><a href="https://searchadvisor.naver.com" target="_blank" rel="noopener">네이버 서치어드바이저</a> <span class="d">웹 페이지 수집 요청과 사이트맵 제출, 소유확인을 관리하는 네이버의 웹마스터 도구. 웹마스터 가이드 문서도 이곳에 있습니다.</span></li>
+            <li><a href="https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data" target="_blank" rel="noopener">Google 검색 센터 — 구조화된 데이터 소개</a> <span class="d">구조화 데이터(JSON-LD)의 원리와 검색 결과 반영 방식을 설명하는 Google 공식 문서.</span></li>
+            <li><a href="https://schema.org/RealEstateAgent" target="_blank" rel="noopener">schema.org — RealEstateAgent</a> <span class="d">부동산 중개사무소를 표현하는 schema.org 표준 타입 정의.</span></li>
+          </ul>
+        </section>
+        </div>
+      <nav class="detail-nav" aria-label="다른 글">
+        <a href="/post/compilation.html"><span class="dir">이전 글</span>60대 70대가 가장 많이 울었다 — 구독자가 뽑은 감동 사연 4개 연속듣기</a>
+        <a class="next" href="/post/old-couple.html"><span class="dir">다음 글</span>오래된 부부의 숨은 사랑</a>
+      </nav>
+      </article>
+      <footer class="postfoot">© 2026 HongSungIn · <a href="/">hongzi.us 홈으로</a></footer>
+    </div>
+  </body>
+</html>

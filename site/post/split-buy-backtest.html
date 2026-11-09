@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>물타기 vs 불타기 — 12년 데이터로 해부한 분할매수 — HongSungIn</title>
+    <meta name="description" content="떨어질 때 사 모으는 물타기와 오를 때 따라붙는 불타기, 어느 쪽이 나은지 KODEX 200 일봉 12년(2015~2026)으로 직접 계산했다. 물타기 승률 96%, 불타기 승률 29%. 그런데 누적 손익은 거꾸로였다. 두 방식 모두 실전에는 채택하지 않았다. 폐기된 가설의 해부와, 그 과정에서 얻은 검증 방법론의 기록이다." />
+    <link rel="canonical" href="https://hongzi.us/post/split-buy-backtest.html" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="HongSungIn" />
+    <meta property="og:title" content="물타기 vs 불타기 — 12년 데이터로 해부한 분할매수" />
+    <meta property="og:description" content="떨어질 때 사 모으는 물타기와 오를 때 따라붙는 불타기, 어느 쪽이 나은지 KODEX 200 일봉 12년(2015~2026)으로 직접 계산했다. 물타기 승률 96%, 불타기 승률 29%. 그런데 누적 손익은 거꾸로였다. 두 방식 모두 실전에는 채택하지 않았다. 폐기된 가설의 해부와, 그 과정에서 얻은 검증 방법론의 기록이다." />
+    <meta property="og:url" content="https://hongzi.us/post/split-buy-backtest.html" />
+    <meta property="og:image" content="https://hongzi.us/img/post-split-buy-backtest.webp" />
+    <meta property="article:published_time" content="2026-11-04" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="google-site-verification" content="TE_a5yGhqMM-wjQRCvo9Cc7LzAlbduAlwCKos1kQ6Qw" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #faf8f4;
+        --surface: #fffdfa;
+        --ink: #26231e;
+        --ink-soft: #4c4740;
+        --muted: #8a8378;
+        --line: #e7e1d6;
+        --line-soft: #efe9de;
+        --accent: #5d6f5c;
+        --accent-soft: #eef0ea;
+        --tag: #6d675c;
+        color-scheme: light dark;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #161512;
+          --surface: #1d1c18;
+          --ink: #ece7db;
+          --ink-soft: #c9c2b2;
+          --muted: #9a927f;
+          --line: #2e2b24;
+          --line-soft: #26241f;
+          --accent: #a8bfa2;
+          --accent-soft: #23281f;
+          --tag: #a89f8c;
+        }
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+        font-size: 16px;
+        line-height: 1.7;
+        -webkit-font-smoothing: antialiased;
+      }
+      .serif { font-family: "Noto Serif KR", "Pretendard Variable", serif; }
+      a { color: inherit; }
+      img { display: block; max-width: 100%; }
+
+      .wrap { max-width: 1060px; margin: 0 auto; padding: 0 24px; }
+
+      /* ── header ─────────────────────────── */
+      header.site {
+        border-bottom: 1px solid var(--line-soft);
+      }
+      .site-inner {
+        display: flex; align-items: baseline; justify-content: space-between;
+        gap: 16px; padding: 26px 0 22px;
+      }
+      .wordmark { font-size: 19px; font-weight: 600; letter-spacing: -0.01em; text-decoration: none; }
+      .wordmark span { color: var(--muted); font-weight: 400; }
+      nav.main { display: flex; gap: 26px; }
+      nav.main a {
+        font-size: 14px; color: var(--ink-soft); text-decoration: none; letter-spacing: -0.01em;
+      }
+      nav.main a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 5px; text-decoration-color: var(--line); }
+
+      /* ── intro ──────────────────────────── */
+      .intro { padding: 72px 0 18px; max-width: 640px; }
+      .intro h1 {
+        font-size: 30px; font-weight: 500; line-height: 1.45; letter-spacing: -0.015em;
+        margin: 0 0 18px;
+      }
+      .intro p { margin: 0; color: var(--ink-soft); font-size: 16.5px; line-height: 1.85; }
+      .intro .where { margin-top: 22px; font-size: 14px; color: var(--muted); }
+      .intro .where strong { color: var(--ink-soft); font-weight: 600; }
+
+      /* ── filter ─────────────────────────── */
+      .filterbar {
+        display: flex; flex-wrap: wrap; gap: 6px 4px; align-items: center;
+        padding: 30px 0 8px; margin-top: 34px;
+        border-top: 1px solid var(--line-soft);
+      }
+      .filterbar button {
+        appearance: none; border: 0; background: none; cursor: pointer;
+        font: inherit; font-size: 14.5px; color: var(--muted);
+        padding: 6px 12px; border-radius: 999px;
+      }
+      .filterbar button:hover { color: var(--ink); }
+      .filterbar button[aria-pressed="true"] {
+        color: var(--ink); background: var(--accent-soft); font-weight: 600;
+      }
+      .filter-count { margin-left: auto; font-size: 13px; color: var(--muted); }
+
+      /* ── cards ──────────────────────────── */
+      .featured { padding: 28px 0 6px; }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line-soft);
+        border-radius: 10px;
+        overflow: hidden;
+        text-decoration: none;
+        display: flex; flex-direction: column;
+        transition: border-color .18s ease;
+        cursor: pointer;
+      }
+      .card:hover { border-color: var(--line); }
+      .card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+      .card .thumb { overflow: hidden; background: var(--accent-soft); }
+      .card .thumb img { width: 100%; height: 100%; object-fit: cover; }
+      .card .body { padding: 20px 22px 22px; display: flex; flex-direction: column; gap: 8px; }
+      .tag { font-size: 12.5px; color: var(--tag); letter-spacing: 0.01em; }
+      .card h3 {
+        margin: 0; font-size: 19px; font-weight: 600; line-height: 1.5; letter-spacing: -0.015em;
+      }
+      .card p { margin: 0; font-size: 14.5px; color: var(--ink-soft); line-height: 1.7; }
+      .meta { margin-top: 4px; font-size: 12.5px; color: var(--muted); display: flex; gap: 10px; flex-wrap: wrap; }
+      .meta i { font-style: normal; color: var(--line); }
+      .more {
+        margin-top: 6px; font-size: 13.5px; font-weight: 600; color: var(--accent);
+        display: inline-flex; align-items: center; gap: 5px;
+      }
+      .card:hover .more { text-decoration: underline; text-underline-offset: 4px; }
+
+      .featured .card { flex-direction: row; }
+      .featured .thumb { flex: 1.25; min-height: 300px; }
+      .featured .thumb img { position: absolute; inset: 0; }
+      .featured .thumb { position: relative; }
+      .featured .body { flex: 1; justify-content: center; padding: 34px 36px; gap: 12px; }
+      .featured h3 { font-size: 25px; line-height: 1.45; }
+      .featured p { font-size: 15.5px; }
+
+      .grid {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 26px;
+        padding: 26px 0 10px;
+      }
+      .grid .thumb { aspect-ratio: 3 / 2; }
+      .grid .thumb img { height: 100%; }
+
+      .empty-note { display: none; padding: 40px 0; color: var(--muted); font-size: 15px; }
+
+      /* ── detail ─────────────────────────── */
+      .detail { padding: 44px 0 10px; max-width: 760px; }
+      .backlink {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 14px; color: var(--ink-soft); text-decoration: none;
+        padding: 6px 0;
+      }
+      .backlink:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 5px; text-decoration-color: var(--line); }
+      .detail-head { margin: 26px 0 22px; }
+      .detail-head h2 {
+        margin: 10px 0 12px; font-size: 30px; font-weight: 600;
+        line-height: 1.4; letter-spacing: -0.02em;
+      }
+      .detail-hero { border-radius: 10px; overflow: hidden; border: 1px solid var(--line-soft); background: var(--accent-soft); }
+      .detail-hero img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+      .detail-body { padding: 10px 0 0; }
+      .detail-body section { margin-top: 34px; }
+      .detail-body h3 {
+        font-size: 18px; font-weight: 600; letter-spacing: -0.01em;
+        margin: 0 0 10px;
+      }
+      .detail-body p { margin: 0 0 12px; color: var(--ink-soft); font-size: 15.5px; line-height: 1.85; }
+      .detail-body p.small { font-size: 13.5px; color: var(--muted); }
+      .detail-body ul { margin: 0 0 12px; padding-left: 20px; color: var(--ink-soft); font-size: 15.5px; line-height: 1.85; }
+      .detail-body li { margin-bottom: 6px; }
+      .detail-body li::marker { color: var(--muted); }
+      .watchbox {
+        margin-top: 36px; padding: 18px 20px;
+        background: var(--accent-soft); border-radius: 10px;
+        font-size: 14.5px; color: var(--ink-soft); line-height: 1.75;
+      }
+      .watchbox strong { color: var(--ink); font-weight: 600; }
+      .watchbox a { color: var(--accent); font-weight: 600; text-decoration: none; }
+      .watchbox a:hover { text-decoration: underline; text-underline-offset: 4px; }
+      .linklist { list-style: none; margin: 0; padding: 0; }
+      .linklist li {
+        padding: 13px 0; border-bottom: 1px solid var(--line-soft);
+        display: flex; flex-direction: column; gap: 2px; margin: 0;
+      }
+      .linklist li:last-child { border-bottom: 0; }
+      .linklist a {
+        font-weight: 600; font-size: 15.5px; color: var(--accent);
+        text-decoration: none; width: fit-content;
+      }
+      .linklist a:hover { text-decoration: underline; text-underline-offset: 4px; }
+      .linklist .d { font-size: 14px; color: var(--ink-soft); line-height: 1.7; }
+      .detail-nav {
+        margin-top: 48px; padding-top: 22px; border-top: 1px solid var(--line-soft);
+        display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+      }
+      .detail-nav a { font-size: 14px; color: var(--ink-soft); text-decoration: none; max-width: 46%; }
+      .detail-nav a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 5px; text-decoration-color: var(--line); }
+      .detail-nav .dir { display: block; font-size: 12px; color: var(--muted); margin-bottom: 3px; }
+      .detail-nav .next { text-align: right; margin-left: auto; }
+
+      /* ── add content ────────────────────── */
+      .addgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; margin-top: 18px; }
+      .addstep h3 { font-size: 16px; font-weight: 600; margin: 0 0 8px; letter-spacing: -0.01em; }
+      .addstep h3 .n { color: var(--accent); margin-right: 7px; font-variant-numeric: tabular-nums; }
+      .addstep p { margin: 0; font-size: 14.5px; color: var(--ink-soft); line-height: 1.75; }
+      .tpl {
+        margin-top: 30px; border: 1px solid var(--line-soft); border-radius: 10px;
+        background: var(--surface); overflow: hidden;
+      }
+      .tpl-head {
+        display: flex; align-items: center; justify-content: space-between; gap: 14px;
+        padding: 13px 18px; border-bottom: 1px solid var(--line-soft);
+        font-size: 13.5px; color: var(--muted);
+      }
+      .tpl-head button {
+        appearance: none; border: 1px solid var(--line); background: var(--bg);
+        color: var(--ink); font: inherit; font-size: 13.5px; font-weight: 600;
+        padding: 6px 14px; border-radius: 999px; cursor: pointer; white-space: nowrap;
+      }
+      .tpl-head button:hover { border-color: var(--accent); color: var(--accent); }
+      .tpl pre {
+        margin: 0; padding: 18px; overflow-x: auto;
+        font-family: "Pretendard Variable", Pretendard, sans-serif;
+        font-size: 14.5px; line-height: 1.9; color: var(--ink-soft); white-space: pre-wrap;
+      }
+
+      /* ── notes list ─────────────────────── */
+      section.block { padding: 64px 0 8px; }
+      .block-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 8px; }
+      .block-head h2 { font-size: 21px; font-weight: 600; letter-spacing: -0.015em; margin: 0; }
+      .block-head p { margin: 0; font-size: 14px; color: var(--muted); }
+      .notes { border-top: 1px solid var(--line); }
+      .note {
+        display: grid; grid-template-columns: 108px 1fr auto; gap: 20px; align-items: baseline;
+        padding: 18px 4px; border-bottom: 1px solid var(--line-soft);
+      }
+      .note time { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+      .note .t { font-size: 15.5px; font-weight: 550; }
+      .note .d { font-size: 14px; color: var(--ink-soft); margin-top: 2px; }
+      .note .cat { font-size: 12.5px; color: var(--tag); white-space: nowrap; }
+
+      /* ── about ──────────────────────────── */
+      .about {
+        display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px;
+        padding: 66px 0 20px; margin-top: 56px;
+        border-top: 1px solid var(--line-soft);
+      }
+      .about h2 { font-size: 21px; font-weight: 600; letter-spacing: -0.015em; margin: 0 0 14px; }
+      .about p { margin: 0 0 12px; color: var(--ink-soft); font-size: 15.5px; line-height: 1.85; }
+      .facts { margin: 0; padding: 0; list-style: none; }
+      .facts li {
+        display: flex; justify-content: space-between; gap: 18px;
+        padding: 11px 0; border-bottom: 1px solid var(--line-soft);
+        font-size: 14.5px;
+      }
+      .facts li:last-child { border-bottom: 0; }
+      .facts .k { color: var(--muted); white-space: nowrap; }
+      .facts .v { text-align: right; font-weight: 550; }
+
+      footer.site {
+        margin-top: 70px; border-top: 1px solid var(--line-soft);
+        padding: 30px 0 44px;
+        display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+        font-size: 13.5px; color: var(--muted);
+      }
+
+      .hidden { display: none !important; }
+
+      @media (max-width: 760px) {
+        .intro { padding: 48px 0 8px; }
+        .intro h1 { font-size: 25px; }
+        .featured .card { flex-direction: column; }
+        .featured .thumb { min-height: 0; aspect-ratio: 3 / 2; flex: none; }
+        .featured .body { padding: 22px; }
+        .featured h3 { font-size: 21px; }
+        .grid { grid-template-columns: 1fr; gap: 20px; }
+        .addgrid { grid-template-columns: 1fr; gap: 20px; }
+        .detail { padding-top: 30px; }
+        .detail-head h2 { font-size: 24px; }
+        .detail-nav a { max-width: 100%; }
+        .detail-nav .next { text-align: left; margin-left: 0; }
+        .about { grid-template-columns: 1fr; gap: 30px; padding-top: 48px; }
+        .note { grid-template-columns: 1fr; gap: 2px; }
+        .note .cat { order: -1; }
+        .site-inner { flex-direction: column; align-items: flex-start; gap: 8px; padding: 20px 0 16px; }
+        .wordmark { font-size: 17px; }
+        nav.main { gap: 20px; flex-wrap: wrap; }
+        nav.main a { font-size: 13.5px; }
+        .filter-count { display: none; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        .card { transition: none; }
+      }
+    
+      .detail-head h1 { margin: 10px 0 12px; font-size: 30px; font-weight: 600; line-height: 1.4; letter-spacing: -0.02em; }
+      .postfoot { border-top: 1px solid var(--line-soft); margin-top: 44px; padding: 22px 0 36px; font-size: 13.5px; color: var(--muted); }
+      .postfoot a { color: var(--ink-soft); text-decoration: none; }
+      .postfoot a:hover { text-decoration: underline; text-underline-offset: 4px; }
+    </style>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"물타기 vs 불타기 — 12년 데이터로 해부한 분할매수","description":"떨어질 때 사 모으는 물타기와 오를 때 따라붙는 불타기, 어느 쪽이 나은지 KODEX 200 일봉 12년(2015~2026)으로 직접 계산했다. 물타기 승률 96%, 불타기 승률 29%. 그런데 누적 손익은 거꾸로였다. 두 방식 모두 실전에는 채택하지 않았다. 폐기된 가설의 해부와, 그 과정에서 얻은 검증 방법론의 기록이다.","image":["https://hongzi.us/img/post-split-buy-backtest.webp"],"datePublished":"2026-11-04","author":{"@type":"Person","name":"HongSungIn","url":"https://hongzi.us/"},"mainEntityOfPage":"https://hongzi.us/post/split-buy-backtest.html"}</script>
+  <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LJ6Q1XBCL7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-LJ6Q1XBCL7');
+    </script>
+      <meta name="google-adsense-account" content="ca-pub-4973471145275269">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4973471145275269" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <div class="wrap">
+      <article class="detail">
+        <a class="backlink" href="/#posts">← 글 목록으로</a>
+        <div class="detail-head">
+          <span class="tag">리서치 · 백테스트 해부</span>
+          <h1 class="serif">물타기 vs 불타기 — 12년 데이터로 해부한 분할매수</h1>
+          <div class="meta">2026. 11. 04<i>·</i>백테스트 해부 · KODEX 200 일봉 2015~2026</div>
+        </div>
+        <div class="detail-hero"><img src="/img/post-split-buy-backtest.webp" alt="하락 구간마다 동전이 쌓이는 곡선과, 계단처럼 오르는 구간에 깃발이 꽂힌 곡선으로 갈라지는 차트 일러스트" /></div>
+        <div class="detail-body">
+        <section>
+          <h3>질문 — 분할매수는 어느 방향이 맞는가</h3>
+          <p>분할매수에는 정반대인 두 기계가 있다. 물타기는 가격이 떨어질 때마다 더 사서 평균 단가를 낮추고, 불타기는 오를 때마다 더 사서 추세에 올라탄다. 감으로는 물타기가 안전해 보이고 불타기는 무모해 보인다. 이 감이 맞는지 확인하려고 규칙을 사전에 고정하고 12년 데이터를 전수 계산했다.</p>
+          <p>대상은 상폐 위험이 없는 지수 ETF(KODEX 200) 하나로, 종목 선택의 변수를 빼고 '기계 자체'만 검증했다. 자본은 캠페인당 1억을 스무 번으로 나눠 투입하고, 신호는 종가로 판정해 다음 날 시가에 체결하는 조건을 양쪽에 똑같이 적용했다. 데이터는 2015년 1월부터 2026년 10월까지, 코로나 급락과 2022년 하락장을 포함한다.</p>
+        </section>
+        <section>
+          <h3>결과 — 승률과 손익이 거꾸로였다</h3>
+          <p>숫자부터 정리하면 이렇다. 승률만 보면 물타기의 압승인데, 손익과 자본이 머문 시간을 함께 놓으면 그림이 뒤집힌다.</p>
+          <ul>
+            <li>물타기 — 캠페인 26개, 승률 96%. 그러나 누적 손익은 +13.5%에 그쳤다</li>
+            <li>불타기 — 캠페인 174개, 승률 29%. 그런데 누적 손익은 +28.3%로 물타기의 두 배였다</li>
+            <li>물타기의 자본 잠김 — 평균 133일, 최장 825일. 전체 기간의 약 80%가 캠페인 진행 중이었다</li>
+            <li>꼬리 손실의 모양 — 불타기의 최악 손실은 -82만 원으로 잘려 있었고, 물타기의 유일한 손실은 청산되지 않은 채 남은 평가 손실 -549만 원이었다</li>
+            <li>불타기 이익의 집중 — 상위 5개 캠페인 이익의 합계가 전체 순이익을 웃돌았다. 나머지 169개는 합쳐서 마이너스였다</li>
+          </ul>
+        </section>
+        <section>
+          <h3>승률 96%의 정체</h3>
+          <p>물타기의 승률 96%는 실력이 아니라 구조다. 손절이 없고 '평단 위로 회복하면 익절'로만 청산이 정의돼 있으니, 지수가 결국 회복하는 한 거의 모든 캠페인이 승리로 확정된다. 진짜 리스크는 승률표 밖에 있었다. 묶이는 자본과, 확정되지 않은 채 꼬리에 매달린 손실이다.</p>
+          <p>반대로 불타기는 열 번 중 일곱 번 지는 전략이다. 그런데 지는 폭이 작게 잘려 있고, 가끔 오는 긴 추세 몇 개가 전체를 먹여 살리는 비대칭 구조였다. 승률로 평가하면 폐기할 전략이고, 손익 분포로 평가하면 유일하게 양의 왜도를 가진 전략이었다.</p>
+        </section>
+        <section>
+          <h3>국면으로 다시 쪼개 보니</h3>
+          <p>각 캠페인이 시작된 시점의 시장 국면(상승·하락·횡보)을 붙여 다시 집계했다. 데이터가 가리키는 분기점은 시작 국면이 아니라, 보유 중에 어떤 국면을 통과하느냐였다.</p>
+          <ul>
+            <li>물타기가 하락 국면에서 '시작된' 캠페인은 12년간 단 1건 — '하락장에서 물타기가 성공한다'는 말은 이 데이터로 지지되지 않는다</li>
+            <li>물타기의 장기 잠김은 하락장에서 시작된 게 아니라, 상승·횡보에서 시작해 도중에 하락장을 맞은 캠페인에서 발생했다</li>
+            <li>불타기 순이익의 65.7%는 횡보에서 시작된 캠페인에서 나왔다. 상승 국면 시작은 10.1%에 그쳐, '추세가 확인된 뒤에야 통한다'는 좁은 가설도 성립하지 않았다</li>
+          </ul>
+        </section>
+        <section>
+          <h3>그래서 둘 다 채택하지 않았다</h3>
+          <p>불타기가 이겼는데도 실전 채택은 하지 않았다. 첫째, 표본이 지수 ETF 1종목과 장기 상승 구간 1개뿐이다. 이 기간 지수 자체가 +362% 올랐다. 둘째, 생존편향이다. 물타기의 진짜 꼬리 위험인 개별주의 상폐와 거래정지는 지수 ETF 표본에 구조적으로 존재하지 않아서, 이 결과를 개별주에 이식하는 순간 전제가 무너진다. 셋째, 손절선은 갭 하락을 자르지 못한다. 불타기 캠페인 중에는 손절 기준보다 실제 손실이 크게 미끄러진 사례가 있었다.</p>
+          <p>결론적으로 불타기는 지수 하나로만, 실주문 없이 기록만 쌓는 전향 관찰로 넘겼고, 물타기는 폐기했다. 검증에서 이긴 것과 실전에 돈을 거는 것 사이에는 전향 관찰이라는 한 단계가 더 필요하다는 것이 이 해부의 결론이다.</p>
+        </section>
+        <section>
+          <h3>남은 교훈</h3>
+          <ul>
+            <li>승률은 전략의 품질이 아니다 — 청산 규칙이 어떻게 정의됐는지의 산물일 수 있다</li>
+            <li>물타기의 위험은 '지는 것'이 아니라 '끝나지 않는 것'이다 — 자본과 기회가 함께 묶인다</li>
+            <li>불타기의 본질은 자주 지는 대신 크게 잃지 않는 비대칭이다 — 승률이 아니라 손익 분포로 봐야 한다</li>
+            <li>검증에서 이긴 전략도 표본이 하나면 채택 근거가 못 된다 — 전향 관찰로 표본을 쌓는 순서가 먼저다</li>
+          </ul>
+        </section>
+        <section>
+          <h3>출처 · 바로가기</h3>
+          <ul class="linklist">
+            <li><a href="/#/post/investment-principles">나의 투자 원칙 — 손실을 통해 배운 교훈</a> <span class="d">이 백테스트를 하게 된 배경인 투자 원칙 정리 글. 검증된 방법으로만 실험한다는 기준을 세운 기록이다.</span></li>
+            <li><a href="/ai-trading.html">AI 트레이딩의 세계 — 전체 리서치 페이지</a> <span class="d">규칙 기반·통계·알고리즘 등 여섯 가지 접근법과 개인 트레이더 손실 통계를 정리한 리서치 페이지입니다.</span></li>
+          </ul>
+        </section>
+        </div>
+      <nav class="detail-nav" aria-label="다른 글">
+        <a href="/post/bnf-first-trade.html"><span class="dir">이전 글</span>자동매매 첫 실전 체결 — 첫 표본은 패배였다</a>
+        <a class="next" href="/post/longform-pivot.html"><span class="dir">다음 글</span>쇼츠에서 롱폼으로 — 수익 구조를 보고 바꾼 채널 방향</a>
+      </nav>
+      </article>
+      <footer class="postfoot">© 2026 HongSungIn · <a href="/">hongzi.us 홈으로</a></footer>
+    </div>
+  </body>
+</html>

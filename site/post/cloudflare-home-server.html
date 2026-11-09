@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>Cloudflare 하나로 집 서버 사이트 굴리기 — 터널·Pages·Workers·R2 활용과 정리 기록 — HongSungIn</title>
+    <meta name="description" content="집 PC 한 대로 포트폴리오, 부동산, 여행, 매매일지까지 여러 사이트를 굴리고 있다. 오늘 Cloudflare 계정을 전수 조사했더니 프로젝트별 전용 터널 4개에, 초기 통합 터널 하나가 서브도메인 5개를 떠안는 다층 구조였다. Pages·Workers·R2로 나눠 둔 'PC가 꺼져도 유지되는 층'의 지도, 죽은 라우트 5개를 지운 정리 기록, 그리고 도커만 믿으면 호스트 서비스가 누락된다는 교훈을 정리했다." />
+    <link rel="canonical" href="https://hongzi.us/post/cloudflare-home-server.html" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="HongSungIn" />
+    <meta property="og:title" content="Cloudflare 하나로 집 서버 사이트 굴리기 — 터널·Pages·Workers·R2 활용과 정리 기록" />
+    <meta property="og:description" content="집 PC 한 대로 포트폴리오, 부동산, 여행, 매매일지까지 여러 사이트를 굴리고 있다. 오늘 Cloudflare 계정을 전수 조사했더니 프로젝트별 전용 터널 4개에, 초기 통합 터널 하나가 서브도메인 5개를 떠안는 다층 구조였다. Pages·Workers·R2로 나눠 둔 'PC가 꺼져도 유지되는 층'의 지도, 죽은 라우트 5개를 지운 정리 기록, 그리고 도커만 믿으면 호스트 서비스가 누락된다는 교훈을 정리했다." />
+    <meta property="og:url" content="https://hongzi.us/post/cloudflare-home-server.html" />
+    <meta property="og:image" content="https://hongzi.us/img/post-cloudflare-home-server.webp" />
+    <meta property="article:published_time" content="2026-11-06" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="google-site-verification" content="TE_a5yGhqMM-wjQRCvo9Cc7LzAlbduAlwCKos1kQ6Qw" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #faf8f4;
+        --surface: #fffdfa;
+        --ink: #26231e;
+        --ink-soft: #4c4740;
+        --muted: #8a8378;
+        --line: #e7e1d6;
+        --line-soft: #efe9de;
+        --accent: #5d6f5c;
+        --accent-soft: #eef0ea;
+        --tag: #6d675c;
+        color-scheme: light dark;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #161512;
+          --surface: #1d1c18;
+          --ink: #ece7db;
+          --ink-soft: #c9c2b2;
+          --muted: #9a927f;
+          --line: #2e2b24;
+          --line-soft: #26241f;
+          --accent: #a8bfa2;
+          --accent-soft: #23281f;
+          --tag: #a89f8c;
+        }
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+        font-size: 16px;
+        line-height: 1.7;
+        -webkit-font-smoothing: antialiased;
+      }
+      .serif { font-family: "Noto Serif KR", "Pretendard Variable", serif; }
+      a { color: inherit; }
+      img { display: block; max-width: 100%; }
+
+      .wrap { max-width: 1060px; margin: 0 auto; padding: 0 24px; }
+
+      /* ── header ─────────────────────────── */
+      header.site {
+        border-bottom: 1px solid var(--line-soft);
+      }
+      .site-inner {
+        display: flex; align-items: baseline; justify-content: space-between;
+        gap: 16px; padding: 26px 0 22px;
+      }
+      .wordmark { font-size: 19px; font-weight: 600; letter-spacing: -0.01em; text-decoration: none; }
+      .wordmark span { color: var(--muted); font-weight: 400; }
+      nav.main { display: flex; gap: 26px; }
+      nav.main a {
+        font-size: 14px; color: var(--ink-soft); text-decoration: none; letter-spacing: -0.01em;
+      }
+      nav.main a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 5px; text-decoration-color: var(--line); }
+
+      /* ── intro ──────────────────────────── */
+      .intro { padding: 72px 0 18px; max-width: 640px; }
+      .intro h1 {
+        font-size: 30px; font-weight: 500; line-height: 1.45; letter-spacing: -0.015em;
+        margin: 0 0 18px;
+      }
+      .intro p { margin: 0; color: var(--ink-soft); font-size: 16.5px; line-height: 1.85; }
+      .intro .where { margin-top: 22px; font-size: 14px; color: var(--muted); }
+      .intro .where strong { color: var(--ink-soft); font-weight: 600; }
+
+      /* ── filter ─────────────────────────── */
+      .filterbar {
+        display: flex; flex-wrap: wrap; gap: 6px 4px; align-items: center;
+        padding: 30px 0 8px; margin-top: 34px;
+        border-top: 1px solid var(--line-soft);
+      }
+      .filterbar button {
+        appearance: none; border: 0; background: none; cursor: pointer;
+        font: inherit; font-size: 14.5px; color: var(--muted);
+        padding: 6px 12px; border-radius: 999px;
+      }
+      .filterbar button:hover { color: var(--ink); }
+      .filterbar button[aria-pressed="true"] {
+        color: var(--ink); background: var(--accent-soft); font-weight: 600;
+      }
+      .filter-count { margin-left: auto; font-size: 13px; color: var(--muted); }
+
+      /* ── cards ──────────────────────────── */
+      .featured { padding: 28px 0 6px; }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line-soft);
+        border-radius: 10px;
+        overflow: hidden;
+        text-decoration: none;
+        display: flex; flex-direction: column;
+        transition: border-color .18s ease;
+        cursor: pointer;
+      }
+      .card:hover { border-color: var(--line); }
+      .card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+      .card .thumb { overflow: hidden; background: var(--accent-soft); }
+      .card .thumb img { width: 100%; height: 100%; object-fit: cover; }
+      .card .body { padding: 20px 22px 22px; display: flex; flex-direction: column; gap: 8px; }
+      .tag { font-size: 12.5px; color: var(--tag); letter-spacing: 0.01em; }
+      .card h3 {
+        margin: 0; font-size: 19px; font-weight: 600; line-height: 1.5; letter-spacing: -0.015em;
+      }
+      .card p { margin: 0; font-size: 14.5px; color: var(--ink-soft); line-height: 1.7; }
+      .meta { margin-top: 4px; font-size: 12.5px; color: var(--muted); display: flex; gap: 10px; flex-wrap: wrap; }
+      .meta i { font-style: normal; color: var(--line); }
+      .more {
+        margin-top: 6px; font-size: 13.5px; font-weight: 600; color: var(--accent);
+        display: inline-flex; align-items: center; gap: 5px;
+      }
+      .card:hover .more { text-decoration: underline; text-underline-offset: 4px; }
+
+      .featured .card { flex-direction: row; }
+      .featured .thumb { flex: 1.25; min-height: 300px; }
+      .featured .thumb img { position: absolute; inset: 0; }
+      .featured .thumb { position: relative; }
+      .featured .body { flex: 1; justify-content: center; padding: 34px 36px; gap: 12px; }
+      .featured h3 { font-size: 25px; line-height: 1.45; }
+      .featured p { font-size: 15.5px; }
+
+      .grid {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 26px;
+        padding: 26px 0 10px;
+      }
+      .grid .thumb { aspect-ratio: 3 / 2; }
+      .grid .thumb img { height: 100%; }
+
+      .empty-note { display: none; padding: 40px 0; color: var(--muted); font-size: 15px; }
+
+      /* ── detail ─────────────────────────── */
+      .detail { padding: 44px 0 10px; max-width: 760px; }
+      .backlink {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 14px; color: var(--ink-soft); text-decoration: none;
+        padding: 6px 0;
+      }
+      .backlink:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 5px; text-decoration-color: var(--line); }
+      .detail-head { margin: 26px 0 22px; }
+      .detail-head h2 {
+        margin: 10px 0 12px; font-size: 30px; font-weight: 600;
+        line-height: 1.4; letter-spacing: -0.02em;
+      }
+      .detail-hero { border-radius: 10px; overflow: hidden; border: 1px solid var(--line-soft); background: var(--accent-soft); }
+      .detail-hero img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+      .detail-body { padding: 10px 0 0; }
+      .detail-body section { margin-top: 34px; }
+      .detail-body h3 {
+        font-size: 18px; font-weight: 600; letter-spacing: -0.01em;
+        margin: 0 0 10px;
+      }
+      .detail-body p { margin: 0 0 12px; color: var(--ink-soft); font-size: 15.5px; line-height: 1.85; }
+      .detail-body p.small { font-size: 13.5px; color: var(--muted); }
+      .detail-body ul { margin: 0 0 12px; padding-left: 20px; color: var(--ink-soft); font-size: 15.5px; line-height: 1.85; }
+      .detail-body li { margin-bottom: 6px; }
+      .detail-body li::marker { color: var(--muted); }
+      .watchbox {
+        margin-top: 36px; padding: 18px 20px;
+        background: var(--accent-soft); border-radius: 10px;
+        font-size: 14.5px; color: var(--ink-soft); line-height: 1.75;
+      }
+      .watchbox strong { color: var(--ink); font-weight: 600; }
+      .watchbox a { color: var(--accent); font-weight: 600; text-decoration: none; }
+      .watchbox a:hover { text-decoration: underline; text-underline-offset: 4px; }
+      .linklist { list-style: none; margin: 0; padding: 0; }
+      .linklist li {
+        padding: 13px 0; border-bottom: 1px solid var(--line-soft);
+        display: flex; flex-direction: column; gap: 2px; margin: 0;
+      }
+      .linklist li:last-child { border-bottom: 0; }
+      .linklist a {
+        font-weight: 600; font-size: 15.5px; color: var(--accent);
+        text-decoration: none; width: fit-content;
+      }
+      .linklist a:hover { text-decoration: underline; text-underline-offset: 4px; }
+      .linklist .d { font-size: 14px; color: var(--ink-soft); line-height: 1.7; }
+      .detail-nav {
+        margin-top: 48px; padding-top: 22px; border-top: 1px solid var(--line-soft);
+        display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+      }
+      .detail-nav a { font-size: 14px; color: var(--ink-soft); text-decoration: none; max-width: 46%; }
+      .detail-nav a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 5px; text-decoration-color: var(--line); }
+      .detail-nav .dir { display: block; font-size: 12px; color: var(--muted); margin-bottom: 3px; }
+      .detail-nav .next { text-align: right; margin-left: auto; }
+
+      /* ── add content ────────────────────── */
+      .addgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; margin-top: 18px; }
+      .addstep h3 { font-size: 16px; font-weight: 600; margin: 0 0 8px; letter-spacing: -0.01em; }
+      .addstep h3 .n { color: var(--accent); margin-right: 7px; font-variant-numeric: tabular-nums; }
+      .addstep p { margin: 0; font-size: 14.5px; color: var(--ink-soft); line-height: 1.75; }
+      .tpl {
+        margin-top: 30px; border: 1px solid var(--line-soft); border-radius: 10px;
+        background: var(--surface); overflow: hidden;
+      }
+      .tpl-head {
+        display: flex; align-items: center; justify-content: space-between; gap: 14px;
+        padding: 13px 18px; border-bottom: 1px solid var(--line-soft);
+        font-size: 13.5px; color: var(--muted);
+      }
+      .tpl-head button {
+        appearance: none; border: 1px solid var(--line); background: var(--bg);
+        color: var(--ink); font: inherit; font-size: 13.5px; font-weight: 600;
+        padding: 6px 14px; border-radius: 999px; cursor: pointer; white-space: nowrap;
+      }
+      .tpl-head button:hover { border-color: var(--accent); color: var(--accent); }
+      .tpl pre {
+        margin: 0; padding: 18px; overflow-x: auto;
+        font-family: "Pretendard Variable", Pretendard, sans-serif;
+        font-size: 14.5px; line-height: 1.9; color: var(--ink-soft); white-space: pre-wrap;
+      }
+
+      /* ── notes list ─────────────────────── */
+      section.block { padding: 64px 0 8px; }
+      .block-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 8px; }
+      .block-head h2 { font-size: 21px; font-weight: 600; letter-spacing: -0.015em; margin: 0; }
+      .block-head p { margin: 0; font-size: 14px; color: var(--muted); }
+      .notes { border-top: 1px solid var(--line); }
+      .note {
+        display: grid; grid-template-columns: 108px 1fr auto; gap: 20px; align-items: baseline;
+        padding: 18px 4px; border-bottom: 1px solid var(--line-soft);
+      }
+      .note time { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+      .note .t { font-size: 15.5px; font-weight: 550; }
+      .note .d { font-size: 14px; color: var(--ink-soft); margin-top: 2px; }
+      .note .cat { font-size: 12.5px; color: var(--tag); white-space: nowrap; }
+
+      /* ── about ──────────────────────────── */
+      .about {
+        display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px;
+        padding: 66px 0 20px; margin-top: 56px;
+        border-top: 1px solid var(--line-soft);
+      }
+      .about h2 { font-size: 21px; font-weight: 600; letter-spacing: -0.015em; margin: 0 0 14px; }
+      .about p { margin: 0 0 12px; color: var(--ink-soft); font-size: 15.5px; line-height: 1.85; }
+      .facts { margin: 0; padding: 0; list-style: none; }
+      .facts li {
+        display: flex; justify-content: space-between; gap: 18px;
+        padding: 11px 0; border-bottom: 1px solid var(--line-soft);
+        font-size: 14.5px;
+      }
+      .facts li:last-child { border-bottom: 0; }
+      .facts .k { color: var(--muted); white-space: nowrap; }
+      .facts .v { text-align: right; font-weight: 550; }
+
+      footer.site {
+        margin-top: 70px; border-top: 1px solid var(--line-soft);
+        padding: 30px 0 44px;
+        display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+        font-size: 13.5px; color: var(--muted);
+      }
+
+      .hidden { display: none !important; }
+
+      @media (max-width: 760px) {
+        .intro { padding: 48px 0 8px; }
+        .intro h1 { font-size: 25px; }
+        .featured .card { flex-direction: column; }
+        .featured .thumb { min-height: 0; aspect-ratio: 3 / 2; flex: none; }
+        .featured .body { padding: 22px; }
+        .featured h3 { font-size: 21px; }
+        .grid { grid-template-columns: 1fr; gap: 20px; }
+        .addgrid { grid-template-columns: 1fr; gap: 20px; }
+        .detail { padding-top: 30px; }
+        .detail-head h2 { font-size: 24px; }
+        .detail-nav a { max-width: 100%; }
+        .detail-nav .next { text-align: left; margin-left: 0; }
+        .about { grid-template-columns: 1fr; gap: 30px; padding-top: 48px; }
+        .note { grid-template-columns: 1fr; gap: 2px; }
+        .note .cat { order: -1; }
+        .site-inner { flex-direction: column; align-items: flex-start; gap: 8px; padding: 20px 0 16px; }
+        .wordmark { font-size: 17px; }
+        nav.main { gap: 20px; flex-wrap: wrap; }
+        nav.main a { font-size: 13.5px; }
+        .filter-count { display: none; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        .card { transition: none; }
+      }
+    
+      .detail-head h1 { margin: 10px 0 12px; font-size: 30px; font-weight: 600; line-height: 1.4; letter-spacing: -0.02em; }
+      .postfoot { border-top: 1px solid var(--line-soft); margin-top: 44px; padding: 22px 0 36px; font-size: 13.5px; color: var(--muted); }
+      .postfoot a { color: var(--ink-soft); text-decoration: none; }
+      .postfoot a:hover { text-decoration: underline; text-underline-offset: 4px; }
+    </style>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Cloudflare 하나로 집 서버 사이트 굴리기 — 터널·Pages·Workers·R2 활용과 정리 기록","description":"집 PC 한 대로 포트폴리오, 부동산, 여행, 매매일지까지 여러 사이트를 굴리고 있다. 오늘 Cloudflare 계정을 전수 조사했더니 프로젝트별 전용 터널 4개에, 초기 통합 터널 하나가 서브도메인 5개를 떠안는 다층 구조였다. Pages·Workers·R2로 나눠 둔 'PC가 꺼져도 유지되는 층'의 지도, 죽은 라우트 5개를 지운 정리 기록, 그리고 도커만 믿으면 호스트 서비스가 누락된다는 교훈을 정리했다.","image":["https://hongzi.us/img/post-cloudflare-home-server.webp"],"datePublished":"2026-11-06","author":{"@type":"Person","name":"HongSungIn","url":"https://hongzi.us/"},"mainEntityOfPage":"https://hongzi.us/post/cloudflare-home-server.html"}</script>
+  <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LJ6Q1XBCL7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-LJ6Q1XBCL7');
+    </script>
+      <meta name="google-adsense-account" content="ca-pub-4973471145275269">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4973471145275269" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <div class="wrap">
+      <article class="detail">
+        <a class="backlink" href="/#posts">← 글 목록으로</a>
+        <div class="detail-head">
+          <span class="tag">기록 · 인프라</span>
+          <h1 class="serif">Cloudflare 하나로 집 서버 사이트 굴리기 — 터널·Pages·Workers·R2 활용과 정리 기록</h1>
+          <div class="meta">2026. 11. 06<i>·</i>인프라 정리 기록 · Cloudflare 전수 조사</div>
+        </div>
+        <div class="detail-hero"><img src="/img/post-cloudflare-home-server.webp" alt="집 안에 서버 랙이 있고, 곡선 터널들이 집에서 구름으로 올라가며 가게·지도 핀·차트·사진 카드가 구름 주변을 도는 일러스트" /></div>
+        <div class="detail-body">
+        <section>
+          <h3>전수 조사 — 생각보다 층이 많았다</h3>
+          <p>이 블로그를 포함해 집 PC 한 대에서 여러 사이트를 운영하고 있다. 포트폴리오, 아내의 부동산 사이트, 여행 제휴 사이트, 개인 매매일지까지. 전부 Cloudflare를 경유해 공개되는데, 사이트가 하나씩 늘 때마다 붙인 구조라 전체 그림을 그려 본 적은 없었다. 오늘 계정을 전수 조사해서 지도를 만들었다.</p>
+          <p>구조는 다층이었다. 지금 운영 중인 사이트들은 프로젝트마다 전용 터널을 하나씩 갖고 있다(포트폴리오·부동산·매매일지·여행, 모두 4개). 그런데 그 아래에 초기에 만든 통합 터널 하나가 여전히 살아서, 쇼핑 단축 링크·웹훅·집 NAS·동기화·시장 데이터용 서브도메인 5개를 담당하고 있었다. 새 방식과 옛 방식이 겹쳐 굴러가는, 오래된 집의 배선 같은 모습이었다.</p>
+        </section>
+        <section>
+          <h3>역할 분담 — PC가 꺼져도 죽지 않는 층</h3>
+          <p>조사하면서 확인한 설계의 핵심은 '어느 층이 Cloudflare 쪽에 있는가'였다. 집 서버가 아니라 Cloudflare에 올라간 것들은 정전이나 PC 재부팅과 무관하게 유지된다.</p>
+          <ul>
+            <li>정적 사이트는 Pages — 핫딜 사이트처럼 완성된 페이지를 올려 두는 곳은 PC 전원과 무관하게 열린다</li>
+            <li>짧은 링크와 상태 체크 같은 가벼운 로직은 Workers — 서버 없이 엣지에서 바로 실행된다</li>
+            <li>가격 스냅샷 같은 데이터 파일은 R2 — 사이트가 읽는 데이터가 PC가 아니라 오브젝트 스토리지에 있어 링크가 죽지 않는다</li>
+            <li>터널은 마지막 층 — 예약 접수나 일지처럼 실제로 집 서버가 일해야 하는 서비스만 터널로 연결한다. PC가 꺼지면 멈추는 것은 이 층뿐이다</li>
+          </ul>
+        </section>
+        <section>
+          <h3>오늘 한 정리</h3>
+          <ul>
+            <li>통합 터널에 남아 있던 그림자·죽은 라우트 5개 삭제 — 옛 서비스의 흔적이 남아 있으면 잘못 연결되거나 보안 구멍이 될 수 있다</li>
+            <li>스테이징용 Worker와 옛 Pages 프로젝트 삭제 — 테스트용으로 만들었다가 잊힌 것들이다</li>
+            <li>운영을 끝낸 사이트 1개 종료</li>
+            <li>삭제 뒤 본진 사이트 3개가 정상 응답하는 것까지 검증하고 나서야 정리를 끝냈다 — 지우는 작업일수록 확인이 본체다</li>
+          </ul>
+        </section>
+        <section>
+          <h3>교훈 셋</h3>
+          <ul>
+            <li>도커만 믿으면 안 된다 — 컨테이너만 챙겨서 서버를 이전하면, 호스트에 직접 설치된 데이터베이스나 터널 같은 서비스가 누락된다. 이전할 때 가장 먼저 빠지는 층이 호스트 작업이다</li>
+            <li>그래서 '서버 이전 체크리스트' 문서를 만들었다 — 호스트에서 한 작업 전수를 목록으로 남겨서, 다음 이전은 이 목록을 따라가며 빠짐없이 옮길 수 있게 했다</li>
+            <li>두 단계 서브도메인의 함정 — data.hot 같은 2단계 서브도메인은 무료 와일드카드 인증서가 덮는 범위 밖이다. 이 경우는 데이터가 있는 R2 쪽 인증서로 실제로 동작 중이라 조치 불요로 판정했지만, 모르고 만들면 접속 오류로 나타나는 종류의 함정이다</li>
+          </ul>
+        </section>
+        <section>
+          <h3>마치며</h3>
+          <p>사이트가 늘 때마다 급한 대로 붙인 구조는, 어느 순간 아무도 전체 그림을 모르는 상태가 된다. 오늘처럼 전수 조사해서 지도를 그리고, 죽은 길을 지우고, 다음 이전을 위한 체크리스트까지 남겨 두는 정리가 집 서버 운영의 본체인지도 모르겠다. 기능 추가보다 지도가 먼저다.</p>
+        </section>
+        <section>
+          <h3>출처 · 바로가기</h3>
+          <ul class="linklist">
+            <li><a href="https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/" target="_blank" rel="noopener">Cloudflare Tunnel 공식 문서</a> <span class="d">공인 IP를 열지 않고 집 서버를 안전하게 공개하는 터널의 개념과 설정 문서입니다.</span></li>
+            <li><a href="https://developers.cloudflare.com/pages/" target="_blank" rel="noopener">Cloudflare Pages 공식 문서</a> <span class="d">정적 사이트를 엣지에 배포하는 Pages의 문서입니다. PC가 꺼져도 유지되는 층의 한 축입니다.</span></li>
+            <li><a href="https://developers.cloudflare.com/workers/" target="_blank" rel="noopener">Cloudflare Workers 공식 문서</a> <span class="d">짧은 링크나 상태 체크 같은 가벼운 로직을 서버 없이 실행하는 Workers 문서입니다.</span></li>
+            <li><a href="https://developers.cloudflare.com/r2/" target="_blank" rel="noopener">Cloudflare R2 공식 문서</a> <span class="d">가격 스냅샷 같은 데이터 파일을 두는 오브젝트 스토리지 R2의 문서입니다.</span></li>
+          </ul>
+        </section>
+        </div>
+      <nav class="detail-nav" aria-label="다른 글">
+        <a class="next" href="/post/nasdaq-inverse-lesson.html"><span class="dir">다음 글</span>나스닥 급반등에 흔들린 하루, 인버스 투자에서 배운 것</a>
+      </nav>
+      </article>
+      <footer class="postfoot">© 2026 HongSungIn · <a href="/">hongzi.us 홈으로</a></footer>
+    </div>
+  </body>
+</html>

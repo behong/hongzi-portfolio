@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>자동매매 첫 실전 체결 — 첫 표본은 패배였다 — HongSungIn</title>
+    <meta name="description" content="2026년 11월 3일, 시장이 장중 -3%대로 급락한 날 신호 기반 자동매매가 첫 실전 체결을 했다. 신호, 승인, 체결, 당일 청산까지 시스템은 설계대로 움직였고 결과는 소액 손실이었다. 익절선을 코앞에서 놓치고 '하루만 더 들고 갈까' 하는 유혹이 왔을 때 판단을 막은 것은 감정이 아니라 백테스트였다. 실전 운영 중인 전략이라 세부 기준 수치는 이 글에 적지 않는다." />
+    <link rel="canonical" href="https://hongzi.us/post/bnf-first-trade.html" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="HongSungIn" />
+    <meta property="og:title" content="자동매매 첫 실전 체결 — 첫 표본은 패배였다" />
+    <meta property="og:description" content="2026년 11월 3일, 시장이 장중 -3%대로 급락한 날 신호 기반 자동매매가 첫 실전 체결을 했다. 신호, 승인, 체결, 당일 청산까지 시스템은 설계대로 움직였고 결과는 소액 손실이었다. 익절선을 코앞에서 놓치고 '하루만 더 들고 갈까' 하는 유혹이 왔을 때 판단을 막은 것은 감정이 아니라 백테스트였다. 실전 운영 중인 전략이라 세부 기준 수치는 이 글에 적지 않는다." />
+    <meta property="og:url" content="https://hongzi.us/post/bnf-first-trade.html" />
+    <meta property="og:image" content="https://hongzi.us/img/post-bnf-first-trade.webp" />
+    <meta property="article:published_time" content="2026-11-04" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="google-site-verification" content="TE_a5yGhqMM-wjQRCvo9Cc7LzAlbduAlwCKos1kQ6Qw" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #faf8f4;
+        --surface: #fffdfa;
+        --ink: #26231e;
+        --ink-soft: #4c4740;
+        --muted: #8a8378;
+        --line: #e7e1d6;
+        --line-soft: #efe9de;
+        --accent: #5d6f5c;
+        --accent-soft: #eef0ea;
+        --tag: #6d675c;
+        color-scheme: light dark;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #161512;
+          --surface: #1d1c18;
+          --ink: #ece7db;
+          --ink-soft: #c9c2b2;
+          --muted: #9a927f;
+          --line: #2e2b24;
+          --line-soft: #26241f;
+          --accent: #a8bfa2;
+          --accent-soft: #23281f;
+          --tag: #a89f8c;
+        }
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+        font-size: 16px;
+        line-height: 1.7;
+        -webkit-font-smoothing: antialiased;
+      }
+      .serif { font-family: "Noto Serif KR", "Pretendard Variable", serif; }
+      a { color: inherit; }
+      img { display: block; max-width: 100%; }
+
+      .wrap { max-width: 1060px; margin: 0 auto; padding: 0 24px; }
+
+      /* ── header ─────────────────────────── */
+      header.site {
+        border-bottom: 1px solid var(--line-soft);
+      }
+      .site-inner {
+        display: flex; align-items: baseline; justify-content: space-between;
+        gap: 16px; padding: 26px 0 22px;
+      }
+      .wordmark { font-size: 19px; font-weight: 600; letter-spacing: -0.01em; text-decoration: none; }
+      .wordmark span { color: var(--muted); font-weight: 400; }
+      nav.main { display: flex; gap: 26px; }
+      nav.main a {
+        font-size: 14px; color: var(--ink-soft); text-decoration: none; letter-spacing: -0.01em;
+      }
+      nav.main a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 5px; text-decoration-color: var(--line); }
+
+      /* ── intro ──────────────────────────── */
+      .intro { padding: 72px 0 18px; max-width: 640px; }
+      .intro h1 {
+        font-size: 30px; font-weight: 500; line-height: 1.45; letter-spacing: -0.015em;
+        margin: 0 0 18px;
+      }
+      .intro p { margin: 0; color: var(--ink-soft); font-size: 16.5px; line-height: 1.85; }
+      .intro .where { margin-top: 22px; font-size: 14px; color: var(--muted); }
+      .intro .where strong { color: var(--ink-soft); font-weight: 600; }
+
+      /* ── filter ─────────────────────────── */
+      .filterbar {
+        display: flex; flex-wrap: wrap; gap: 6px 4px; align-items: center;
+        padding: 30px 0 8px; margin-top: 34px;
+        border-top: 1px solid var(--line-soft);
+      }
+      .filterbar button {
+        appearance: none; border: 0; background: none; cursor: pointer;
+        font: inherit; font-size: 14.5px; color: var(--muted);
+        padding: 6px 12px; border-radius: 999px;
+      }
+      .filterbar button:hover { color: var(--ink); }
+      .filterbar button[aria-pressed="true"] {
+        color: var(--ink); background: var(--accent-soft); font-weight: 600;
+      }
+      .filter-count { margin-left: auto; font-size: 13px; color: var(--muted); }
+
+      /* ── cards ──────────────────────────── */
+      .featured { padding: 28px 0 6px; }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line-soft);
+        border-radius: 10px;
+        overflow: hidden;
+        text-decoration: none;
+        display: flex; flex-direction: column;
+        transition: border-color .18s ease;
+        cursor: pointer;
+      }
+      .card:hover { border-color: var(--line); }
+      .card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+      .card .thumb { overflow: hidden; background: var(--accent-soft); }
+      .card .thumb img { width: 100%; height: 100%; object-fit: cover; }
+      .card .body { padding: 20px 22px 22px; display: flex; flex-direction: column; gap: 8px; }
+      .tag { font-size: 12.5px; color: var(--tag); letter-spacing: 0.01em; }
+      .card h3 {
+        margin: 0; font-size: 19px; font-weight: 600; line-height: 1.5; letter-spacing: -0.015em;
+      }
+      .card p { margin: 0; font-size: 14.5px; color: var(--ink-soft); line-height: 1.7; }
+      .meta { margin-top: 4px; font-size: 12.5px; color: var(--muted); display: flex; gap: 10px; flex-wrap: wrap; }
+      .meta i { font-style: normal; color: var(--line); }
+      .more {
+        margin-top: 6px; font-size: 13.5px; font-weight: 600; color: var(--accent);
+        display: inline-flex; align-items: center; gap: 5px;
+      }
+      .card:hover .more { text-decoration: underline; text-underline-offset: 4px; }
+
+      .featured .card { flex-direction: row; }
+      .featured .thumb { flex: 1.25; min-height: 300px; }
+      .featured .thumb img { position: absolute; inset: 0; }
+      .featured .thumb { position: relative; }
+      .featured .body { flex: 1; justify-content: center; padding: 34px 36px; gap: 12px; }
+      .featured h3 { font-size: 25px; line-height: 1.45; }
+      .featured p { font-size: 15.5px; }
+
+      .grid {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 26px;
+        padding: 26px 0 10px;
+      }
+      .grid .thumb { aspect-ratio: 3 / 2; }
+      .grid .thumb img { height: 100%; }
+
+      .empty-note { display: none; padding: 40px 0; color: var(--muted); font-size: 15px; }
+
+      /* ── detail ─────────────────────────── */
+      .detail { padding: 44px 0 10px; max-width: 760px; }
+      .backlink {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 14px; color: var(--ink-soft); text-decoration: none;
+        padding: 6px 0;
+      }
+      .backlink:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 5px; text-decoration-color: var(--line); }
+      .detail-head { margin: 26px 0 22px; }
+      .detail-head h2 {
+        margin: 10px 0 12px; font-size: 30px; font-weight: 600;
+        line-height: 1.4; letter-spacing: -0.02em;
+      }
+      .detail-hero { border-radius: 10px; overflow: hidden; border: 1px solid var(--line-soft); background: var(--accent-soft); }
+      .detail-hero img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+      .detail-body { padding: 10px 0 0; }
+      .detail-body section { margin-top: 34px; }
+      .detail-body h3 {
+        font-size: 18px; font-weight: 600; letter-spacing: -0.01em;
+        margin: 0 0 10px;
+      }
+      .detail-body p { margin: 0 0 12px; color: var(--ink-soft); font-size: 15.5px; line-height: 1.85; }
+      .detail-body p.small { font-size: 13.5px; color: var(--muted); }
+      .detail-body ul { margin: 0 0 12px; padding-left: 20px; color: var(--ink-soft); font-size: 15.5px; line-height: 1.85; }
+      .detail-body li { margin-bottom: 6px; }
+      .detail-body li::marker { color: var(--muted); }
+      .watchbox {
+        margin-top: 36px; padding: 18px 20px;
+        background: var(--accent-soft); border-radius: 10px;
+        font-size: 14.5px; color: var(--ink-soft); line-height: 1.75;
+      }
+      .watchbox strong { color: var(--ink); font-weight: 600; }
+      .watchbox a { color: var(--accent); font-weight: 600; text-decoration: none; }
+      .watchbox a:hover { text-decoration: underline; text-underline-offset: 4px; }
+      .linklist { list-style: none; margin: 0; padding: 0; }
+      .linklist li {
+        padding: 13px 0; border-bottom: 1px solid var(--line-soft);
+        display: flex; flex-direction: column; gap: 2px; margin: 0;
+      }
+      .linklist li:last-child { border-bottom: 0; }
+      .linklist a {
+        font-weight: 600; font-size: 15.5px; color: var(--accent);
+        text-decoration: none; width: fit-content;
+      }
+      .linklist a:hover { text-decoration: underline; text-underline-offset: 4px; }
+      .linklist .d { font-size: 14px; color: var(--ink-soft); line-height: 1.7; }
+      .detail-nav {
+        margin-top: 48px; padding-top: 22px; border-top: 1px solid var(--line-soft);
+        display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+      }
+      .detail-nav a { font-size: 14px; color: var(--ink-soft); text-decoration: none; max-width: 46%; }
+      .detail-nav a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 5px; text-decoration-color: var(--line); }
+      .detail-nav .dir { display: block; font-size: 12px; color: var(--muted); margin-bottom: 3px; }
+      .detail-nav .next { text-align: right; margin-left: auto; }
+
+      /* ── add content ────────────────────── */
+      .addgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; margin-top: 18px; }
+      .addstep h3 { font-size: 16px; font-weight: 600; margin: 0 0 8px; letter-spacing: -0.01em; }
+      .addstep h3 .n { color: var(--accent); margin-right: 7px; font-variant-numeric: tabular-nums; }
+      .addstep p { margin: 0; font-size: 14.5px; color: var(--ink-soft); line-height: 1.75; }
+      .tpl {
+        margin-top: 30px; border: 1px solid var(--line-soft); border-radius: 10px;
+        background: var(--surface); overflow: hidden;
+      }
+      .tpl-head {
+        display: flex; align-items: center; justify-content: space-between; gap: 14px;
+        padding: 13px 18px; border-bottom: 1px solid var(--line-soft);
+        font-size: 13.5px; color: var(--muted);
+      }
+      .tpl-head button {
+        appearance: none; border: 1px solid var(--line); background: var(--bg);
+        color: var(--ink); font: inherit; font-size: 13.5px; font-weight: 600;
+        padding: 6px 14px; border-radius: 999px; cursor: pointer; white-space: nowrap;
+      }
+      .tpl-head button:hover { border-color: var(--accent); color: var(--accent); }
+      .tpl pre {
+        margin: 0; padding: 18px; overflow-x: auto;
+        font-family: "Pretendard Variable", Pretendard, sans-serif;
+        font-size: 14.5px; line-height: 1.9; color: var(--ink-soft); white-space: pre-wrap;
+      }
+
+      /* ── notes list ─────────────────────── */
+      section.block { padding: 64px 0 8px; }
+      .block-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 8px; }
+      .block-head h2 { font-size: 21px; font-weight: 600; letter-spacing: -0.015em; margin: 0; }
+      .block-head p { margin: 0; font-size: 14px; color: var(--muted); }
+      .notes { border-top: 1px solid var(--line); }
+      .note {
+        display: grid; grid-template-columns: 108px 1fr auto; gap: 20px; align-items: baseline;
+        padding: 18px 4px; border-bottom: 1px solid var(--line-soft);
+      }
+      .note time { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+      .note .t { font-size: 15.5px; font-weight: 550; }
+      .note .d { font-size: 14px; color: var(--ink-soft); margin-top: 2px; }
+      .note .cat { font-size: 12.5px; color: var(--tag); white-space: nowrap; }
+
+      /* ── about ──────────────────────────── */
+      .about {
+        display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px;
+        padding: 66px 0 20px; margin-top: 56px;
+        border-top: 1px solid var(--line-soft);
+      }
+      .about h2 { font-size: 21px; font-weight: 600; letter-spacing: -0.015em; margin: 0 0 14px; }
+      .about p { margin: 0 0 12px; color: var(--ink-soft); font-size: 15.5px; line-height: 1.85; }
+      .facts { margin: 0; padding: 0; list-style: none; }
+      .facts li {
+        display: flex; justify-content: space-between; gap: 18px;
+        padding: 11px 0; border-bottom: 1px solid var(--line-soft);
+        font-size: 14.5px;
+      }
+      .facts li:last-child { border-bottom: 0; }
+      .facts .k { color: var(--muted); white-space: nowrap; }
+      .facts .v { text-align: right; font-weight: 550; }
+
+      footer.site {
+        margin-top: 70px; border-top: 1px solid var(--line-soft);
+        padding: 30px 0 44px;
+        display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+        font-size: 13.5px; color: var(--muted);
+      }
+
+      .hidden { display: none !important; }
+
+      @media (max-width: 760px) {
+        .intro { padding: 48px 0 8px; }
+        .intro h1 { font-size: 25px; }
+        .featured .card { flex-direction: column; }
+        .featured .thumb { min-height: 0; aspect-ratio: 3 / 2; flex: none; }
+        .featured .body { padding: 22px; }
+        .featured h3 { font-size: 21px; }
+        .grid { grid-template-columns: 1fr; gap: 20px; }
+        .addgrid { grid-template-columns: 1fr; gap: 20px; }
+        .detail { padding-top: 30px; }
+        .detail-head h2 { font-size: 24px; }
+        .detail-nav a { max-width: 100%; }
+        .detail-nav .next { text-align: left; margin-left: 0; }
+        .about { grid-template-columns: 1fr; gap: 30px; padding-top: 48px; }
+        .note { grid-template-columns: 1fr; gap: 2px; }
+        .note .cat { order: -1; }
+        .site-inner { flex-direction: column; align-items: flex-start; gap: 8px; padding: 20px 0 16px; }
+        .wordmark { font-size: 17px; }
+        nav.main { gap: 20px; flex-wrap: wrap; }
+        nav.main a { font-size: 13.5px; }
+        .filter-count { display: none; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        .card { transition: none; }
+      }
+    
+      .detail-head h1 { margin: 10px 0 12px; font-size: 30px; font-weight: 600; line-height: 1.4; letter-spacing: -0.02em; }
+      .postfoot { border-top: 1px solid var(--line-soft); margin-top: 44px; padding: 22px 0 36px; font-size: 13.5px; color: var(--muted); }
+      .postfoot a { color: var(--ink-soft); text-decoration: none; }
+      .postfoot a:hover { text-decoration: underline; text-underline-offset: 4px; }
+    </style>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"자동매매 첫 실전 체결 — 첫 표본은 패배였다","description":"2026년 11월 3일, 시장이 장중 -3%대로 급락한 날 신호 기반 자동매매가 첫 실전 체결을 했다. 신호, 승인, 체결, 당일 청산까지 시스템은 설계대로 움직였고 결과는 소액 손실이었다. 익절선을 코앞에서 놓치고 '하루만 더 들고 갈까' 하는 유혹이 왔을 때 판단을 막은 것은 감정이 아니라 백테스트였다. 실전 운영 중인 전략이라 세부 기준 수치는 이 글에 적지 않는다.","image":["https://hongzi.us/img/post-bnf-first-trade.webp"],"datePublished":"2026-11-04","author":{"@type":"Person","name":"HongSungIn","url":"https://hongzi.us/"},"mainEntityOfPage":"https://hongzi.us/post/bnf-first-trade.html"}</script>
+  <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LJ6Q1XBCL7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-LJ6Q1XBCL7');
+    </script>
+      <meta name="google-adsense-account" content="ca-pub-4973471145275269">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4973471145275269" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <div class="wrap">
+      <article class="detail">
+        <a class="backlink" href="/#posts">← 글 목록으로</a>
+        <div class="detail-head">
+          <span class="tag">기록 · 자동매매 실전</span>
+          <h1 class="serif">자동매매 첫 실전 체결 — 첫 표본은 패배였다</h1>
+          <div class="meta">2026. 11. 04<i>·</i>실전 표본 1호 기록 · 2026년 11월 3일 체결</div>
+        </div>
+        <div class="detail-hero"><img src="/img/post-bnf-first-trade.webp" alt="아침 햇살이 드는 책상, 캔들 차트가 표시된 모니터와 승인 체크 표시가 뜬 스마트폰, 노트와 커피잔 일러스트" /></div>
+        <div class="detail-body">
+        <section>
+          <h3>급락일에 온 첫 신호</h3>
+          <p>몇 달간 백테스트와 검증을 거친 신호 기반 자동매매를 소액·승인 모드로 실전에 올려 둔 상태였다. 2026년 11월 3일, 코스피가 장중 -3%대로 급락한 날 첫 신호가 떴다.</p>
+          <p>시장 전체가 무너지는 날이라 급락 게이트가 먼저 신호를 보류했고, 조건이 풀린 뒤에야 후보가 제시됐다. 주문은 자동으로 나가지 않는다. 텔레그램으로 승인 요청이 오고, 사람이 내용을 확인하고 승인해야 체결되는 구조다. 첫 실전 체결은 그렇게 성립했다.</p>
+          <p>실전 운영 중인 전략이라 신호의 세부 기준 수치는 이 글에 적지 않는다. 남기는 것은 과정과 판단, 그리고 교훈뿐이다.</p>
+        </section>
+        <section>
+          <h3>코앞에서 놓친 익절</h3>
+          <p>체결 후 가격은 익절로 정해 둔 선 근처까지 올랐다가 되밀렸다. 여기서 두 가지 유혹이 왔다. 익절선을 조금 낮추면 닿을 것 같았고, 하루만 더 들고 가면 회복할 것 같았다.</p>
+          <p>둘 다 그 자리에서 같은 방법으로 재계산해 과거 전수 데이터와 대조했다. 익일 보유는 백테스트 전 구간에서 음수였고, 익절선을 낮추는 변형도 평균이 더 나빴다. 그래서 아무것도 바꾸지 않았다.</p>
+        </section>
+        <section>
+          <h3>종가 청산, 그리고 다음 날의 반전</h3>
+          <p>포지션은 원칙대로 당일 종가에 청산됐고, 첫 실전 표본은 -1.5% 수준의 소액 손실로 확정됐다. 사전에 설계한 건당 최대 손실 범위 안쪽이었다.</p>
+          <p>반전은 다음 날 왔다. 들고 있었으면 그 종목은 익절선 위로 올라갔다. 표본 1개만 보면 규칙이 진 셈이다. 그래도 기준은 바꾸지 않기로 했다. 규칙을 바꾸는 근거는 표본 1개가 아니라 쌓인 데이터여야 하기 때문이다. 대신 그날부터 '들고 있었으면 어땠을지'를 자동으로 기록하는 그림자 장부를 만들어, 감이 아니라 숫자로 재검토할 재료를 쌓기 시작했다.</p>
+        </section>
+        <section>
+          <h3>첫 실전이 확인해 준 것</h3>
+          <ul>
+            <li>규칙의 첫 번째 일은 수익이 아니라 감정 차단이었다 — 놓친 익절 앞에서 기준을 바꾸고 싶은 충동을 데이터가 막았다</li>
+            <li>승인 모드는 느리지만 첫 실전에는 맞았다 — 사람이 최종 확인을 하니 시스템이 무엇을 왜 하는지 전 과정이 눈에 보였다</li>
+            <li>패배한 표본도 자산이다 — 체결·청산·반사실까지 전부 기록으로 남아 다음 검증의 재료가 된다</li>
+            <li>표본이 쌓이기 전에는 기준을 바꾸지 않는다 — 재검토는 정해진 표본 수에 도달했을 때, 그때까지의 실전 데이터로 한다</li>
+          </ul>
+        </section>
+        <section>
+          <h3>마치며</h3>
+          <p>첫 실전은 패배로 끝났다. 그런데 시스템은 단 한 번도 설계에서 벗어나지 않았다. 이 매매법을 만든 목적이 '매일 버는 것'이 아니라 '손실을 통제하면서 오래 살아남는 것'이라면, 첫 표본은 목적에 맞게 작동한 셈이다.</p>
+        </section>
+        <section>
+          <h3>출처 · 바로가기</h3>
+          <ul class="linklist">
+            <li><a href="/#/post/investment-principles">나의 투자 원칙 — 손실을 통해 배운 교훈</a> <span class="d">이 자동매매를 관통하는 원칙을 정리한 글. 손실을 통제하고 오래 살아남는 것이 먼저라는 기준이 여기서 나왔다.</span></li>
+            <li><a href="/ai-trading.html">AI 트레이딩의 세계 — 전체 리서치 페이지</a> <span class="d">개인 트레이더 대부분이 잃는다는 규제기관 통계와, 규칙 기반으로 접근하는 방법들을 정리한 리서치 페이지입니다.</span></li>
+          </ul>
+        </section>
+        </div>
+      <nav class="detail-nav" aria-label="다른 글">
+        <a href="/post/nasdaq-inverse-lesson.html"><span class="dir">이전 글</span>나스닥 급반등에 흔들린 하루, 인버스 투자에서 배운 것</a>
+        <a class="next" href="/post/split-buy-backtest.html"><span class="dir">다음 글</span>물타기 vs 불타기 — 12년 데이터로 해부한 분할매수</a>
+      </nav>
+      </article>
+      <footer class="postfoot">© 2026 HongSungIn · <a href="/">hongzi.us 홈으로</a></footer>
+    </div>
+  </body>
+</html>

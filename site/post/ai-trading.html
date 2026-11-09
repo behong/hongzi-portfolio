@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>AI 트레이딩의 세계 — AI로 매매하는 사람들은 실제로 무엇을 하나 — HongSungIn</title>
+    <meta name="description" content="'AI로 매매한다'는 한마디 뒤에는 규칙 기반 시스템부터 초고빈도 매매, LLM 에이전트까지 전혀 다른 여섯 가지 게임이 섞여 있다. 규제기관 전수 통계와 학술 연구로 확인한 성과의 실상, 그리고 오래 살아남는 소수가 공통으로 지키는 원칙을 출처와 함께 정리한 심층 리서치." />
+    <link rel="canonical" href="https://hongzi.us/post/ai-trading.html" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="HongSungIn" />
+    <meta property="og:title" content="AI 트레이딩의 세계 — AI로 매매하는 사람들은 실제로 무엇을 하나" />
+    <meta property="og:description" content="'AI로 매매한다'는 한마디 뒤에는 규칙 기반 시스템부터 초고빈도 매매, LLM 에이전트까지 전혀 다른 여섯 가지 게임이 섞여 있다. 규제기관 전수 통계와 학술 연구로 확인한 성과의 실상, 그리고 오래 살아남는 소수가 공통으로 지키는 원칙을 출처와 함께 정리한 심층 리서치." />
+    <meta property="og:url" content="https://hongzi.us/post/ai-trading.html" />
+    <meta property="og:image" content="https://hongzi.us/img/post-ai-trading.webp" />
+    <meta property="article:published_time" content="2026-10-27" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="google-site-verification" content="TE_a5yGhqMM-wjQRCvo9Cc7LzAlbduAlwCKos1kQ6Qw" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #faf8f4;
+        --surface: #fffdfa;
+        --ink: #26231e;
+        --ink-soft: #4c4740;
+        --muted: #8a8378;
+        --line: #e7e1d6;
+        --line-soft: #efe9de;
+        --accent: #5d6f5c;
+        --accent-soft: #eef0ea;
+        --tag: #6d675c;
+        color-scheme: light dark;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #161512;
+          --surface: #1d1c18;
+          --ink: #ece7db;
+          --ink-soft: #c9c2b2;
+          --muted: #9a927f;
+          --line: #2e2b24;
+          --line-soft: #26241f;
+          --accent: #a8bfa2;
+          --accent-soft: #23281f;
+          --tag: #a89f8c;
+        }
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+        font-size: 16px;
+        line-height: 1.7;
+        -webkit-font-smoothing: antialiased;
+      }
+      .serif { font-family: "Noto Serif KR", "Pretendard Variable", serif; }
+      a { color: inherit; }
+      img { display: block; max-width: 100%; }
+
+      .wrap { max-width: 1060px; margin: 0 auto; padding: 0 24px; }
+
+      /* ── header ─────────────────────────── */
+      header.site {
+        border-bottom: 1px solid var(--line-soft);
+      }
+      .site-inner {
+        display: flex; align-items: baseline; justify-content: space-between;
+        gap: 16px; padding: 26px 0 22px;
+      }
+      .wordmark { font-size: 19px; font-weight: 600; letter-spacing: -0.01em; text-decoration: none; }
+      .wordmark span { color: var(--muted); font-weight: 400; }
+      nav.main { display: flex; gap: 26px; }
+      nav.main a {
+        font-size: 14px; color: var(--ink-soft); text-decoration: none; letter-spacing: -0.01em;
+      }
+      nav.main a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 5px; text-decoration-color: var(--line); }
+
+      /* ── intro ──────────────────────────── */
+      .intro { padding: 72px 0 18px; max-width: 640px; }
+      .intro h1 {
+        font-size: 30px; font-weight: 500; line-height: 1.45; letter-spacing: -0.015em;
+        margin: 0 0 18px;
+      }
+      .intro p { margin: 0; color: var(--ink-soft); font-size: 16.5px; line-height: 1.85; }
+      .intro .where { margin-top: 22px; font-size: 14px; color: var(--muted); }
+      .intro .where strong { color: var(--ink-soft); font-weight: 600; }
+
+      /* ── filter ─────────────────────────── */
+      .filterbar {
+        display: flex; flex-wrap: wrap; gap: 6px 4px; align-items: center;
+        padding: 30px 0 8px; margin-top: 34px;
+        border-top: 1px solid var(--line-soft);
+      }
+      .filterbar button {
+        appearance: none; border: 0; background: none; cursor: pointer;
+        font: inherit; font-size: 14.5px; color: var(--muted);
+        padding: 6px 12px; border-radius: 999px;
+      }
+      .filterbar button:hover { color: var(--ink); }
+      .filterbar button[aria-pressed="true"] {
+        color: var(--ink); background: var(--accent-soft); font-weight: 600;
+      }
+      .filter-count { margin-left: auto; font-size: 13px; color: var(--muted); }
+
+      /* ── cards ──────────────────────────── */
+      .featured { padding: 28px 0 6px; }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line-soft);
+        border-radius: 10px;
+        overflow: hidden;
+        text-decoration: none;
+        display: flex; flex-direction: column;
+        transition: border-color .18s ease;
+        cursor: pointer;
+      }
+      .card:hover { border-color: var(--line); }
+      .card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+      .card .thumb { overflow: hidden; background: var(--accent-soft); }
+      .card .thumb img { width: 100%; height: 100%; object-fit: cover; }
+      .card .body { padding: 20px 22px 22px; display: flex; flex-direction: column; gap: 8px; }
+      .tag { font-size: 12.5px; color: var(--tag); letter-spacing: 0.01em; }
+      .card h3 {
+        margin: 0; font-size: 19px; font-weight: 600; line-height: 1.5; letter-spacing: -0.015em;
+      }
+      .card p { margin: 0; font-size: 14.5px; color: var(--ink-soft); line-height: 1.7; }
+      .meta { margin-top: 4px; font-size: 12.5px; color: var(--muted); display: flex; gap: 10px; flex-wrap: wrap; }
+      .meta i { font-style: normal; color: var(--line); }
+      .more {
+        margin-top: 6px; font-size: 13.5px; font-weight: 600; color: var(--accent);
+        display: inline-flex; align-items: center; gap: 5px;
+      }
+      .card:hover .more { text-decoration: underline; text-underline-offset: 4px; }
+
+      .featured .card { flex-direction: row; }
+      .featured .thumb { flex: 1.25; min-height: 300px; }
+      .featured .thumb img { position: absolute; inset: 0; }
+      .featured .thumb { position: relative; }
+      .featured .body { flex: 1; justify-content: center; padding: 34px 36px; gap: 12px; }
+      .featured h3 { font-size: 25px; line-height: 1.45; }
+      .featured p { font-size: 15.5px; }
+
+      .grid {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 26px;
+        padding: 26px 0 10px;
+      }
+      .grid .thumb { aspect-ratio: 3 / 2; }
+      .grid .thumb img { height: 100%; }
+
+      .empty-note { display: none; padding: 40px 0; color: var(--muted); font-size: 15px; }
+
+      /* ── detail ─────────────────────────── */
+      .detail { padding: 44px 0 10px; max-width: 760px; }
+      .backlink {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 14px; color: var(--ink-soft); text-decoration: none;
+        padding: 6px 0;
+      }
+      .backlink:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 5px; text-decoration-color: var(--line); }
+      .detail-head { margin: 26px 0 22px; }
+      .detail-head h2 {
+        margin: 10px 0 12px; font-size: 30px; font-weight: 600;
+        line-height: 1.4; letter-spacing: -0.02em;
+      }
+      .detail-hero { border-radius: 10px; overflow: hidden; border: 1px solid var(--line-soft); background: var(--accent-soft); }
+      .detail-hero img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+      .detail-body { padding: 10px 0 0; }
+      .detail-body section { margin-top: 34px; }
+      .detail-body h3 {
+        font-size: 18px; font-weight: 600; letter-spacing: -0.01em;
+        margin: 0 0 10px;
+      }
+      .detail-body p { margin: 0 0 12px; color: var(--ink-soft); font-size: 15.5px; line-height: 1.85; }
+      .detail-body p.small { font-size: 13.5px; color: var(--muted); }
+      .detail-body ul { margin: 0 0 12px; padding-left: 20px; color: var(--ink-soft); font-size: 15.5px; line-height: 1.85; }
+      .detail-body li { margin-bottom: 6px; }
+      .detail-body li::marker { color: var(--muted); }
+      .watchbox {
+        margin-top: 36px; padding: 18px 20px;
+        background: var(--accent-soft); border-radius: 10px;
+        font-size: 14.5px; color: var(--ink-soft); line-height: 1.75;
+      }
+      .watchbox strong { color: var(--ink); font-weight: 600; }
+      .watchbox a { color: var(--accent); font-weight: 600; text-decoration: none; }
+      .watchbox a:hover { text-decoration: underline; text-underline-offset: 4px; }
+      .linklist { list-style: none; margin: 0; padding: 0; }
+      .linklist li {
+        padding: 13px 0; border-bottom: 1px solid var(--line-soft);
+        display: flex; flex-direction: column; gap: 2px; margin: 0;
+      }
+      .linklist li:last-child { border-bottom: 0; }
+      .linklist a {
+        font-weight: 600; font-size: 15.5px; color: var(--accent);
+        text-decoration: none; width: fit-content;
+      }
+      .linklist a:hover { text-decoration: underline; text-underline-offset: 4px; }
+      .linklist .d { font-size: 14px; color: var(--ink-soft); line-height: 1.7; }
+      .detail-nav {
+        margin-top: 48px; padding-top: 22px; border-top: 1px solid var(--line-soft);
+        display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+      }
+      .detail-nav a { font-size: 14px; color: var(--ink-soft); text-decoration: none; max-width: 46%; }
+      .detail-nav a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 5px; text-decoration-color: var(--line); }
+      .detail-nav .dir { display: block; font-size: 12px; color: var(--muted); margin-bottom: 3px; }
+      .detail-nav .next { text-align: right; margin-left: auto; }
+
+      /* ── add content ────────────────────── */
+      .addgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; margin-top: 18px; }
+      .addstep h3 { font-size: 16px; font-weight: 600; margin: 0 0 8px; letter-spacing: -0.01em; }
+      .addstep h3 .n { color: var(--accent); margin-right: 7px; font-variant-numeric: tabular-nums; }
+      .addstep p { margin: 0; font-size: 14.5px; color: var(--ink-soft); line-height: 1.75; }
+      .tpl {
+        margin-top: 30px; border: 1px solid var(--line-soft); border-radius: 10px;
+        background: var(--surface); overflow: hidden;
+      }
+      .tpl-head {
+        display: flex; align-items: center; justify-content: space-between; gap: 14px;
+        padding: 13px 18px; border-bottom: 1px solid var(--line-soft);
+        font-size: 13.5px; color: var(--muted);
+      }
+      .tpl-head button {
+        appearance: none; border: 1px solid var(--line); background: var(--bg);
+        color: var(--ink); font: inherit; font-size: 13.5px; font-weight: 600;
+        padding: 6px 14px; border-radius: 999px; cursor: pointer; white-space: nowrap;
+      }
+      .tpl-head button:hover { border-color: var(--accent); color: var(--accent); }
+      .tpl pre {
+        margin: 0; padding: 18px; overflow-x: auto;
+        font-family: "Pretendard Variable", Pretendard, sans-serif;
+        font-size: 14.5px; line-height: 1.9; color: var(--ink-soft); white-space: pre-wrap;
+      }
+
+      /* ── notes list ─────────────────────── */
+      section.block { padding: 64px 0 8px; }
+      .block-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 8px; }
+      .block-head h2 { font-size: 21px; font-weight: 600; letter-spacing: -0.015em; margin: 0; }
+      .block-head p { margin: 0; font-size: 14px; color: var(--muted); }
+      .notes { border-top: 1px solid var(--line); }
+      .note {
+        display: grid; grid-template-columns: 108px 1fr auto; gap: 20px; align-items: baseline;
+        padding: 18px 4px; border-bottom: 1px solid var(--line-soft);
+      }
+      .note time { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+      .note .t { font-size: 15.5px; font-weight: 550; }
+      .note .d { font-size: 14px; color: var(--ink-soft); margin-top: 2px; }
+      .note .cat { font-size: 12.5px; color: var(--tag); white-space: nowrap; }
+
+      /* ── about ──────────────────────────── */
+      .about {
+        display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px;
+        padding: 66px 0 20px; margin-top: 56px;
+        border-top: 1px solid var(--line-soft);
+      }
+      .about h2 { font-size: 21px; font-weight: 600; letter-spacing: -0.015em; margin: 0 0 14px; }
+      .about p { margin: 0 0 12px; color: var(--ink-soft); font-size: 15.5px; line-height: 1.85; }
+      .facts { margin: 0; padding: 0; list-style: none; }
+      .facts li {
+        display: flex; justify-content: space-between; gap: 18px;
+        padding: 11px 0; border-bottom: 1px solid var(--line-soft);
+        font-size: 14.5px;
+      }
+      .facts li:last-child { border-bottom: 0; }
+      .facts .k { color: var(--muted); white-space: nowrap; }
+      .facts .v { text-align: right; font-weight: 550; }
+
+      footer.site {
+        margin-top: 70px; border-top: 1px solid var(--line-soft);
+        padding: 30px 0 44px;
+        display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+        font-size: 13.5px; color: var(--muted);
+      }
+
+      .hidden { display: none !important; }
+
+      @media (max-width: 760px) {
+        .intro { padding: 48px 0 8px; }
+        .intro h1 { font-size: 25px; }
+        .featured .card { flex-direction: column; }
+        .featured .thumb { min-height: 0; aspect-ratio: 3 / 2; flex: none; }
+        .featured .body { padding: 22px; }
+        .featured h3 { font-size: 21px; }
+        .grid { grid-template-columns: 1fr; gap: 20px; }
+        .addgrid { grid-template-columns: 1fr; gap: 20px; }
+        .detail { padding-top: 30px; }
+        .detail-head h2 { font-size: 24px; }
+        .detail-nav a { max-width: 100%; }
+        .detail-nav .next { text-align: left; margin-left: 0; }
+        .about { grid-template-columns: 1fr; gap: 30px; padding-top: 48px; }
+        .note { grid-template-columns: 1fr; gap: 2px; }
+        .note .cat { order: -1; }
+        .site-inner { flex-direction: column; align-items: flex-start; gap: 8px; padding: 20px 0 16px; }
+        .wordmark { font-size: 17px; }
+        nav.main { gap: 20px; flex-wrap: wrap; }
+        nav.main a { font-size: 13.5px; }
+        .filter-count { display: none; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        .card { transition: none; }
+      }
+    
+      .detail-head h1 { margin: 10px 0 12px; font-size: 30px; font-weight: 600; line-height: 1.4; letter-spacing: -0.02em; }
+      .postfoot { border-top: 1px solid var(--line-soft); margin-top: 44px; padding: 22px 0 36px; font-size: 13.5px; color: var(--muted); }
+      .postfoot a { color: var(--ink-soft); text-decoration: none; }
+      .postfoot a:hover { text-decoration: underline; text-underline-offset: 4px; }
+    </style>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"AI 트레이딩의 세계 — AI로 매매하는 사람들은 실제로 무엇을 하나","description":"'AI로 매매한다'는 한마디 뒤에는 규칙 기반 시스템부터 초고빈도 매매, LLM 에이전트까지 전혀 다른 여섯 가지 게임이 섞여 있다. 규제기관 전수 통계와 학술 연구로 확인한 성과의 실상, 그리고 오래 살아남는 소수가 공통으로 지키는 원칙을 출처와 함께 정리한 심층 리서치.","image":["https://hongzi.us/img/post-ai-trading.webp"],"datePublished":"2026-10-27","author":{"@type":"Person","name":"HongSungIn","url":"https://hongzi.us/"},"mainEntityOfPage":"https://hongzi.us/post/ai-trading.html"}</script>
+  <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LJ6Q1XBCL7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-LJ6Q1XBCL7');
+    </script>
+      <meta name="google-adsense-account" content="ca-pub-4973471145275269">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4973471145275269" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <div class="wrap">
+      <article class="detail">
+        <a class="backlink" href="/#posts">← 글 목록으로</a>
+        <div class="detail-head">
+          <span class="tag">리서치 · AI 트레이딩</span>
+          <h1 class="serif">AI 트레이딩의 세계 — AI로 매매하는 사람들은 실제로 무엇을 하나</h1>
+          <div class="meta">2026. 10. 27<i>·</i>심층 리서치 · 규제기관 통계와 학술 논문 근거</div>
+        </div>
+        <div class="detail-hero"><img src="/img/post-ai-trading.webp" alt="책상 위 스마트폰의 캔들 차트와 노트북의 상승 그래프, 두 기기를 잇는 회로 패턴 일러스트" /></div>
+        <div class="detail-body">
+        <section>
+          <h3>왜 조사했나</h3>
+          <p>AI를 이용해 거래하는 사람들이 보편적으로 어떻게 매매하는지 궁금했지만, 광고와 수익 인증 말고는 믿을 만한 정보가 없었다. 그래서 블로거가 아니라 규제기관·거래소의 전수 통계와 학술 논문, 공식 문서를 근거로 직접 조사했다. 내 시스템(점수제 신호 + 텔레그램 알림 + 수동 체결)이 이 지도의 어디에 서 있는지도 함께 확인했다.</p>
+        </section>
+        <section>
+          <h3>핵심 결론 — 여섯 가지 다른 게임</h3>
+          <p>'AI 트레이딩'은 하나의 방법이 아니었다. 데이터도, 보유 기간도, 경쟁자도 전혀 다른 여섯 가지 방식이 한 단어로 불리고 있었다.</p>
+          <ul>
+            <li>규칙 기반 기술적 시스템 — 사람이 쓴 고정 규칙으로 점수를 매겨 신호를 낸다. 내 시스템이 여기 속한다</li>
+            <li>통계·머신러닝 예측 모델 — 기관의 본업. 하나의 예측이 아니라 약한 신호 수십~수백 개를 합친다</li>
+            <li>초고빈도 매매(HFT)·마켓메이킹 — 속도와 물량 자체가 사업이라 개인은 진입할 수 없다</li>
+            <li>LLM·NLP 감성/뉴스 분석 — 텍스트 점수는 매매 규칙 자체가 아니라 신호의 재료로 쓰인다</li>
+            <li>LLM 에이전트 프레임워크 — 역할을 나눈 에이전트들의 토론으로 제안을 만든다. 아직 연구 단계로 실전 검증은 없다</li>
+            <li>강화학습 — 학계가 중심이고, 실전에서는 주문 집행 쪽에 쓰인다</li>
+          </ul>
+        </section>
+        <section>
+          <h3>숫자가 말하는 기본값</h3>
+          <ul>
+            <li>인도 규제기관 SEBI 전수 조사(1천만 명 이상): 개인 선물·옵션 트레이더의 93%가 손실 (FY22–FY24)</li>
+            <li>브라질 데이트레이더 97% 손실, 대만에서는 '꾸준히' 수익을 낸 사람이 1% 미만 — 방향은 어느 나라든 같다</li>
+            <li>방식이 달라도 파이프라인은 다섯 칸(데이터·신호·리스크와 크기·집행·측정)이고, 다른 건 가운데 신호 한 칸뿐</li>
+            <li>실무에서 돈이 되는 쪽은 예측 모델이 아니라 검증·리스크·포지션 크기·비용·기록이다</li>
+            <li>과최적화 — '과거에서는 완벽했다'는 전략이 가장 흔한 사망 원인</li>
+          </ul>
+        </section>
+        <section>
+          <h3>전체 지도는 독립 페이지에</h3>
+          <p>여섯 방식의 비교표, 단계별 파이프라인 대조, 승률만으로는 판단할 수 없음을 보여주는 기대값 계산기와 비용 드래그 계산기, 그리고 이번 조사로도 답하지 못한 질문들까지 — 전체 리서치는 독립 페이지로 정리했다. 모든 수치에는 출처를 붙였고, 출처 없는 통설은 인용하지 않았다.</p>
+        </section>
+        <section>
+          <h3>출처 · 바로가기</h3>
+          <ul class="linklist">
+            <li><a href="/ai-trading.html">AI 트레이딩의 세계 — 전체 리서치 페이지</a> <span class="d">여섯 가지 방식의 지도, 파이프라인 비교, 규제기관 통계로 본 성과의 실상, 기대값·비용 계산기, 출처 목록을 담은 독립 페이지입니다.</span></li>
+            <li><a href="https://github.com/microsoft/qlib" target="_blank" rel="noopener">Microsoft Qlib (GitHub)</a> <span class="d">알파 탐색부터 리스크 모델링, 포트폴리오 최적화, 주문 집행까지 퀀트 투자의 전 과정을 다루는 오픈소스 플랫폼. 예측 모델이 전체 과정의 한 부분일 뿐임을 보여주는 사례입니다.</span></li>
+            <li><a href="https://studycafe.in/sebi-study-reveals-93-of-individual-traders-incurred-losses-in-equity-fo-between-fy22-and-fy24-345333.html" target="_blank" rel="noopener">SEBI 연구 요약 — 개인 F&amp;O 트레이더 93% 손실</a> <span class="d">인도 증권거래위원회(SEBI)가 2024년 9월 발표한 전수 조사의 요약. 개인 선물·옵션 트레이더 1천만 명 이상의 실제 손익 데이터입니다.</span></li>
+            <li><a href="https://arxiv.org/abs/2412.20138v1" target="_blank" rel="noopener">TradingAgents 논문 (arXiv:2412.20138)</a> <span class="d">역할을 나눈 LLM 에이전트들이 토론해 거래 제안을 내는 프레임워크의 원논문. 리스크 팀과 포트폴리오 매니저의 승인 구조를 포함합니다.</span></li>
+          </ul>
+        </section>
+        </div>
+      <nav class="detail-nav" aria-label="다른 글">
+        <a href="/post/semiconductor.html"><span class="dir">이전 글</span>삼성전자·SK하이닉스, 역대급 실적에도 주가가 불안한 이유</a>
+        <a class="next" href="/post/ai-video-halt.html"><span class="dir">다음 글</span>움직이는 영상을 멈춘 이유 — 5초 테스트는 통과했는데, 완성본은 무서웠다</a>
+      </nav>
+      </article>
+      <footer class="postfoot">© 2026 HongSungIn · <a href="/">hongzi.us 홈으로</a></footer>
+    </div>
+  </body>
+</html>
