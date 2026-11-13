@@ -122,7 +122,7 @@ function renderPost(post, idx) {
 ${sections}${linksSec}${watch}
         </div>${nav}
       </article>
-      <footer class="postfoot">© 2026 HongSungIn · <a href="/">hongzi.us 홈으로</a></footer>
+      <footer class="postfoot">© 2026 HongSungIn · <a href="/">hongzi.us 홈으로</a> · <a href="/privacy.html">개인정보처리방침</a></footer>
     </div>
   </body>
 </html>
@@ -143,6 +143,7 @@ const fixed = [
   { loc: BASE + '/kakao.html', lastmod: '2026-10-24', changefreq: 'monthly', priority: '0.8' },
   { loc: BASE + '/seedance.html', lastmod: '2026-10-21', changefreq: 'monthly', priority: '0.7' },
   { loc: BASE + '/fpv.html', lastmod: '2026-10-22', changefreq: 'monthly', priority: '0.7' },
+  { loc: BASE + '/privacy.html', lastmod: '2026-11-13', changefreq: 'yearly', priority: '0.4' },
 ];
 const postUrls = POSTS.map((p) => ({
   loc: `${BASE}/post/${p.id}.html`, lastmod: isoDate(p.meta && p.meta[0]) || today,
