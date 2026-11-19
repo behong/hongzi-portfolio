@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>구독자 736명 사연 드라마 채널의 데이터 노트 — 유입이 멈추는 구조와 구독 전환 장치 — HongSungIn</title>
+    <meta name="description" content="사연 드라마 채널 '지혜로운 조각들'의 실측 데이터를 정리한 노트. 새 영상이 탐색에서 멈추는 구조를 채널 네 편의 궤적으로 확인하고, 구독 전환의 산수, 근거 있는 실행안 다섯 가지, 데이터로 깨진 속설 셋, 그리고 운영자의 감이 틀렸던 시청자 실측까지 남긴다." />
+    <link rel="canonical" href="https://hongzi.us/post/youtube-data-note.html" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="HongSungIn" />
+    <meta property="og:title" content="구독자 736명 사연 드라마 채널의 데이터 노트 — 유입이 멈추는 구조와 구독 전환 장치" />
+    <meta property="og:description" content="사연 드라마 채널 '지혜로운 조각들'의 실측 데이터를 정리한 노트. 새 영상이 탐색에서 멈추는 구조를 채널 네 편의 궤적으로 확인하고, 구독 전환의 산수, 근거 있는 실행안 다섯 가지, 데이터로 깨진 속설 셋, 그리고 운영자의 감이 틀렸던 시청자 실측까지 남긴다." />
+    <meta property="og:url" content="https://hongzi.us/post/youtube-data-note.html" />
+    <meta property="og:image" content="https://hongzi.us/img/post-youtube-data-note.webp" />
+    <meta property="article:published_time" content="2026-11-19" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="google-site-verification" content="TE_a5yGhqMM-wjQRCvo9Cc7LzAlbduAlwCKos1kQ6Qw" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #faf8f4;
+        --surface: #fffdfa;
+        --ink: #26231e;
+        --ink-soft: #4c4740;
+        --muted: #8a8378;
+        --line: #e7e1d6;
+        --line-soft: #efe9de;
+        --accent: #5d6f5c;
+        --accent-soft: #eef0ea;
+        --tag: #6d675c;
+        color-scheme: light dark;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #161512;
+          --surface: #1d1c18;
+          --ink: #ece7db;
+          --ink-soft: #c9c2b2;
+          --muted: #9a927f;
+          --line: #2e2b24;
+          --line-soft: #26241f;
+          --accent: #a8bfa2;
+          --accent-soft: #23281f;
+          --tag: #a89f8c;
+        }
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+        font-size: 16px;
+        line-height: 1.7;
+        -webkit-font-smoothing: antialiased;
+      }
+      .serif { font-family: "Noto Serif KR", "Pretendard Variable", serif; }
+      a { color: inherit; }
+      img { display: block; max-width: 100%; }
+
+      .wrap { max-width: 1060px; margin: 0 auto; padding: 0 24px; }
+
+      /* ── header ─────────────────────────── */
+      header.site {
+        border-bottom: 1px solid var(--line-soft);
+      }
+      .site-inner {
+        display: flex; align-items: baseline; justify-content: space-between;
+        gap: 16px; padding: 26px 0 22px;
+      }
+      .wordmark { font-size: 19px; font-weight: 600; letter-spacing: -0.01em; text-decoration: none; }
+      .wordmark span { color: var(--muted); font-weight: 400; }
+      nav.main { display: flex; gap: 26px; }
+      nav.main a {
+        font-size: 14px; color: var(--ink-soft); text-decoration: none; letter-spacing: -0.01em;
+      }
+      nav.main a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 5px; text-decoration-color: var(--line); }
+
+      /* ── intro ──────────────────────────── */
+      .intro { padding: 72px 0 18px; max-width: 640px; }
+      .intro h1 {
+        font-size: 30px; font-weight: 500; line-height: 1.45; letter-spacing: -0.015em;
+        margin: 0 0 18px;
+      }
+      .intro p { margin: 0; color: var(--ink-soft); font-size: 16.5px; line-height: 1.85; }
+      .intro .where { margin-top: 22px; font-size: 14px; color: var(--muted); }
+      .intro .where strong { color: var(--ink-soft); font-weight: 600; }
+
+      /* ── filter ─────────────────────────── */
+      .filterbar {
+        display: flex; flex-wrap: wrap; gap: 6px 4px; align-items: center;
+        padding: 30px 0 8px; margin-top: 34px;
+        border-top: 1px solid var(--line-soft);
+      }
+      .filterbar button {
+        appearance: none; border: 0; background: none; cursor: pointer;
+        font: inherit; font-size: 14.5px; color: var(--muted);
+        padding: 6px 12px; border-radius: 999px;
+      }
+      .filterbar button:hover { color: var(--ink); }
+      .filterbar button[aria-pressed="true"] {
+        color: var(--ink); background: var(--accent-soft); font-weight: 600;
+      }
+      .filter-count { margin-left: auto; font-size: 13px; color: var(--muted); }
+
+      /* ── cards ──────────────────────────── */
+      .featured { padding: 28px 0 6px; }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line-soft);
+        border-radius: 10px;
+        overflow: hidden;
+        text-decoration: none;
+        display: flex; flex-direction: column;
+        transition: border-color .18s ease;
+        cursor: pointer;
+      }
+      .card:hover { border-color: var(--line); }
+      .card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+      .card .thumb { overflow: hidden; background: var(--accent-soft); }
+      .card .thumb img { width: 100%; height: 100%; object-fit: cover; }
+      .card .body { padding: 20px 22px 22px; display: flex; flex-direction: column; gap: 8px; }
+      .tag { font-size: 12.5px; color: var(--tag); letter-spacing: 0.01em; }
+      .card h3 {
+        margin: 0; font-size: 19px; font-weight: 600; line-height: 1.5; letter-spacing: -0.015em;
+      }
+      .card p { margin: 0; font-size: 14.5px; color: var(--ink-soft); line-height: 1.7; }
+      .meta { margin-top: 4px; font-size: 12.5px; color: var(--muted); display: flex; gap: 10px; flex-wrap: wrap; }
+      .meta i { font-style: normal; color: var(--line); }
+      .more {
+        margin-top: 6px; font-size: 13.5px; font-weight: 600; color: var(--accent);
+        display: inline-flex; align-items: center; gap: 5px;
+      }
+      .card:hover .more { text-decoration: underline; text-underline-offset: 4px; }
+
+      .featured .card { flex-direction: row; }
+      .featured .thumb { flex: 1.25; min-height: 300px; }
+      .featured .thumb img { position: absolute; inset: 0; }
+      .featured .thumb { position: relative; }
+      .featured .body { flex: 1; justify-content: center; padding: 34px 36px; gap: 12px; }
+      .featured h3 { font-size: 25px; line-height: 1.45; }
+      .featured p { font-size: 15.5px; }
+
+      .grid {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 26px;
+        padding: 26px 0 10px;
+      }
+      .grid .thumb { aspect-ratio: 3 / 2; }
+      .grid .thumb img { height: 100%; }
+
+      .empty-note { display: none; padding: 40px 0; color: var(--muted); font-size: 15px; }
+
+      /* ── detail ─────────────────────────── */
+      .detail { padding: 44px 0 10px; max-width: 760px; }
+      .backlink {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 14px; color: var(--ink-soft); text-decoration: none;
+        padding: 6px 0;
+      }
+      .backlink:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 5px; text-decoration-color: var(--line); }
+      .detail-head { margin: 26px 0 22px; }
+      .detail-head h2 {
+        margin: 10px 0 12px; font-size: 30px; font-weight: 600;
+        line-height: 1.4; letter-spacing: -0.02em;
+      }
+      .detail-hero { border-radius: 10px; overflow: hidden; border: 1px solid var(--line-soft); background: var(--accent-soft); }
+      .detail-hero img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+      .post-fig { margin: 20px 0 6px; }
+      .post-fig img { width: 100%; height: auto; display: block; border-radius: 10px; border: 1px solid var(--line-soft); }
+      .post-fig figcaption { margin-top: 8px; font-size: 0.85em; opacity: 0.65; text-align: center; line-height: 1.5; }
+      .detail-body { padding: 10px 0 0; }
+      .detail-body section { margin-top: 34px; }
+      .detail-body h3 {
+        font-size: 18px; font-weight: 600; letter-spacing: -0.01em;
+        margin: 0 0 10px;
+      }
+      .detail-body p { margin: 0 0 12px; color: var(--ink-soft); font-size: 15.5px; line-height: 1.85; }
+      .detail-body p.small { font-size: 13.5px; color: var(--muted); }
+      .detail-body ul { margin: 0 0 12px; padding-left: 20px; color: var(--ink-soft); font-size: 15.5px; line-height: 1.85; }
+      .detail-body li { margin-bottom: 6px; }
+      .detail-body li::marker { color: var(--muted); }
+      .watchbox {
+        margin-top: 36px; padding: 18px 20px;
+        background: var(--accent-soft); border-radius: 10px;
+        font-size: 14.5px; color: var(--ink-soft); line-height: 1.75;
+      }
+      .watchbox strong { color: var(--ink); font-weight: 600; }
+      .watchbox a { color: var(--accent); font-weight: 600; text-decoration: none; }
+      .watchbox a:hover { text-decoration: underline; text-underline-offset: 4px; }
+      .linklist { list-style: none; margin: 0; padding: 0; }
+      .linklist li {
+        padding: 13px 0; border-bottom: 1px solid var(--line-soft);
+        display: flex; flex-direction: column; gap: 2px; margin: 0;
+      }
+      .linklist li:last-child { border-bottom: 0; }
+      .linklist a {
+        font-weight: 600; font-size: 15.5px; color: var(--accent);
+        text-decoration: none; width: fit-content;
+      }
+      .linklist a:hover { text-decoration: underline; text-underline-offset: 4px; }
+      .linklist .d { font-size: 14px; color: var(--ink-soft); line-height: 1.7; }
+      .detail-nav {
+        margin-top: 48px; padding-top: 22px; border-top: 1px solid var(--line-soft);
+        display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+      }
+      .detail-nav a { font-size: 14px; color: var(--ink-soft); text-decoration: none; max-width: 46%; }
+      .detail-nav a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 5px; text-decoration-color: var(--line); }
+      .detail-nav .dir { display: block; font-size: 12px; color: var(--muted); margin-bottom: 3px; }
+      .detail-nav .next { text-align: right; margin-left: auto; }
+
+      /* ── add content ────────────────────── */
+      .addgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; margin-top: 18px; }
+      .addstep h3 { font-size: 16px; font-weight: 600; margin: 0 0 8px; letter-spacing: -0.01em; }
+      .addstep h3 .n { color: var(--accent); margin-right: 7px; font-variant-numeric: tabular-nums; }
+      .addstep p { margin: 0; font-size: 14.5px; color: var(--ink-soft); line-height: 1.75; }
+      .tpl {
+        margin-top: 30px; border: 1px solid var(--line-soft); border-radius: 10px;
+        background: var(--surface); overflow: hidden;
+      }
+      .tpl-head {
+        display: flex; align-items: center; justify-content: space-between; gap: 14px;
+        padding: 13px 18px; border-bottom: 1px solid var(--line-soft);
+        font-size: 13.5px; color: var(--muted);
+      }
+      .tpl-head button {
+        appearance: none; border: 1px solid var(--line); background: var(--bg);
+        color: var(--ink); font: inherit; font-size: 13.5px; font-weight: 600;
+        padding: 6px 14px; border-radius: 999px; cursor: pointer; white-space: nowrap;
+      }
+      .tpl-head button:hover { border-color: var(--accent); color: var(--accent); }
+      .tpl pre {
+        margin: 0; padding: 18px; overflow-x: auto;
+        font-family: "Pretendard Variable", Pretendard, sans-serif;
+        font-size: 14.5px; line-height: 1.9; color: var(--ink-soft); white-space: pre-wrap;
+      }
+
+      /* ── notes list ─────────────────────── */
+      section.block { padding: 64px 0 8px; }
+      .block-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 8px; }
+      .block-head h2 { font-size: 21px; font-weight: 600; letter-spacing: -0.015em; margin: 0; }
+      .block-head p { margin: 0; font-size: 14px; color: var(--muted); }
+      .notes { border-top: 1px solid var(--line); }
+      .note {
+        display: grid; grid-template-columns: 108px 1fr auto; gap: 20px; align-items: baseline;
+        padding: 18px 4px; border-bottom: 1px solid var(--line-soft);
+      }
+      .note time { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+      .note .t { font-size: 15.5px; font-weight: 550; }
+      .note .d { font-size: 14px; color: var(--ink-soft); margin-top: 2px; }
+      .note .cat { font-size: 12.5px; color: var(--tag); white-space: nowrap; }
+
+      /* ── about ──────────────────────────── */
+      .about {
+        display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px;
+        padding: 66px 0 20px; margin-top: 56px;
+        border-top: 1px solid var(--line-soft);
+      }
+      .about h2 { font-size: 21px; font-weight: 600; letter-spacing: -0.015em; margin: 0 0 14px; }
+      .about p { margin: 0 0 12px; color: var(--ink-soft); font-size: 15.5px; line-height: 1.85; }
+      .facts { margin: 0; padding: 0; list-style: none; }
+      .facts li {
+        display: flex; justify-content: space-between; gap: 18px;
+        padding: 11px 0; border-bottom: 1px solid var(--line-soft);
+        font-size: 14.5px;
+      }
+      .facts li:last-child { border-bottom: 0; }
+      .facts .k { color: var(--muted); white-space: nowrap; }
+      .facts .v { text-align: right; font-weight: 550; }
+
+      footer.site {
+        margin-top: 70px; border-top: 1px solid var(--line-soft);
+        padding: 30px 0 44px;
+        display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+        font-size: 13.5px; color: var(--muted);
+      }
+
+      .hidden { display: none !important; }
+
+      @media (max-width: 760px) {
+        .intro { padding: 48px 0 8px; }
+        .intro h1 { font-size: 25px; }
+        .featured .card { flex-direction: column; }
+        .featured .thumb { min-height: 0; aspect-ratio: 3 / 2; flex: none; }
+        .featured .body { padding: 22px; }
+        .featured h3 { font-size: 21px; }
+        .grid { grid-template-columns: 1fr; gap: 20px; }
+        .addgrid { grid-template-columns: 1fr; gap: 20px; }
+        .detail { padding-top: 30px; }
+        .detail-head h2 { font-size: 24px; }
+        .detail-nav a { max-width: 100%; }
+        .detail-nav .next { text-align: left; margin-left: 0; }
+        .about { grid-template-columns: 1fr; gap: 30px; padding-top: 48px; }
+        .note { grid-template-columns: 1fr; gap: 2px; }
+        .note .cat { order: -1; }
+        .site-inner { flex-direction: column; align-items: flex-start; gap: 8px; padding: 20px 0 16px; }
+        .wordmark { font-size: 17px; }
+        nav.main { gap: 20px; flex-wrap: wrap; }
+        nav.main a { font-size: 13.5px; }
+        .filter-count { display: none; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        .card { transition: none; }
+      }
+    
+      .detail-head h1 { margin: 10px 0 12px; font-size: 30px; font-weight: 600; line-height: 1.4; letter-spacing: -0.02em; }
+      .postfoot { border-top: 1px solid var(--line-soft); margin-top: 44px; padding: 22px 0 36px; font-size: 13.5px; color: var(--muted); }
+      .postfoot a { color: var(--ink-soft); text-decoration: none; }
+      .postfoot a:hover { text-decoration: underline; text-underline-offset: 4px; }
+    </style>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"구독자 736명 사연 드라마 채널의 데이터 노트 — 유입이 멈추는 구조와 구독 전환 장치","description":"사연 드라마 채널 '지혜로운 조각들'의 실측 데이터를 정리한 노트. 새 영상이 탐색에서 멈추는 구조를 채널 네 편의 궤적으로 확인하고, 구독 전환의 산수, 근거 있는 실행안 다섯 가지, 데이터로 깨진 속설 셋, 그리고 운영자의 감이 틀렸던 시청자 실측까지 남긴다.","image":["https://hongzi.us/img/post-youtube-data-note.webp"],"datePublished":"2026-11-19","author":{"@type":"Person","name":"HongSungIn","url":"https://hongzi.us/"},"mainEntityOfPage":"https://hongzi.us/post/youtube-data-note.html"}</script>
+  <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LJ6Q1XBCL7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-LJ6Q1XBCL7');
+    </script>
+      <meta name="google-adsense-account" content="ca-pub-4973471145275269">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4973471145275269" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <div class="wrap">
+      <article class="detail">
+        <a class="backlink" href="/#posts">← 글 목록으로</a>
+        <div class="detail-head">
+          <span class="tag">기록 · 유튜브 채널</span>
+          <h1 class="serif">구독자 736명 사연 드라마 채널의 데이터 노트 — 유입이 멈추는 구조와 구독 전환 장치</h1>
+          <div class="meta">2026. 11. 19<i>·</i>채널 데이터 노트 · 지혜로운 조각들</div>
+        </div>
+        <div class="detail-hero"><img src="/img/post-youtube-data-note.webp" alt="책상 앞 노트에 무언가를 적는 어르신 크리에이터와 오르는 그래프·재생 버튼이 보이는 노트북, 하트 말풍선 일러스트" /></div>
+        <div class="detail-body">
+        <section>
+          <h3>새 영상이 유입이 없는 이유 — 탐색 테스트의 구조</h3>
+          <p>유튜브는 새 영상을 탐색 피드에 소량 — 수백 회 노출 — 으로 테스트해 뿌리고, 클릭률(CTR)과 평균 조회율(시청 지속)을 보고 확장을 결정한다. 잘 만든 영상도 이 첫 테스트를 통과하지 못하면 거기서 멈춘다. 이 채널에서 실제로 일어난 네 편의 궤적이 그 구조를 그대로 보여준다.</p>
+          <ul>
+            <li>보이스피싱 역관광 (15:00) — 계속 확장 · 평균 조회율 47% · 조회수 155,423</li>
+            <li>전세사기 (20:13) — 확장 · CTR 9.4% · 평균 조회율 29% · 조회수 21,943</li>
+            <li>스미싱 (19:53) — 노출 434회에서 정지 · CTR 6.4% · 평균 조회율 23% · 조회수 117</li>
+            <li>막장 첫사랑 1편 (11:41) — 노출 175회 · CTR 2.9% · 평균 조회율 65% · 조회수 수십</li>
+          </ul>
+        </section>
+        <section>
+          <h3>여기서 얻은 교훈 셋</h3>
+          <ul>
+            <li>완성도는 유지율을, 패키징(제목·썸네일·소재)은 유입을 결정한다 — 막장 1편은 평균 조회율 65%로 역대 최고인데도 CTR 2.9%에서 죽었다. 본 사람은 끝까지 보는데 클릭이 안 일어나는 문제였다</li>
+            <li>소재 피로 — 같은 시리즈를 반복하면 시청자는 '본 것 같다'고 넘긴다. 사기 시리즈의 조회수 궤적이 155,423 → 21,943 → 117로 이를 증명한다</li>
+            <li>채널이 작을수록 초기 테스트 신호가 약해 확장이 보수적이다 — 구독자 기반 자체가 해법의 일부다</li>
+          </ul>
+        </section>
+        <section>
+          <h3>구독 전환의 산수</h3>
+          <p>소규모 채널 분석(Paddy Galloway·Chris Gileta — 33개 채널, 쇼츠 5,400개, 33억 조회 분석)에 따르면 구독 전환율은 롱폼 1만 조회당 약 22.7명, 쇼츠 1만 조회당 약 16.9명이다. 우리 규모에서는 롱폼이 조회당 전환이 더 높다.</p>
+          <p>현재 구독자 736명, 광고 개시선 1,000명까지 남은 264명은 롱폼 약 11.6만 조회분이다. 히트 한 편 거리이기도 하고, 전환 장치를 쌓으면 일상 조회의 누적으로도 닿는 거리이기도 하다.</p>
+        </section>
+        <section>
+          <h3>실행안 다섯 가지</h3>
+          <ul>
+            <li>댓글 운영 — 공개 24시간 내 전 댓글 답글+하트, 고정댓글은 링크 안내 대신 경험 질문형으로. 유튜브 자체 사례실험(영상 50편)에서 질문형 고정댓글은 댓글량 +65%, 재참여율 12%→28%를 기록했다. Buffer 2026 분석(약 200만 게시물)에선 답글한 게시물의 참여가 +5~42%</li>
+            <li>채널 트레일러 60초 — 비구독자가 채널 홈에 오면 자동재생되는 유일한 전용 슬롯이라, 비어 있으면 버리는 셈이다. 기존 명장면 재편집으로 제작할 수 있다 (전환 효과 수치는 유튜브가 공개하지 않아 미확인)</li>
+            <li>커뮤니티 게시물 주 3회 + 이미지 투표 — 투표 게시물의 상호작용이 텍스트 단독 대비 3~4배(Vidooly 2025), 참여율은 12~25% vs 링크 게시물 1~4%(Metricool 2026). 단, 검증된 효과는 구독 획득보다 유지율 쪽이다 (Hootsuite 2025: 주 3회 이상 게시 채널의 구독자 유지율 +18~25%)</li>
+            <li>구독 요청 위치 — TubeAI의 롱폼 180,553개 분석에서 요청 없음 대비 시작만 1.07배, 끝만 1.18배, 시작+끝 병행 1.30배, 중반 단독 1.02배. 오프닝이 아니라 가치를 준 뒤(첫 사이다 직후)와 엔딩 병행이 최적이다</li>
+            <li>카카오톡 채널·네이버 밴드 — 시청층의 실제 서식지다. 카카오톡 이용률 98.9%, 밴드 이용은 50대 40.6%·60대 31.1%(한국언론진흥재단·한국갤럽 2025). 인스타그램은 이 연령층 비중이 낮다</li>
+          </ul>
+        </section>
+        <section>
+          <h3>데이터로 깨진 속설 셋</h3>
+          <ul>
+            <li>'쇼츠를 많이 올리면 큰다' — 물량과 성장의 상관(TubeAI, 84,712개 채널: 5주간 쇼츠 15개 이상 올린 채널의 구독 성장 +1.88% vs 없는 채널 +0.84%)은 있으나 인과는 증명되지 않았다. 핵심 지표는 개수가 아니라 스와이프 회피율(계속 시청 비율 70~90% 구간이 강함)이고, AIR의 18,000개 채널 분석에선 쇼츠 비중 25~40%가 최적 구간이었다</li>
+            <li>'쇼츠 고정댓글에 본편 링크를 넣으면 클릭된다' — 거짓. 쇼츠 설명·댓글의 링크는 유튜브가 클릭 불가로 처리한다(2023년 8월부터). 클릭 경로는 '관련 동영상' 지정뿐이다</li>
+            <li>'구독 요청은 영상 시작에' — 데이터와 반대다. 시작 단독이 가장 약했다(1.07배)</li>
+          </ul>
+        </section>
+        <section>
+          <h3>시청자 실측 — 감이 틀렸던 사례</h3>
+          <p>2026-11-19에 YouTube Analytics API로 직접 뽑은 최근 28일(2026-10-20~11-16) 시청자는 여성 55.1% / 남성 44.8%였다. '남자 시청자가 별로 없다'는 운영자의 감은 틀렸다.</p>
+          <p>연령은 55세 이상이 88.0%다(55~64세 37.1%, 65세 이상 50.9%). 65세 이상 구간은 여성 25.9% vs 남성 25.0%로 거의 반반이고, 여성 우세가 두드러지는 구간은 55~64세(여 22.1% / 남 15.0%)다. 소재 판단을 한쪽 취향으로 기울이면 절반 가까운 시청층을 놓칠 수 있다. 가정을 데이터로 검증하는 절차 자체가 노하우다.</p>
+        </section>
+        <section>
+          <h3>운영 체제 메모</h3>
+          <ul>
+            <li>수·토 고정 슬롯에서 매일 업로드로 전환한다 — 롱폼+추출 쇼츠+합본 조합으로 빈 날을 채운다. 근거: 탐색 유입 채널은 공개 시각의 영향이 작다 (최고 성과작이 오전 10:10에 공개됐다)</li>
+            <li>합본(연속듣기)은 시청 시간 레버이자 재방문 장치다 — 구독자용 스포트라이트에 합본을 지정한다</li>
+            <li>커뮤니티 운영 시작: 롱폼 공개일 = 공개 알림+질문, 사이 날 = 소재 투표·예방 퀴즈 교대. 소재 투표는 다음 편 주제를 시청자가 정하게 해 참여와 소재 검증을 동시에 한다</li>
+          </ul>
+        </section>
+        <section>
+          <h3>출처 · 바로가기</h3>
+          <ul class="linklist">
+            <li><a href="https://en.rattibha.com/thread/1646898356419981315" target="_blank" rel="noopener">Galloway·Gileta 쇼츠 연구</a> <span class="d">33개 채널·쇼츠 5,400개·33억 조회 분석 — 롱폼과 쇼츠의 구독 전환율 비교.</span></li>
+            <li><a href="https://www.instagram.com/reel/Dew0YvREiAD/" target="_blank" rel="noopener">TubeAI 쇼츠 빈도 연구 (84,712개 채널)</a> <span class="d">쇼츠 업로드 빈도와 구독 성장의 상관 분석.</span></li>
+            <li><a href="https://www.instagram.com/reel/DfrsfOtE9tc/" target="_blank" rel="noopener">TubeAI 구독 요청 위치 연구 (180,553개 영상)</a> <span class="d">구독 요청을 넣는 위치별 전환 배율 분석.</span></li>
+            <li><a href="https://air.io/en/air-data-findings/are-youtube-livestreams-worth-it-real-data-on-revenue-and-growth-from-404-channels" target="_blank" rel="noopener">AIR Media-Tech 라이브 실측</a> <span class="d">404개 채널 실데이터 기반 분석.</span></li>
+            <li><a href="https://air.io/en/youtube-hacks/should-you-chase-shorts-views-or-double-down-on-long-form-for-channel-growth" target="_blank" rel="noopener">AIR 쇼츠 vs 롱폼 (18,000개 채널)</a> <span class="d">쇼츠 비중 최적 구간 분석.</span></li>
+            <li><a href="https://astondigital.com.au/respond-to-comments-and-increase-your-engagement-by-up-to-42/" target="_blank" rel="noopener">Buffer 댓글 답글 연구</a> <span class="d">댓글 답글이 참여를 최대 42%까지 올린다는 분석 정리.</span></li>
+            <li><a href="https://www.conbersa.ai/blog/what-is-youtube-community-posts" target="_blank" rel="noopener">커뮤니티 게시물 통계 종합</a> <span class="d">투표·이미지 게시물의 상호작용 통계 종합.</span></li>
+            <li><a href="https://hookspring.com/blog/shorts-to-long-form-subscribers" target="_blank" rel="noopener">쇼츠 링크 정책 정리</a> <span class="d">쇼츠에서 롱폼으로 잇는 클릭 경로와 링크 클릭 불가 정책 정리.</span></li>
+            <li><a href="https://cboard.net/hit4/13658" target="_blank" rel="noopener">한국 55+ 플랫폼 이용 통계 (한국갤럽 2025)</a> <span class="d">카카오톡·밴드 등 연령대별 플랫폼 이용률.</span></li>
+          </ul>
+        </section>
+        <div class="watchbox"><strong>영상 보기 — </strong>영상 재생은 유튜브에서 합니다. <a href="https://www.youtube.com/@%EC%A7%80%EC%A1%B0%EA%B0%81" target="_blank" rel="noopener">유튜브 채널 ‘지혜로운 조각들’ (@지조각) →</a></div>
+        </div>
+      <nav class="detail-nav" aria-label="다른 글">
+        <a class="next" href="/post/codex-full-access.html"><span class="dir">다음 글</span>Codex에 도커까지 맡기는 법 — /permissions에서 Full Access 켜기</a>
+      </nav>
+      </article>
+      <footer class="postfoot">© 2026 HongSungIn · <a href="/">hongzi.us 홈으로</a> · <a href="/privacy.html">개인정보처리방침</a></footer>
+    </div>
+  </body>
+</html>
