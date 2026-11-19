@@ -69,7 +69,26 @@
       /* ── header ─────────────────────────── */
       header.site {
         border-bottom: 1px solid var(--line-soft);
+        position: sticky; top: 0; z-index: 60;
+        background: color-mix(in srgb, var(--bg) 88%, transparent);
+        backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
       }
+      main section[id] { scroll-margin-top: 92px; }
+      .to-top {
+        position: fixed; right: 18px; bottom: 18px; z-index: 70;
+        width: 44px; height: 44px; border-radius: 999px;
+        border: 1px solid var(--line); background: var(--bg); color: var(--ink);
+        font-size: 18px; line-height: 1; cursor: pointer;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
+        opacity: 0; visibility: hidden; transform: translateY(6px);
+        transition: opacity 0.25s, visibility 0.25s, transform 0.25s;
+      }
+      .to-top.show { opacity: 1; visibility: visible; transform: none; }
+      .notes-fold > summary {
+        cursor: pointer; color: var(--muted); font-size: 14px; padding: 4px 0 2px;
+      }
+      .notes-fold > summary:hover { color: var(--ink); }
+      .notes-fold .notes { margin-top: 16px; }
       .site-inner {
         display: flex; align-items: baseline; justify-content: space-between;
         gap: 16px; padding: 26px 0 22px;
@@ -419,5 +438,16 @@
       </article>
       <footer class="postfoot">© 2026 HongSungIn · <a href="/">hongzi.us 홈으로</a> · <a href="/privacy.html">개인정보처리방침</a></footer>
     </div>
+    <button type="button" class="to-top" id="toTop" aria-label="맨 위로">↑</button>
+    <script>
+      (function () {
+        var b = document.getElementById('toTop');
+        if (!b) return;
+        function f() { b.classList.toggle('show', window.scrollY > 600); }
+        window.addEventListener('scroll', f, { passive: true });
+        f();
+        b.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+      })();
+    </script>
   </body>
 </html>

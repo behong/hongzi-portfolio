@@ -124,6 +124,17 @@ ${sections}${linksSec}${watch}
       </article>
       <footer class="postfoot">© 2026 HongSungIn · <a href="/">hongzi.us 홈으로</a> · <a href="/privacy.html">개인정보처리방침</a></footer>
     </div>
+    <button type="button" class="to-top" id="toTop" aria-label="맨 위로">↑</button>
+    <script>
+      (function () {
+        var b = document.getElementById('toTop');
+        if (!b) return;
+        function f() { b.classList.toggle('show', window.scrollY > 600); }
+        window.addEventListener('scroll', f, { passive: true });
+        f();
+        b.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+      })();
+    </script>
   </body>
 </html>
 `;

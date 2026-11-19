@@ -61,7 +61,26 @@
       /* ── header ─────────────────────────── */
       header.site {
         border-bottom: 1px solid var(--line-soft);
+        position: sticky; top: 0; z-index: 60;
+        background: color-mix(in srgb, var(--bg) 88%, transparent);
+        backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
       }
+      main section[id] { scroll-margin-top: 92px; }
+      .to-top {
+        position: fixed; right: 18px; bottom: 18px; z-index: 70;
+        width: 44px; height: 44px; border-radius: 999px;
+        border: 1px solid var(--line); background: var(--bg); color: var(--ink);
+        font-size: 18px; line-height: 1; cursor: pointer;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
+        opacity: 0; visibility: hidden; transform: translateY(6px);
+        transition: opacity 0.25s, visibility 0.25s, transform 0.25s;
+      }
+      .to-top.show { opacity: 1; visibility: visible; transform: none; }
+      .notes-fold > summary {
+        cursor: pointer; color: var(--muted); font-size: 14px; padding: 4px 0 2px;
+      }
+      .notes-fold > summary:hover { color: var(--ink); }
+      .notes-fold .notes { margin-top: 16px; }
       .site-inner {
         display: flex; align-items: baseline; justify-content: space-between;
         gap: 16px; padding: 26px 0 22px;
@@ -391,12 +410,43 @@
         </section>
 
         <!-- 기록 -->
+
+
+        <!-- 소개 -->
+        <section class="about" id="about">
+          <div>
+            <h2>소개</h2>
+            <p>
+              HongSungIn은 유튜브 채널 ‘지혜로운 조각들’을 운영하는 1인 크리에이터입니다.
+              일주일에 두 번, 길고 따뜻한 롱폼 한 편씩 — 그리고 그 롱폼에서 뽑아낸 쇼츠를 곁들여 올립니다.
+              주로 50대 이상 시청자가 공감할 가족 이야기와 삶의 지혜를 다룹니다.
+            </p>
+            <p>
+              소재 선정도, 포맷 결정도 ‘감’이 아니라 조회수와 구독 전환 데이터로 판단합니다.
+              이 블로그는 그 판단의 근거와 작업 과정을 남기는 자리입니다.
+            </p>
+          </div>
+          <div>
+            <h2>채널 한눈에</h2>
+            <ul class="facts">
+              <li><span class="k">채널</span><span class="v">지혜로운 조각들 (@지조각)</span></li>
+              <li><span class="k">주력 포맷</span><span class="v">감동 사연 롱폼 · 추출 쇼츠</span></li>
+              <li><span class="k">업로드</span><span class="v">롱폼 수·토 19:00 · 추출 쇼츠 18:00</span></li>
+              <li><span class="k">구독자</span><span class="v">435명 (2026. 10. 26 기준)</span></li>
+              <li><span class="k">강한 포맷</span><span class="v">감동/가족 스토리형</span></li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- 최근 기록 (맨 아래 · 접이식) -->
         <section class="block" id="notes">
           <div class="block-head">
             <h2>최근 기록</h2>
             <p>채널을 만들며 남긴 짧은 메모들</p>
           </div>
-          <div class="notes">
+          <details class="notes-fold">
+            <summary>기록 펼치기</summary>
+            <div class="notes">
             <div class="note">
               <time datetime="2026-11-19">2026. 11. 19</time>
               <div>
@@ -526,32 +576,7 @@
               <span class="cat">기록 · 기획</span>
             </div>
           </div>
-        </section>
-
-        <!-- 소개 -->
-        <section class="about" id="about">
-          <div>
-            <h2>소개</h2>
-            <p>
-              HongSungIn은 유튜브 채널 ‘지혜로운 조각들’을 운영하는 1인 크리에이터입니다.
-              일주일에 두 번, 길고 따뜻한 롱폼 한 편씩 — 그리고 그 롱폼에서 뽑아낸 쇼츠를 곁들여 올립니다.
-              주로 50대 이상 시청자가 공감할 가족 이야기와 삶의 지혜를 다룹니다.
-            </p>
-            <p>
-              소재 선정도, 포맷 결정도 ‘감’이 아니라 조회수와 구독 전환 데이터로 판단합니다.
-              이 블로그는 그 판단의 근거와 작업 과정을 남기는 자리입니다.
-            </p>
-          </div>
-          <div>
-            <h2>채널 한눈에</h2>
-            <ul class="facts">
-              <li><span class="k">채널</span><span class="v">지혜로운 조각들 (@지조각)</span></li>
-              <li><span class="k">주력 포맷</span><span class="v">감동 사연 롱폼 · 추출 쇼츠</span></li>
-              <li><span class="k">업로드</span><span class="v">롱폼 수·토 19:00 · 추출 쇼츠 18:00</span></li>
-              <li><span class="k">구독자</span><span class="v">435명 (2026. 10. 26 기준)</span></li>
-              <li><span class="k">강한 포맷</span><span class="v">감동/가족 스토리형</span></li>
-            </ul>
-          </div>
+                  </details>
         </section>
       </div>
 
@@ -2851,6 +2876,17 @@
             }
           });
         }
+      })();
+    </script>
+    <button type="button" class="to-top" id="toTop" aria-label="맨 위로">↑</button>
+    <script>
+      (function () {
+        var b = document.getElementById('toTop');
+        if (!b) return;
+        function f() { b.classList.toggle('show', window.scrollY > 600); }
+        window.addEventListener('scroll', f, { passive: true });
+        f();
+        b.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
       })();
     </script>
   </body>
