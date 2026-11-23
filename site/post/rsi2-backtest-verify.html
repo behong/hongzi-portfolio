@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>승률 70%라는 그 매매법, 깐깐하게 다시 계산해봤다 — HongSungIn</title>
+    <meta name="description" content="RSI(2) 과매도 반등은 래리 코너스가 책으로 공개한 오래된 단기 매매법이다. 승률 70%라는 숫자가 사실인지 SPY·QQQ 30여 년 데이터로 직접 계산했다. 후하게 계산한 1차에서는 그럴듯했는데, '신호가 뜬 날 종가에 샀다'는 가정이 미래를 훔쳐본 계산이라는 지적을 받고 다음날 시가로 전부 다시 돌렸다. 평균 수익은 전부 줄었지만 6개 변형 모두 기준선은 통과했고, 대신 순위가 뒤집혔다." />
+    <link rel="canonical" href="https://hongzi.us/post/rsi2-backtest-verify.html" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="HongSungIn" />
+    <meta property="og:title" content="승률 70%라는 그 매매법, 깐깐하게 다시 계산해봤다" />
+    <meta property="og:description" content="RSI(2) 과매도 반등은 래리 코너스가 책으로 공개한 오래된 단기 매매법이다. 승률 70%라는 숫자가 사실인지 SPY·QQQ 30여 년 데이터로 직접 계산했다. 후하게 계산한 1차에서는 그럴듯했는데, '신호가 뜬 날 종가에 샀다'는 가정이 미래를 훔쳐본 계산이라는 지적을 받고 다음날 시가로 전부 다시 돌렸다. 평균 수익은 전부 줄었지만 6개 변형 모두 기준선은 통과했고, 대신 순위가 뒤집혔다." />
+    <meta property="og:url" content="https://hongzi.us/post/rsi2-backtest-verify.html" />
+    <meta property="og:image" content="https://hongzi.us/img/rsi2-chart.webp" />
+    <meta property="article:published_time" content="2026-11-23" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="google-site-verification" content="TE_a5yGhqMM-wjQRCvo9Cc7LzAlbduAlwCKos1kQ6Qw" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #faf8f4;
+        --surface: #fffdfa;
+        --ink: #26231e;
+        --ink-soft: #4c4740;
+        --muted: #8a8378;
+        --line: #e7e1d6;
+        --line-soft: #efe9de;
+        --accent: #5d6f5c;
+        --accent-soft: #eef0ea;
+        --tag: #6d675c;
+        color-scheme: light dark;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #161512;
+          --surface: #1d1c18;
+          --ink: #ece7db;
+          --ink-soft: #c9c2b2;
+          --muted: #9a927f;
+          --line: #2e2b24;
+          --line-soft: #26241f;
+          --accent: #a8bfa2;
+          --accent-soft: #23281f;
+          --tag: #a89f8c;
+        }
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+        font-size: 16px;
+        line-height: 1.7;
+        -webkit-font-smoothing: antialiased;
+      }
+      .serif { font-family: "Noto Serif KR", "Pretendard Variable", serif; }
+      a { color: inherit; }
+      img { display: block; max-width: 100%; }
+
+      .wrap { max-width: 1060px; margin: 0 auto; padding: 0 24px; }
+
+      /* ── header ─────────────────────────── */
+      header.site {
+        border-bottom: 1px solid var(--line-soft);
+        position: sticky; top: 0; z-index: 60;
+        background: color-mix(in srgb, var(--bg) 88%, transparent);
+        backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      }
+      main section[id] { scroll-margin-top: 92px; }
+      .to-top {
+        position: fixed; right: 18px; bottom: 18px; z-index: 70;
+        width: 44px; height: 44px; border-radius: 999px;
+        border: 1px solid var(--line); background: var(--bg); color: var(--ink);
+        font-size: 18px; line-height: 1; cursor: pointer;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
+        opacity: 0; visibility: hidden; transform: translateY(6px);
+        transition: opacity 0.25s, visibility 0.25s, transform 0.25s;
+      }
+      .to-top.show { opacity: 1; visibility: visible; transform: none; }
+      .notes-fold > summary {
+        cursor: pointer; color: var(--muted); font-size: 14px; padding: 4px 0 2px;
+      }
+      .notes-fold > summary:hover { color: var(--ink); }
+      .notes-fold .notes { margin-top: 16px; }
+      .site-inner {
+        display: flex; align-items: baseline; justify-content: space-between;
+        gap: 16px; padding: 26px 0 22px;
+      }
+      .wordmark { font-size: 19px; font-weight: 600; letter-spacing: -0.01em; text-decoration: none; }
+      .wordmark span { color: var(--muted); font-weight: 400; }
+      nav.main { display: flex; gap: 26px; }
+      nav.main a {
+        font-size: 14px; color: var(--ink-soft); text-decoration: none; letter-spacing: -0.01em;
+      }
+      nav.main a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 5px; text-decoration-color: var(--line); }
+
+      /* ── intro ──────────────────────────── */
+      .intro { padding: 72px 0 18px; max-width: 640px; }
+      .intro h1 {
+        font-size: 30px; font-weight: 500; line-height: 1.45; letter-spacing: -0.015em;
+        margin: 0 0 18px;
+      }
+      .intro p { margin: 0; color: var(--ink-soft); font-size: 16.5px; line-height: 1.85; }
+      .intro .where { margin-top: 22px; font-size: 14px; color: var(--muted); }
+      .intro .where strong { color: var(--ink-soft); font-weight: 600; }
+
+      /* ── filter ─────────────────────────── */
+      .filterbar {
+        display: flex; flex-wrap: wrap; gap: 6px 4px; align-items: center;
+        padding: 30px 0 8px; margin-top: 34px;
+        border-top: 1px solid var(--line-soft);
+      }
+      .filterbar button {
+        appearance: none; border: 0; background: none; cursor: pointer;
+        font: inherit; font-size: 14.5px; color: var(--muted);
+        padding: 6px 12px; border-radius: 999px;
+      }
+      .filterbar button:hover { color: var(--ink); }
+      .filterbar button[aria-pressed="true"] {
+        color: var(--ink); background: var(--accent-soft); font-weight: 600;
+      }
+      .filter-count { margin-left: auto; font-size: 13px; color: var(--muted); }
+
+      /* ── cards ──────────────────────────── */
+      .featured { padding: 28px 0 6px; }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line-soft);
+        border-radius: 10px;
+        overflow: hidden;
+        text-decoration: none;
+        display: flex; flex-direction: column;
+        transition: border-color .18s ease;
+        cursor: pointer;
+      }
+      .card:hover { border-color: var(--line); }
+      .card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+      .card .thumb { overflow: hidden; background: var(--accent-soft); }
+      .card .thumb img { width: 100%; height: 100%; object-fit: cover; }
+      .card .body { padding: 20px 22px 22px; display: flex; flex-direction: column; gap: 8px; }
+      .tag { font-size: 12.5px; color: var(--tag); letter-spacing: 0.01em; }
+      .card h3 {
+        margin: 0; font-size: 19px; font-weight: 600; line-height: 1.5; letter-spacing: -0.015em;
+      }
+      .card p { margin: 0; font-size: 14.5px; color: var(--ink-soft); line-height: 1.7; }
+      .meta { margin-top: 4px; font-size: 12.5px; color: var(--muted); display: flex; gap: 10px; flex-wrap: wrap; }
+      .meta i { font-style: normal; color: var(--line); }
+      .more {
+        margin-top: 6px; font-size: 13.5px; font-weight: 600; color: var(--accent);
+        display: inline-flex; align-items: center; gap: 5px;
+      }
+      .card:hover .more { text-decoration: underline; text-underline-offset: 4px; }
+
+      .featured .card { flex-direction: row; }
+      .featured .thumb { flex: 1.25; min-height: 300px; }
+      .featured .thumb img { position: absolute; inset: 0; }
+      .featured .thumb { position: relative; }
+      .featured .body { flex: 1; justify-content: center; padding: 34px 36px; gap: 12px; }
+      .featured h3 { font-size: 25px; line-height: 1.45; }
+      .featured p { font-size: 15.5px; }
+
+      .grid {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 26px;
+        padding: 26px 0 10px;
+      }
+      .grid .thumb { aspect-ratio: 3 / 2; }
+      .grid .thumb img { height: 100%; }
+
+      .empty-note { display: none; padding: 40px 0; color: var(--muted); font-size: 15px; }
+
+      /* ── detail ─────────────────────────── */
+      .detail { padding: 44px 0 10px; max-width: 760px; }
+      .backlink {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 14px; color: var(--ink-soft); text-decoration: none;
+        padding: 6px 0;
+      }
+      .backlink:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 5px; text-decoration-color: var(--line); }
+      .detail-head { margin: 26px 0 22px; }
+      .detail-head h2 {
+        margin: 10px 0 12px; font-size: 30px; font-weight: 600;
+        line-height: 1.4; letter-spacing: -0.02em;
+      }
+      .detail-hero { border-radius: 10px; overflow: hidden; border: 1px solid var(--line-soft); background: var(--accent-soft); }
+      .detail-hero img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+      .post-fig { margin: 20px 0 6px; }
+      .post-fig img { width: 100%; height: auto; display: block; border-radius: 10px; border: 1px solid var(--line-soft); }
+      .post-fig figcaption { margin-top: 8px; font-size: 0.85em; opacity: 0.65; text-align: center; line-height: 1.5; }
+      .detail-body { padding: 10px 0 0; }
+      .detail-body section { margin-top: 34px; }
+      .detail-body h3 {
+        font-size: 18px; font-weight: 600; letter-spacing: -0.01em;
+        margin: 0 0 10px;
+      }
+      .detail-body p { margin: 0 0 12px; color: var(--ink-soft); font-size: 15.5px; line-height: 1.85; }
+      .detail-body p.small { font-size: 13.5px; color: var(--muted); }
+      .detail-body ul { margin: 0 0 12px; padding-left: 20px; color: var(--ink-soft); font-size: 15.5px; line-height: 1.85; }
+      .detail-body li { margin-bottom: 6px; }
+      .detail-body li::marker { color: var(--muted); }
+      .watchbox {
+        margin-top: 36px; padding: 18px 20px;
+        background: var(--accent-soft); border-radius: 10px;
+        font-size: 14.5px; color: var(--ink-soft); line-height: 1.75;
+      }
+      .watchbox strong { color: var(--ink); font-weight: 600; }
+      .watchbox a { color: var(--accent); font-weight: 600; text-decoration: none; }
+      .watchbox a:hover { text-decoration: underline; text-underline-offset: 4px; }
+      .linklist { list-style: none; margin: 0; padding: 0; }
+      .linklist li {
+        padding: 13px 0; border-bottom: 1px solid var(--line-soft);
+        display: flex; flex-direction: column; gap: 2px; margin: 0;
+      }
+      .linklist li:last-child { border-bottom: 0; }
+      .linklist a {
+        font-weight: 600; font-size: 15.5px; color: var(--accent);
+        text-decoration: none; width: fit-content;
+      }
+      .linklist a:hover { text-decoration: underline; text-underline-offset: 4px; }
+      .linklist .d { font-size: 14px; color: var(--ink-soft); line-height: 1.7; }
+      .detail-nav {
+        margin-top: 48px; padding-top: 22px; border-top: 1px solid var(--line-soft);
+        display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+      }
+      .detail-nav a { font-size: 14px; color: var(--ink-soft); text-decoration: none; max-width: 46%; }
+      .detail-nav a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 5px; text-decoration-color: var(--line); }
+      .detail-nav .dir { display: block; font-size: 12px; color: var(--muted); margin-bottom: 3px; }
+      .detail-nav .next { text-align: right; margin-left: auto; }
+
+      /* ── add content ────────────────────── */
+      .addgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; margin-top: 18px; }
+      .addstep h3 { font-size: 16px; font-weight: 600; margin: 0 0 8px; letter-spacing: -0.01em; }
+      .addstep h3 .n { color: var(--accent); margin-right: 7px; font-variant-numeric: tabular-nums; }
+      .addstep p { margin: 0; font-size: 14.5px; color: var(--ink-soft); line-height: 1.75; }
+      .tpl {
+        margin-top: 30px; border: 1px solid var(--line-soft); border-radius: 10px;
+        background: var(--surface); overflow: hidden;
+      }
+      .tpl-head {
+        display: flex; align-items: center; justify-content: space-between; gap: 14px;
+        padding: 13px 18px; border-bottom: 1px solid var(--line-soft);
+        font-size: 13.5px; color: var(--muted);
+      }
+      .tpl-head button {
+        appearance: none; border: 1px solid var(--line); background: var(--bg);
+        color: var(--ink); font: inherit; font-size: 13.5px; font-weight: 600;
+        padding: 6px 14px; border-radius: 999px; cursor: pointer; white-space: nowrap;
+      }
+      .tpl-head button:hover { border-color: var(--accent); color: var(--accent); }
+      .tpl pre {
+        margin: 0; padding: 18px; overflow-x: auto;
+        font-family: "Pretendard Variable", Pretendard, sans-serif;
+        font-size: 14.5px; line-height: 1.9; color: var(--ink-soft); white-space: pre-wrap;
+      }
+
+      /* ── notes list ─────────────────────── */
+      section.block { padding: 64px 0 8px; }
+      .block-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 8px; }
+      .block-head h2 { font-size: 21px; font-weight: 600; letter-spacing: -0.015em; margin: 0; }
+      .block-head p { margin: 0; font-size: 14px; color: var(--muted); }
+      .notes { border-top: 1px solid var(--line); }
+      .note {
+        display: grid; grid-template-columns: 108px 1fr auto; gap: 20px; align-items: baseline;
+        padding: 18px 4px; border-bottom: 1px solid var(--line-soft);
+      }
+      .note time { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+      .note .t { font-size: 15.5px; font-weight: 550; }
+      .note .d { font-size: 14px; color: var(--ink-soft); margin-top: 2px; }
+      .note .cat { font-size: 12.5px; color: var(--tag); white-space: nowrap; }
+
+      /* ── about ──────────────────────────── */
+      .about {
+        display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px;
+        padding: 66px 0 20px; margin-top: 56px;
+        border-top: 1px solid var(--line-soft);
+      }
+      .about h2 { font-size: 21px; font-weight: 600; letter-spacing: -0.015em; margin: 0 0 14px; }
+      .about p { margin: 0 0 12px; color: var(--ink-soft); font-size: 15.5px; line-height: 1.85; }
+      .facts { margin: 0; padding: 0; list-style: none; }
+      .facts li {
+        display: flex; justify-content: space-between; gap: 18px;
+        padding: 11px 0; border-bottom: 1px solid var(--line-soft);
+        font-size: 14.5px;
+      }
+      .facts li:last-child { border-bottom: 0; }
+      .facts .k { color: var(--muted); white-space: nowrap; }
+      .facts .v { text-align: right; font-weight: 550; }
+
+      footer.site {
+        margin-top: 70px; border-top: 1px solid var(--line-soft);
+        padding: 30px 0 44px;
+        display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+        font-size: 13.5px; color: var(--muted);
+      }
+
+      .hidden { display: none !important; }
+
+      @media (max-width: 760px) {
+        .intro { padding: 48px 0 8px; }
+        .intro h1 { font-size: 25px; }
+        .featured .card { flex-direction: column; }
+        .featured .thumb { min-height: 0; aspect-ratio: 3 / 2; flex: none; }
+        .featured .body { padding: 22px; }
+        .featured h3 { font-size: 21px; }
+        .grid { grid-template-columns: 1fr; gap: 20px; }
+        .addgrid { grid-template-columns: 1fr; gap: 20px; }
+        .detail { padding-top: 30px; }
+        .detail-head h2 { font-size: 24px; }
+        .detail-nav a { max-width: 100%; }
+        .detail-nav .next { text-align: left; margin-left: 0; }
+        .about { grid-template-columns: 1fr; gap: 30px; padding-top: 48px; }
+        .note { grid-template-columns: 1fr; gap: 2px; }
+        .note .cat { order: -1; }
+        .site-inner { flex-direction: column; align-items: flex-start; gap: 8px; padding: 20px 0 16px; }
+        .wordmark { font-size: 17px; }
+        nav.main { gap: 20px; flex-wrap: wrap; }
+        nav.main a { font-size: 13.5px; }
+        .filter-count { display: none; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        .card { transition: none; }
+      }
+    
+      .detail-head h1 { margin: 10px 0 12px; font-size: 30px; font-weight: 600; line-height: 1.4; letter-spacing: -0.02em; }
+      .postfoot { border-top: 1px solid var(--line-soft); margin-top: 44px; padding: 22px 0 36px; font-size: 13.5px; color: var(--muted); }
+      .postfoot a { color: var(--ink-soft); text-decoration: none; }
+      .postfoot a:hover { text-decoration: underline; text-underline-offset: 4px; }
+    </style>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"승률 70%라는 그 매매법, 깐깐하게 다시 계산해봤다","description":"RSI(2) 과매도 반등은 래리 코너스가 책으로 공개한 오래된 단기 매매법이다. 승률 70%라는 숫자가 사실인지 SPY·QQQ 30여 년 데이터로 직접 계산했다. 후하게 계산한 1차에서는 그럴듯했는데, '신호가 뜬 날 종가에 샀다'는 가정이 미래를 훔쳐본 계산이라는 지적을 받고 다음날 시가로 전부 다시 돌렸다. 평균 수익은 전부 줄었지만 6개 변형 모두 기준선은 통과했고, 대신 순위가 뒤집혔다.","image":["https://hongzi.us/img/rsi2-chart.webp"],"datePublished":"2026-11-23","author":{"@type":"Person","name":"HongSungIn","url":"https://hongzi.us/"},"mainEntityOfPage":"https://hongzi.us/post/rsi2-backtest-verify.html"}</script>
+  <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LJ6Q1XBCL7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-LJ6Q1XBCL7');
+    </script>
+      <meta name="google-adsense-account" content="ca-pub-4973471145275269">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4973471145275269" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <div class="wrap">
+      <article class="detail">
+        <a class="backlink" href="/#posts">← 글 목록으로</a>
+        <div class="detail-head">
+          <span class="tag">리서치 · 매매전략 검증</span>
+          <h1 class="serif">승률 70%라는 그 매매법, 깐깐하게 다시 계산해봤다</h1>
+          <div class="meta">2026. 11. 23<i>·</i>백테스트 검증 기록 · RSI(2) 과매도 반등 (SPY·QQQ)</div>
+        </div>
+        <div class="detail-hero"><img src="/img/rsi2-chart.webp" alt="RSI(2) 검증 2차 결과 차트 — 위는 후보별 거래당 평균 수익 막대와 승률 선(Connors SPY PF 1.78, SPY 추세필터 PF 1.69), 아래는 SPY 단순 보유(+2,768%)와 전략 자본곡선을 비교한 로그 그래프" /></div>
+        <div class="detail-body">
+        <section>
+          <h3>RSI(2) 반등 — 이미 책으로 다 공개된 매매법</h3>
+          <p>RSI(2)는 최근 2일의 오르내림만으로 과매도를 재는 온도계다. 0에서 100 사이를 움직이는데, 며칠 사이 급락하면 10 아래까지 떨어진다. 그때를 '단기적으로 너무 팔렸다'고 보고 반등을 노리는 게 이 전략이다. 래리 코너스가 책으로 출간해 규칙이 세상에 다 공개돼 있고, 그래서 검증도 그대로 재현할 수 있다.</p>
+          <ul>
+            <li>진입 — RSI(2)가 10 이하로 떨어진 날 (추세필터형은 종가가 200일선 위에 있을 때만)</li>
+            <li>청산 — RSI(2)가 70 위로 회복되거나 5거래일이 지나면 (평균 보유 3.6일)</li>
+            <li>Connors 원전형 — 청산 조건만 '종가가 5일 이동평균을 회복할 때'로 바꾼 버전</li>
+            <li>검증 — SPY·QQQ 일봉 전체 기간, 거래비용 왕복 0.25% 차감 후 성적</li>
+          </ul>
+        </section>
+        <section>
+          <h3>1차 계산 — 후하게 재니 승률 70%가 나왔다</h3>
+          <p>처음에는 신호가 확정된 날의 종가에 사고판 것으로 계산했다. 결과는 그럴듯했다. 함께 시험한 다른 후보들(지수 연속 하락 반등, 월말 효과, 주도주 눌림)은 대부분 기준 미달로 떨어졌고, RSI(2)가 제일 견고했다.</p>
+          <p>특이한 건 추세필터를 뺀 무필터가 필터형보다 성적이 좋았다는 점이다. 보통은 필터를 걸면 나빠질 위험을 줄여 주는데, 여기서는 거꾸로였다. 그런데 이 계산에는 구멍이 있었다.</p>
+          <ul>
+            <li>RSI(2) 무필터 QQQ — 706건 · 승률 65.7% · 거래당 평균 +0.641%</li>
+            <li>RSI(2) 무필터 SPY — 807건 · 승률 69.0% · 평균 +0.476%</li>
+            <li>RSI(2) 추세필터 SPY — 464건 · 승률 70.0% · 평균 +0.362%</li>
+            <li>추세 내 눌림 SPY — 218건 · 승률 63.3% · 평균 +0.605%</li>
+          </ul>
+        </section>
+        <section>
+          <h3>구멍 — 신호가 뜬 날 종가에 샀다는 가정</h3>
+          <p>RSI(2)는 그날 종가가 확정돼야 계산할 수 있는 숫자다. 그런데 1차 계산은 바로 그 종가에 매수한 것으로 쳤다. 신호를 확인한 가격에 동시에 체결될 수는 없으니, 사실상 미래를 한 박자 훔쳐본 계산이다. 이 지적은 결과를 ChatGPT에 교차검증하면서 받았다. 맞는 지적이라 계산 방식을 바꿔 전부 다시 돌렸다.</p>
+          <ul>
+            <li>체결 — 신호일 종가가 아니라 다음 거래일 시가로</li>
+            <li>표본 — 보유 중에 다시 뜬 신호는 세지 않는다 (겹침 제거)</li>
+            <li>판정 — 승률·평균에 더해 PF(총이익 ÷ 총손실) 1.2 이상을 기준에 추가</li>
+          </ul>
+        </section>
+        <section>
+          <h3>2차 계산 — 평균은 줄었지만 전부 통과, 순위는 뒤집혔다</h3>
+          <p>깐깐하게 다시 재니 평균 수익은 전부 줄었다. 무필터 QQQ는 +0.641%에서 +0.324%로 반토막이 났다. 그래도 6개 변형 모두 기준선은 통과했다. 편향을 걷어내도 남는 게 있었다는 뜻이다.</p>
+          <p>대신 순서가 뒤집혔다. 1차에서 좋아 보였던 무필터는 2015년 이후 구간만 떼면 PF가 1.13과 1.08로 기준 아래까지 얇아졌고, 추세필터와 Connors 원전형이 앞으로 나왔다. 무필터의 우위 상당 부분은 겹침과 체결 편향이 만든 착시였다는 게 이번 검증의 핵심 발견이다. 진입·청산 숫자를 조금씩 바꿔 본 18가지 조합에서도 평균 수익의 부호는 한 번도 뒤집히지 않았다.</p>
+          <ul>
+            <li>Connors 원전형 SPY — 267건 · 승률 70.0% · 평균 +0.329% · PF 1.78</li>
+            <li>RSI(2) 추세필터 SPY — 269건 · 승률 69.1% · 평균 +0.344% · PF 1.69</li>
+            <li>추세 내 눌림 SPY — 118건 · 승률 61.0% · 평균 +0.407% · PF 1.48</li>
+            <li>RSI(2) 무필터 SPY — 416건 · 승률 65.6% · 평균 +0.279% · PF 1.40</li>
+            <li>RSI(2) 무필터 QQQ — 340건 · 승률 60.6% · 평균 +0.324% · PF 1.32</li>
+          </ul>
+        </section>
+        <section>
+          <h3>그래프가 말하는 것 — 자주 이기는 것과 많이 버는 것은 다르다</h3>
+          <p>아래 그래프의 아래쪽은 자본곡선이다. 같은 기간 SPY를 그냥 사서 들고만 있었으면 +2,768%였다. 이 전략들은 전액을 계속 재투자했다고 가정해도 +131~183%에 그친다. 이유는 단순하다. 시장에 들어가 있는 시간이 전체 거래일의 11~18%뿐이고, 나머지는 현금으로 쉬기 때문이다. 승률 70%는 '자주 이긴다'는 뜻이지 '많이 번다'는 뜻이 아니다.</p>
+          <figure class="post-fig"><img src="/img/rsi2-chart.webp" alt="위 — 후보별 거래당 평균 수익과 승률, 아래 — SPY 단순 보유(+2,768%, 회색 점선)와 전략 자본곡선(+131~183%)을 비교한 로그 그래프. 전략 곡선은 폭락장에서도 거의 빠지지 않는다" loading="lazy" />
+            <figcaption>위: 후보별 성적 (다음날 시가 체결, 겹침 없는 표본). 아래: 자본곡선 — 단순 보유가 누적 수익은 압도하지만, 전략들은 2008년 같은 폭락 구간에서도 거의 빠지지 않았다.</figcaption>
+          </figure>
+        </section>
+        <section>
+          <h3>3,000만원으로 환산하면</h3>
+          <p>가장 무난했던 SPY 추세필터 기준으로, 3,000만원을 전액 이 규칙에 굴린다고 치면 그림은 이렇다. 화려한 숫자는 아니다. 놀고 있는 현금이 까이지 않고 이자보다 조금 더 일하는 수준으로 기대치를 잡아야 실망이 없다.</p>
+          <ul>
+            <li>평범한 해 — 연 +86만원 안팎</li>
+            <li>최악의 해 — −180만원 (역대 최악 연도 기준)</li>
+            <li>최악의 구간 — 고점 대비 −9.9%, 금액으로 약 −297만원</li>
+            <li>마이너스인 해 — 31개 연도 중 11개, 대략 3년에 한 번꼴</li>
+          </ul>
+        </section>
+        <section>
+          <h3>지금 상태 — 실시간 기록으로 다시 확인 중</h3>
+          <p>백테스트 통과가 곧 실전 투입은 아니다. 지금은 이 규칙대로 실시간 기록을 쌓으면서(전향 관찰) 과거의 성적이 앞으로도 재현되는지 확인하는 단계다. 표본이 쌓여 기준을 채우면 그때 소액 실전 여부를 다시 판단한다. 과거 데이터에서 남았다는 것과 실제 돈으로 된다는 것은 다른 문제니까.</p>
+          <p>한계도 적어 둔다. 비용은 왕복 0.25%로 가정했고 실제 체결의 슬리피지는 별도로 빼지 않았다. 세금도 빠져 있다. 그리고 이 숫자들은 전부 과거 데이터의 성적일 뿐, 앞으로의 수익을 보장하지 않는다.</p>
+        </section>
+        <section>
+          <h3>출처 · 바로가기</h3>
+          <ul class="linklist">
+            <li><a href="/post/minervini-posts-verify.html">그의 말을 따라 사면 돈을 벌까 — 미너비니 공개글 검증</a> <span class="d">유명 트레이더의 공개 발언을 과거 데이터와 전수 대조한 검증 기록.</span></li>
+            <li><a href="/post/brandt-cramer-kell.html">브랜트·크레이머·켈 — 유명 트레이더 3인 공개 콜 검증</a> <span class="d">공개된 매매 콜을 모아 실제 결과와 채점한 시리즈 기록.</span></li>
+          </ul>
+        </section>
+        </div>
+      <nav class="detail-nav" aria-label="다른 글">
+        <a class="next" href="/post/wisdomjogak.html"><span class="dir">다음 글</span>지혜로운 조각들 — 돈과 생활을 지켜주는 사연 드라마 채널</a>
+      </nav>
+      </article>
+      <footer class="postfoot">© 2026 HongSungIn · <a href="/">hongzi.us 홈으로</a> · <a href="/privacy.html">개인정보처리방침</a></footer>
+    </div>
+    <button type="button" class="to-top" id="toTop" aria-label="맨 위로">↑</button>
+    <script>
+      (function () {
+        var b = document.getElementById('toTop');
+        if (!b) return;
+        function f() { b.classList.toggle('show', window.scrollY > 600); }
+        window.addEventListener('scroll', f, { passive: true });
+        f();
+        b.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+      })();
+    </script>
+  </body>
+</html>
