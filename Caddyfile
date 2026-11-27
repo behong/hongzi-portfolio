@@ -5,6 +5,26 @@
 		redir https://hongzi.us{uri} permanent
 	}
 
+	handle /index.html {
+		redir / permanent
+	}
+
+	handle /ai-trading.html {
+		redir /post/ai-trading.html permanent
+	}
+
+	handle /kakao.html {
+		redir /post/kakao-automation.html permanent
+	}
+
+	handle /seedance.html {
+		redir /post/seedance.html permanent
+	}
+
+	handle /fpv.html {
+		redir /post/fpv.html permanent
+	}
+
 	handle /private* {
 		reverse_proxy private:8766
 	}

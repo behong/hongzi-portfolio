@@ -150,10 +150,6 @@ console.log(`generated ${POSTS.length} post pages`);
 const today = new Date().toISOString().slice(0, 10);
 const fixed = [
   { loc: BASE + '/', lastmod: today, changefreq: 'weekly', priority: '1.0' },
-  { loc: BASE + '/ai-trading.html', lastmod: '2026-10-27', changefreq: 'monthly', priority: '0.8' },
-  { loc: BASE + '/kakao.html', lastmod: '2026-10-24', changefreq: 'monthly', priority: '0.8' },
-  { loc: BASE + '/seedance.html', lastmod: '2026-10-21', changefreq: 'monthly', priority: '0.7' },
-  { loc: BASE + '/fpv.html', lastmod: '2026-10-22', changefreq: 'monthly', priority: '0.7' },
   { loc: BASE + '/privacy.html', lastmod: '2026-11-13', changefreq: 'yearly', priority: '0.4' },
 ];
 const postUrls = POSTS.map((p) => ({
