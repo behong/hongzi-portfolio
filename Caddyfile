@@ -6,23 +6,23 @@
 	}
 
 	handle /index.html {
-		redir / permanent
+		redir https://hongzi.us/ permanent
 	}
 
 	handle /ai-trading.html {
-		redir /post/ai-trading.html permanent
+		redir https://hongzi.us/post/ai-trading.html permanent
 	}
 
 	handle /kakao.html {
-		redir /post/kakao-automation.html permanent
+		redir https://hongzi.us/post/kakao-automation.html permanent
 	}
 
 	handle /seedance.html {
-		redir /post/seedance.html permanent
+		redir https://hongzi.us/post/seedance.html permanent
 	}
 
 	handle /fpv.html {
-		redir /post/fpv.html permanent
+		redir https://hongzi.us/post/fpv.html permanent
 	}
 
 	handle /private* {
